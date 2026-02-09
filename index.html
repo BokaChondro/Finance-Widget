@@ -2,76 +2,421 @@
 <html>
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Notion Finance KPI</title>
+
   <style>
+    /* ====== Premium black Notion-style widget ====== */
     :root{
-      --card: rgba(255,255,255,0.06);
-      --stroke: rgba(255,255,255,0.10);
+      --bg: #0b0f14;            /* deep black */
+      --panel: rgba(18, 24, 33, 0.72);
+      --panel2: rgba(10, 14, 20, 0.60);
+      --stroke: rgba(255,255,255,0.08);
+      --stroke2: rgba(255,255,255,0.12);
       --text: rgba(255,255,255,0.92);
       --muted: rgba(255,255,255,0.62);
-      --shadow: 0 14px 44px rgba(0,0,0,0.38);
-      --good: #3ef28a;
-      --bad: #ff5a6b;
+      --shadow: 0 18px 70px rgba(0,0,0,0.55);
+      --shadow2: 0 10px 30px rgba(0,0,0,0.45);
+
+      --good: #3EF28A;
+      --bad:  #FF5470;
+      --blue: #6EA8FF;
+      --violet:#B087FF;
+      --cyan: #34D3FF;
+
+      --radius: 18px;
     }
 
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
     body{
       margin:0;
-      background: transparent;
-      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
+      background: transparent; /* lets it sit nicely inside Notion */
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
       color: var(--text);
     }
-    .wrap{ padding: 12px; }
-    .row{
+
+    /* Outer "frame" so it looks great even on light Notion pages */
+    .frame{
+      position:relative;
+      padding: 14px;
+      border-radius: 22px;
+      background: radial-gradient(1200px 500px at 15% 10%, rgba(176,135,255,0.16), transparent 60%),
+                  radial-gradient(900px 420px at 85% 25%, rgba(52,211,255,0.14), transparent 55%),
+                  radial-gradient(1000px 520px at 45% 105%, rgba(62,242,138,0.10), transparent 60%),
+                  linear-gradient(180deg, rgba(11,15,20,0.95), rgba(11,15,20,0.85));
+      border: 1px solid rgba(255,255,255,0.06);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+    }
+
+    /* Animated blobs */
+    .frame::before,
+    .frame::after{
+      content:"";
+      position:absolute;
+      width: 520px; height: 520px;
+      filter: blur(42px);
+      opacity: 0.35;
+      pointer-events:none;
+      transform: translate3d(0,0,0);
+      animation: floaty 12s ease-in-out infinite;
+      background: radial-gradient(circle at 30% 30%, rgba(176,135,255,0.45), transparent 60%),
+                  radial-gradient(circle at 70% 70%, rgba(52,211,255,0.35), transparent 62%);
+    }
+    .frame::before{ top:-320px; left:-240px; }
+    .frame::after{
+      bottom:-340px; right:-260px;
+      animation-delay: -6s;
+      background: radial-gradient(circle at 35% 35%, rgba(62,242,138,0.38), transparent 62%),
+                  radial-gradient(circle at 70% 70%, rgba(255,84,112,0.28), transparent 62%);
+    }
+
+    @keyframes floaty{
+      0%,100%{ transform: translate(-10px, 0px) scale(1); }
+      50%    { transform: translate(22px, 16px) scale(1.06); }
+    }
+
+    /* Subtle animated "noise" overlay */
+    .noise{
+      position:absolute; inset:0;
+      background-image:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)' opacity='.22'/%3E%3C/svg%3E");
+      opacity: .11;
+      mix-blend-mode: overlay;
+      pointer-events:none;
+      animation: grain 6s steps(8) infinite;
+    }
+    @keyframes grain{
+      0%{ transform: translate(0,0); }
+      10%{ transform: translate(-3%, 2%); }
+      20%{ transform: translate(2%, -2%); }
+      30%{ transform: translate(-2%, -3%); }
+      40%{ transform: translate(3%, 3%); }
+      50%{ transform: translate(-3%, 1%); }
+      60%{ transform: translate(2%, 3%); }
+      70%{ transform: translate(3%, -2%); }
+      80%{ transform: translate(-2%, 2%); }
+      90%{ transform: translate(1%, -3%); }
+      100%{ transform: translate(0,0); }
+    }
+
+    /* Header row */
+    .top{
+      position:relative;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 12px;
+      padding: 2px 2px 10px 2px;
+      z-index:2;
+    }
+    .brand{
+      display:flex; align-items:center; gap:10px;
+      font-weight: 800;
+      letter-spacing: .02em;
+    }
+    .dot{
+      width: 10px; height: 10px; border-radius: 999px;
+      background: conic-gradient(from 90deg, var(--violet), var(--cyan), var(--good), var(--bad), var(--violet));
+      box-shadow: 0 0 16px rgba(176,135,255,.35);
+    }
+    .sub{
+      font-size: 12px;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+
+    /* Cards grid */
+    .grid{
+      position:relative;
       display:grid;
       grid-template-columns: repeat(4, 1fr);
       gap: 12px;
+      z-index:2;
     }
+
     .card{
-      border-radius: 16px;
-      background: var(--card);
+      position:relative;
+      border-radius: var(--radius);
+      background: linear-gradient(180deg, var(--panel), var(--panel2));
       border: 1px solid var(--stroke);
-      box-shadow: var(--shadow);
-      padding: 14px;
-      backdrop-filter: blur(10px);
+      box-shadow: var(--shadow2);
       overflow:hidden;
+      padding: 14px 14px 12px 14px;
+      transform: translateZ(0);
+      transition: transform .18s ease, border-color .18s ease;
     }
-    .label{
+
+    /* Animated gradient border line */
+    .card::before{
+      content:"";
+      position:absolute; inset:-2px;
+      border-radius: calc(var(--radius) + 2px);
+      padding: 1px;
+      background: conic-gradient(from 180deg,
+        rgba(176,135,255,0.55),
+        rgba(52,211,255,0.55),
+        rgba(62,242,138,0.55),
+        rgba(255,84,112,0.55),
+        rgba(176,135,255,0.55));
+      -webkit-mask:
+        linear-gradient(#000 0 0) content-box,
+        linear-gradient(#000 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+      opacity: .18;
+      animation: spin 10s linear infinite;
+      pointer-events:none;
+    }
+    @keyframes spin{ to{ transform: rotate(1turn); } }
+
+    /* Shimmer sweep */
+    .card::after{
+      content:"";
+      position:absolute;
+      inset:-40% -60%;
+      background: linear-gradient(120deg,
+        transparent 0%,
+        rgba(255,255,255,0.05) 35%,
+        rgba(255,255,255,0.12) 50%,
+        rgba(255,255,255,0.05) 65%,
+        transparent 100%);
+      transform: translateX(-35%) rotate(6deg);
+      animation: shimmer 6.5s ease-in-out infinite;
+      opacity: .35;
+      pointer-events:none;
+    }
+    @keyframes shimmer{
+      0%,40%{ transform: translateX(-45%) rotate(6deg); opacity:.18; }
+      60%   { transform: translateX(25%)  rotate(6deg); opacity:.38; }
+      100%  { transform: translateX(55%)  rotate(6deg); opacity:.18; }
+    }
+
+    .card:hover{
+      transform: translateY(-2px);
+      border-color: var(--stroke2);
+    }
+
+    .row1{
       display:flex;
       align-items:center;
       justify-content:space-between;
       gap: 10px;
+    }
+
+    .label{
+      display:flex;
+      align-items:center;
+      gap: 10px;
       font-size: 12px;
-      letter-spacing: .08em;
+      letter-spacing: .10em;
       text-transform: uppercase;
       color: var(--muted);
     }
-    .val{
-      margin-top: 10px;
-      font-size: 28px;
-      font-weight: 820;
-      line-height: 1.1;
+
+    .icon{
+      width: 28px; height: 28px;
+      border-radius: 10px;
+      display:grid; place-items:center;
+      border: 1px solid rgba(255,255,255,0.09);
+      background: rgba(255,255,255,0.03);
+      box-shadow: 0 0 0 1px rgba(0,0,0,0.25) inset;
+    }
+
+    .pill{
+      font-size: 11px;
+      color: var(--muted);
+      border: 1px solid rgba(255,255,255,0.10);
+      background: rgba(255,255,255,0.04);
+      padding: 6px 10px;
+      border-radius: 999px;
+      display:flex; align-items:center; gap: 7px;
+      white-space: nowrap;
+    }
+
+    .value{
+      margin-top: 12px;
+      font-size: 30px;
+      font-weight: 850;
+      line-height: 1.05;
+      letter-spacing: .01em;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
     }
+
+    .hint{
+      margin-top: 10px;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap: 10px;
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    /* Dynamic accent glows */
+    .glow-good{ box-shadow: 0 0 0 1px rgba(62,242,138,0.08) inset, var(--shadow2); }
+    .glow-bad { box-shadow: 0 0 0 1px rgba(255,84,112,0.08) inset, var(--shadow2); }
+    .glow-blue{ box-shadow: 0 0 0 1px rgba(110,168,255,0.10) inset, var(--shadow2); }
+
     .good{ color: var(--good); }
     .bad{ color: var(--bad); }
+    .blue{ color: var(--blue); }
     .neutral{ color: var(--text); }
 
-    @media (max-width: 900px){
-      .row{ grid-template-columns: repeat(2, 1fr); }
+    /* Bottom meter bar */
+    .meter{
+      position:absolute;
+      left: 0; right: 0; bottom: 0;
+      height: 4px;
+      background: rgba(255,255,255,0.06);
+      overflow:hidden;
     }
-    @media (max-width: 520px){
-      .row{ grid-template-columns: 1fr; }
+    .meter > i{
+      display:block;
+      height: 100%;
+      width: 45%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.25), transparent);
+      animation: sweep 2.2s ease-in-out infinite;
+      opacity: .55;
+    }
+    @keyframes sweep{
+      0%{ transform: translateX(-60%); }
+      100%{ transform: translateX(240%); }
+    }
+
+    /* Responsive */
+    @media (max-width: 980px){
+      .grid{ grid-template-columns: repeat(2, 1fr); }
+      .value{ font-size: 28px; }
+    }
+    @media (max-width: 560px){
+      .grid{ grid-template-columns: 1fr; }
+    }
+
+    /* Respect reduced motion */
+    @media (prefers-reduced-motion: reduce){
+      .frame::before, .frame::after, .card::before, .card::after, .noise{ animation:none !important; }
+      .meter > i{ animation:none !important; }
+      .card{ transition:none !important; }
     }
   </style>
 </head>
+
 <body>
-  <div class="wrap">
-    <div id="root" class="row"></div>
+  <div class="frame">
+    <div class="noise"></div>
+
+    <div class="top">
+      <div class="brand">
+        <span class="dot"></span>
+        <span>Finance KPIs</span>
+      </div>
+      <div id="updated" class="sub">Loading…</div>
+    </div>
+
+    <div class="grid">
+      <!-- Net Worth -->
+      <div id="card-net" class="card glow-blue">
+        <div class="row1">
+          <div class="label">
+            <span class="icon" aria-hidden="true">
+              <!-- Wallet icon -->
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                <path d="M3 7.5A3.5 3.5 0 0 1 6.5 4H20a1 1 0 0 1 1 1v2" stroke="rgba(255,255,255,.75)" stroke-width="1.6" stroke-linecap="round"/>
+                <path d="M3 9.5A3.5 3.5 0 0 1 6.5 6H21v11a3 3 0 0 1-3 3H6.5A3.5 3.5 0 0 1 3 16.5v-7Z" stroke="rgba(255,255,255,.75)" stroke-width="1.6" stroke-linejoin="round"/>
+                <path d="M17 12h4v3h-4a1.5 1.5 0 0 1 0-3Z" stroke="rgba(255,255,255,.75)" stroke-width="1.6" stroke-linejoin="round"/>
+              </svg>
+            </span>
+            <span>Net Worth</span>
+          </div>
+          <div id="pill-net" class="pill"><span>↕</span><span class="muted">Balance</span></div>
+        </div>
+        <div id="netWorth" class="value blue">—</div>
+        <div class="hint">
+          <span>Savings − Debt</span>
+          <span id="netNote">—</span>
+        </div>
+        <div class="meter"><i></i></div>
+      </div>
+
+      <!-- Total Income -->
+      <div class="card glow-good">
+        <div class="row1">
+          <div class="label">
+            <span class="icon" aria-hidden="true">
+              <!-- Arrow up / income icon -->
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                <path d="M12 19V6" stroke="rgba(255,255,255,.78)" stroke-width="1.8" stroke-linecap="round"/>
+                <path d="M7 10l5-5 5 5" stroke="rgba(255,255,255,.78)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M5 20h14" stroke="rgba(255,255,255,.35)" stroke-width="1.6" stroke-linecap="round"/>
+              </svg>
+            </span>
+            <span>Total Income</span>
+          </div>
+          <div class="pill"><span class="good">↗</span><span>This month</span></div>
+        </div>
+        <div id="incoming" class="value good">—</div>
+        <div class="hint">
+          <span>Cash in</span>
+          <span class="good">Growing</span>
+        </div>
+        <div class="meter"><i></i></div>
+      </div>
+
+      <!-- Total Expense -->
+      <div class="card glow-bad">
+        <div class="row1">
+          <div class="label">
+            <span class="icon" aria-hidden="true">
+              <!-- Arrow down / expense icon -->
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                <path d="M12 5v13" stroke="rgba(255,255,255,.78)" stroke-width="1.8" stroke-linecap="round"/>
+                <path d="M7 14l5 5 5-5" stroke="rgba(255,255,255,.78)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M5 4h14" stroke="rgba(255,255,255,.35)" stroke-width="1.6" stroke-linecap="round"/>
+              </svg>
+            </span>
+            <span>Total Expense</span>
+          </div>
+          <div class="pill"><span class="bad">↘</span><span>This month</span></div>
+        </div>
+        <div id="outgoing" class="value bad">—</div>
+        <div class="hint">
+          <span>Cash out</span>
+          <span class="bad">Watch</span>
+        </div>
+        <div class="meter"><i></i></div>
+      </div>
+
+      <!-- Net Cash Flow -->
+      <div id="card-flow" class="card glow-blue">
+        <div class="row1">
+          <div class="label">
+            <span class="icon" aria-hidden="true">
+              <!-- Wave icon -->
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                <path d="M3 15c2.2 0 2.8-3 5-3s2.8 3 5 3 2.8-3 5-3 2.8 3 5 3" stroke="rgba(255,255,255,.78)" stroke-width="1.8" stroke-linecap="round"/>
+                <path d="M3 9c2.2 0 2.8-3 5-3s2.8 3 5 3 2.8-3 5-3 2.8 3 5 3" stroke="rgba(255,255,255,.35)" stroke-width="1.6" stroke-linecap="round"/>
+              </svg>
+            </span>
+            <span>Net Cash Flow</span>
+          </div>
+          <div id="pill-flow" class="pill"><span>↕</span><span>This month</span></div>
+        </div>
+        <div id="cashflow" class="value blue">—</div>
+        <div class="hint">
+          <span>Income − Expense</span>
+          <span id="flowNote">—</span>
+        </div>
+        <div class="meter"><i></i></div>
+      </div>
+    </div>
   </div>
 
   <script>
+    // ✅ Your Worker URL (this is correct)
     const API_URL = "https://notion-kpi-api.windows-10-mugdho.workers.dev/";
 
     function fmt(n, currency) {
@@ -80,42 +425,88 @@
       return sign + currency + abs.toLocaleString();
     }
 
-    function card(label, valueText, cls, arrow) {
-      return `
-        <div class="card">
-          <div class="label"><span>${label}</span><span class="${cls}">${arrow}</span></div>
-          <div class="val ${cls}">${valueText}</div>
-        </div>
-      `;
+    function niceTime(iso){
+      try{
+        const d = new Date(iso);
+        return d.toLocaleString();
+      }catch{
+        return "";
+      }
     }
 
-    async function run(){
-      const r = await fetch(API_URL, { cache: "no-store" });
+    async function load(){
+      const r = await fetch(API_URL, { cache: "no-store", mode: "cors" });
       const j = await r.json();
 
       const c = j.currency || "৳";
-      const net = j.netWorth ?? 0;
-      const inc = j.incoming ?? 0;
-      const out = j.outgoing ?? 0;
-      const flow = j.cashflow ?? 0;
+      const net = Number(j.netWorth ?? 0);
+      const inc = Number(j.incoming ?? 0);
+      const out = Number(j.outgoing ?? 0);
+      const flow = Number(j.cashflow ?? 0);
 
-      const netCls = net >= 0 ? "good" : "bad";
-      const flowCls = flow >= 0 ? "good" : "bad";
+      // Values
+      document.getElementById("netWorth").textContent = fmt(net, c);
+      document.getElementById("incoming").textContent = fmt(inc, c);
+      document.getElementById("outgoing").textContent = fmt(out, c);
+      document.getElementById("cashflow").textContent = fmt(flow, c);
 
-      const html = [
-        card("Net Worth", fmt(net, c), netCls, "↕"),
-        card("Total Income", fmt(inc, c), "good", "↗"),
-        card("Total Expense", fmt(out, c), "bad", "↘"),
-        card("Net Cash Flow", fmt(flow, c), flowCls, flow >= 0 ? "↑" : "↓"),
-      ].join("");
+      // Updated time
+      document.getElementById("updated").textContent = "Updated • " + niceTime(j.updatedAt);
 
-      document.getElementById("root").innerHTML = html;
+      // Dynamic color for Net Worth (blue when +, red when -)
+      const netCard = document.getElementById("card-net");
+      const netValue = document.getElementById("netWorth");
+      const netPill = document.getElementById("pill-net");
+      const netNote = document.getElementById("netNote");
+
+      if (net >= 0){
+        netCard.classList.remove("glow-bad");
+        netCard.classList.add("glow-good");
+        netValue.classList.remove("bad");
+        netValue.classList.add("good");
+        netPill.innerHTML = `<span class="good">▲</span><span>Positive</span>`;
+        netNote.textContent = "Healthy";
+        netNote.className = "good";
+      } else {
+        netCard.classList.remove("glow-good");
+        netCard.classList.add("glow-bad");
+        netValue.classList.remove("good");
+        netValue.classList.add("bad");
+        netPill.innerHTML = `<span class="bad">▼</span><span>Negative</span>`;
+        netNote.textContent = "Needs focus";
+        netNote.className = "bad";
+      }
+
+      // Dynamic color for Cashflow
+      const flowCard = document.getElementById("card-flow");
+      const flowPill = document.getElementById("pill-flow");
+      const flowNote = document.getElementById("flowNote");
+      const flowValue = document.getElementById("cashflow");
+
+      if (flow >= 0){
+        flowCard.classList.remove("glow-bad");
+        flowCard.classList.add("glow-good");
+        flowValue.classList.remove("bad");
+        flowValue.classList.add("good");
+        flowPill.innerHTML = `<span class="good">↑</span><span>Surplus</span>`;
+        flowNote.textContent = "You’re up";
+        flowNote.className = "good";
+      } else {
+        flowCard.classList.remove("glow-good");
+        flowCard.classList.add("glow-bad");
+        flowValue.classList.remove("good");
+        flowValue.classList.add("bad");
+        flowPill.innerHTML = `<span class="bad">↓</span><span>Deficit</span>`;
+        flowNote.textContent = "Cut spend";
+        flowNote.className = "bad";
+      }
     }
 
-    run().catch(() => {
-      document.getElementById("root").innerHTML =
-        '<div class="card"><div class="label">Widget</div><div class="val">Could not load</div></div>';
+    // Load now + refresh every 60 seconds
+    load().catch(() => {
+      document.getElementById("updated").textContent = "Could not load (check API access)";
     });
+    setInterval(() => load().catch(()=>{}), 60000);
   </script>
 </body>
 </html>

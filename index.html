@@ -1,0 +1,177 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root{
+      --bg: #0b0f17;
+      --card: rgba(255,255,255,0.06);
+      --stroke: rgba(255,255,255,0.10);
+      --text: rgba(255,255,255,0.92);
+      --muted: rgba(255,255,255,0.62);
+      --shadow: 0 12px 40px rgba(0,0,0,0.35);
+    }
+    @media (prefers-color-scheme: light) {
+      :root{
+        --bg: #ffffff;
+        --card: rgba(0,0,0,0.04);
+        --stroke: rgba(0,0,0,0.08);
+        --text: rgba(0,0,0,0.90);
+        --muted: rgba(0,0,0,0.55);
+        --shadow: 0 12px 40px rgba(0,0,0,0.12);
+      }
+    }
+
+    body{
+      margin: 0;
+      background: var(--bg);
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+      color: var(--text);
+    }
+    .wrap{
+      padding: 14px;
+      max-width: 1100px;
+    }
+    .grid{
+      display: grid;
+      gap: 12px;
+    }
+    .card{
+      border-radius: 18px;
+      background: var(--card);
+      border: 1px solid var(--stroke);
+      box-shadow: var(--shadow);
+      padding: 16px;
+      backdrop-filter: blur(10px);
+    }
+    .label{
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    .big{
+      font-size: 44px;
+      font-weight: 800;
+      margin-top: 8px;
+      line-height: 1.05;
+    }
+    .row{
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+    .num{
+      font-size: 26px;
+      font-weight: 780;
+      margin-top: 8px;
+      line-height: 1.1;
+    }
+    .sub{
+      margin-top: 10px;
+      font-size: 12px;
+      color: var(--muted);
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .pill{
+      border: 1px solid var(--stroke);
+      border-radius: 999px;
+      padding: 6px 10px;
+      background: rgba(255,255,255,0.03);
+    }
+    .foot{
+      margin-top: 10px;
+      font-size: 11px;
+      color: var(--muted);
+      opacity: 0.9;
+    }
+
+    /* Mobile */
+    @media (max-width: 720px){
+      .row{ grid-template-columns: 1fr; }
+      .big{ font-size: 38px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="grid">
+      <div class="card">
+        <div class="label">Net Worth</div>
+        <div id="netWorth" class="big">—</div>
+
+        <div class="sub" id="subLine" style="display:none;">
+          <div class="pill" id="savingsPill">Savings: —</div>
+          <div class="pill" id="debtPill">Debt: —</div>
+        </div>
+
+        <div class="foot" id="updated">—</div>
+      </div>
+
+      <div class="row">
+        <div class="card">
+          <div class="label">Incoming (This Month)</div>
+          <div id="incoming" class="num">—</div>
+        </div>
+        <div class="card">
+          <div class="label">Outgoing (This Month)</div>
+          <div id="outgoing" class="num">—</div>
+        </div>
+        <div class="card">
+          <div class="label">Cashflow (This Month)</div>
+          <div id="cashflow" class="num">—</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ✅ Paste your Worker URL here:
+    const API_URL = "https://YOUR-WORKER.workers.dev";
+
+    function fmt(n, currency) {
+      const sign = n < 0 ? "-" : "";
+      const abs = Math.abs(n);
+      return sign + currency + abs.toLocaleString();
+    }
+
+    function niceTime(iso){
+      try{
+        const d = new Date(iso);
+        return "Updated: " + d.toLocaleString();
+      } catch {
+        return "";
+      }
+    }
+
+    async function run(){
+      const r = await fetch(API_URL, { cache: "no-store" });
+      const j = await r.json();
+
+      const c = j.currency || "৳";
+      document.getElementById("netWorth").textContent = fmt(j.netWorth ?? 0, c);
+      document.getElementById("incoming").textContent = fmt(j.incoming ?? 0, c);
+      document.getElementById("outgoing").textContent = fmt(j.outgoing ?? 0, c);
+      document.getElementById("cashflow").textContent = fmt(j.cashflow ?? 0, c);
+
+      // Optional savings + debt pills
+      const hasSavings = typeof j.savings === "number";
+      const hasDebt = typeof j.debt === "number";
+      if (hasSavings || hasDebt) {
+        document.getElementById("subLine").style.display = "flex";
+        if (hasSavings) document.getElementById("savingsPill").textContent = "Savings: " + fmt(j.savings, c);
+        if (hasDebt) document.getElementById("debtPill").textContent = "Debt: " + fmt(j.debt, c);
+      }
+
+      document.getElementById("updated").textContent = niceTime(j.updatedAt);
+    }
+
+    run().catch(() => {
+      document.getElementById("updated").textContent = "Could not load data. Check API_URL + Notion access.";
+    });
+  </script>
+</body>
+</html>

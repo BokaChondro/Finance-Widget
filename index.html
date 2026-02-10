@@ -1,94 +1,512 @@
-<!doctype html>
+const CORS = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "GET, OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type",
+};
+
+function json(data, status = 200) {
+  return new Response(JSON.stringify(data), {
+    status,
+    headers: { "Content-Type": "application/json", ...CORS },
+  });
+}
+
+function escapeHtml(s) {
+  return String(s)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
+function fmtMoney(n, currency) {
+  const sign = n < 0 ? "-" : "";
+  const abs = Math.abs(n);
+  return sign + currency + abs.toLocaleString();
+}
+
+function htmlWidget(m) {
+  const currency = escapeHtml(m.currency || "৳");
+  const netWorth = Number(m.netWorth ?? 0);
+  const incoming = Number(m.incoming ?? 0);
+  const outgoing = Number(m.outgoing ?? 0);
+  const cashflow = Number(m.cashflow ?? 0);
+
+  const netText = escapeHtml(fmtMoney(netWorth, currency));
+  const inText = escapeHtml(fmtMoney(incoming, currency));
+  const outText = escapeHtml(fmtMoney(outgoing, currency));
+  const flowText = escapeHtml(fmtMoney(cashflow, currency));
+
+  const updated = escapeHtml(new Date(m.updatedAt).toLocaleString());
+
+  return `<!doctype html>
 <html>
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Notion KPI Test</title>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Finance Widget</title>
   <style>
+    :root{
+      --bg: #191919;
+      --card: rgba(0,0,0,0.32);
+      --stroke: rgba(255,255,255,0.10);
+      --stroke2: rgba(255,255,255,0.18);
+      --text: rgba(255,255,255,0.94);
+      --muted: rgba(255,255,255,0.62);
+      --shadow: 0 18px 60px rgba(0,0,0,0.55);
+      --r: 18px;
+
+      --white: #ffffff;
+      --green: #3EF28A;
+      --red: #FF4D6D;
+      --blue: #4DA3FF;
+    }
+
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
     body{
       margin:0;
-      background:#000;
-      color:#fff;
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      background: var(--bg);
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
+      color: var(--text);
+      overflow:hidden;
     }
-    .wrap{ padding:16px; }
-    .row{ display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
-    button{
-      background:#111; color:#fff; border:1px solid #333;
-      padding:10px 12px; border-radius:10px; cursor:pointer;
+
+    /* Frame */
+    .frame{
+      position:relative;
+      height:100%;
+      padding: 14px;
+      border-radius: 22px;
+      border: 1px solid rgba(255,255,255,0.08);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+      background: var(--bg);
     }
-    button:hover{ border-color:#555; }
-    a{ color:#7fb3ff; text-decoration:none; }
-    pre{
-      margin-top:12px;
-      background:#0b0b0b;
-      border:1px solid #222;
-      border-radius:12px;
-      padding:12px;
-      overflow:auto;
-      white-space:pre-wrap;
-      word-break:break-word;
+
+    /* Subtle texture */
+    .texture{
+      position:absolute; inset:-80px;
+      background:
+        repeating-linear-gradient(135deg,
+          rgba(255,255,255,0.05) 0px,
+          rgba(255,255,255,0.05) 1px,
+          transparent 1px,
+          transparent 46px
+        );
+      opacity: .16;
+      animation: drift 12s linear infinite;
+      pointer-events:none;
     }
-    .muted{ color:#aaa; font-size:12px; }
+    @keyframes drift{
+      from{ transform: translateX(-50px); }
+      to{ transform: translateX(50px); }
+    }
+
+    /* Flying money layer (low opacity) */
+    .money{
+      position:absolute; inset:0;
+      pointer-events:none;
+      overflow:hidden;
+    }
+    .money span{
+      position:absolute;
+      left:-20%;
+      opacity: .08;
+      font-size: 42px;
+      filter: blur(.2px);
+      animation: fly linear infinite;
+      transform: translateZ(0);
+      user-select:none;
+      white-space:nowrap;
+    }
+    @keyframes fly{
+      0%   { transform: translateX(-20vw) rotate(-8deg); }
+      100% { transform: translateX(140vw) rotate(10deg); }
+    }
+
+    /* Header */
+    .top{
+      position:relative;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      z-index:2;
+      margin-bottom: 10px;
+    }
+    .brand{
+      display:flex; align-items:center; gap:10px;
+      font-weight: 850;
+      letter-spacing: .02em;
+    }
+    .dot{
+      width:10px; height:10px; border-radius:999px;
+      background: rgba(255,255,255,0.95);
+      box-shadow: 0 0 18px rgba(255,255,255,0.22);
+    }
+    .updated{
+      font-size:12px; color: var(--muted);
+    }
+
+    /* Layout: BIG left + 3 stacked right */
+    .layout{
+      position:relative;
+      display:grid;
+      grid-template-columns: 1.65fr 1fr;
+      gap: 12px;
+      z-index:2;
+      height: calc(100% - 44px);
+      min-height: 210px;
+    }
+    .stack{
+      display:grid;
+      grid-template-rows: repeat(3, 1fr);
+      gap: 12px;
+      height:100%;
+    }
+
+    .card{
+      position:relative;
+      border-radius: var(--r);
+      background: var(--card);
+      border: 1px solid var(--stroke);
+      padding: 14px;
+      overflow:hidden;
+      backdrop-filter: blur(10px);
+      transition: transform .16s ease, border-color .16s ease;
+    }
+    .card:hover{
+      transform: translateY(-1px);
+      border-color: var(--stroke2);
+    }
+
+    /* Accent strip */
+    .card::before{
+      content:"";
+      position:absolute;
+      left:0; top:0; bottom:0;
+      width: 3px;
+      background: rgba(255,255,255,0.18);
+      opacity:.9;
+    }
+    .accent-white::before{ background: rgba(255,255,255,0.75); }
+    .accent-blue::before{ background: var(--blue); }
+    .accent-green::before{ background: var(--green); }
+    .accent-red::before{ background: var(--red); }
+
+    /* Shimmer */
+    .card::after{
+      content:"";
+      position:absolute;
+      inset:-60% -70%;
+      background: linear-gradient(120deg,
+        transparent 0%,
+        rgba(255,255,255,0.05) 45%,
+        rgba(255,255,255,0.12) 50%,
+        rgba(255,255,255,0.05) 55%,
+        transparent 100%);
+      transform: translateX(-55%) rotate(10deg);
+      animation: shimmer 7.5s ease-in-out infinite;
+      opacity: .22;
+      pointer-events:none;
+    }
+    @keyframes shimmer{
+      0%,45%{ transform: translateX(-60%) rotate(10deg); }
+      70%   { transform: translateX(25%) rotate(10deg); }
+      100%  { transform: translateX(55%) rotate(10deg); }
+    }
+
+    .row1{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+    }
+    .label{
+      display:flex;
+      align-items:center;
+      gap: 10px;
+      font-size:12px;
+      letter-spacing:.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    .icon{
+      width: 30px; height: 30px;
+      display:grid; place-items:center;
+      border-radius: 10px;
+      border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(255,255,255,0.03);
+    }
+
+    .pill{
+      font-size:11px;
+      color: var(--muted);
+      border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(255,255,255,0.03);
+      padding: 6px 10px;
+      border-radius: 999px;
+      display:flex; align-items:center; gap: 7px;
+      white-space:nowrap;
+    }
+
+    /* Big net worth card */
+    .big{
+      display:flex;
+      flex-direction:column;
+      justify-content:space-between;
+      min-height: 220px;
+    }
+    .bigValue{
+      margin-top: 18px;
+      font-size: 56px;
+      font-weight: 900;
+      letter-spacing: .01em;
+      line-height: 1.02;
+      color: var(--white);
+      white-space: nowrap;
+      overflow:hidden;
+      text-overflow: ellipsis;
+    }
+    .subline{
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      font-size:12px;
+      color: var(--muted);
+      margin-top: 12px;
+    }
+
+    /* Small values */
+    .value{
+      margin-top: 12px;
+      font-size: 32px;
+      font-weight: 900;
+      line-height: 1.05;
+      white-space: nowrap;
+      overflow:hidden;
+      text-overflow: ellipsis;
+    }
+    .white{ color: var(--white); }
+    .green{ color: var(--green); }
+    .red{ color: var(--red); }
+    .blue{ color: var(--blue); }
+
+    /* Responsive */
+    @media (max-width: 980px){
+      body{ overflow:auto; }
+      .layout{ grid-template-columns: 1fr; height:auto; }
+      .stack{ height:auto; }
+      .bigValue{ font-size: 46px; }
+      .value{ font-size: 30px; }
+    }
+
+    @media (prefers-reduced-motion: reduce){
+      .texture, .money span, .card::after{ animation:none !important; }
+      .card{ transition:none !important; }
+    }
   </style>
 </head>
+
 <body>
-  <div class="wrap">
-    <div class="row">
-      <button id="btn">Test fetch</button>
-      <span class="muted">API:</span>
-      <a id="apiLink" target="_blank" rel="noreferrer">open worker</a>
-      <span class="muted" id="status">Idle</span>
+  <div class="frame">
+    <div class="texture"></div>
+
+    <!-- Flying money (low opacity) -->
+    <div class="money" aria-hidden="true">
+      <span style="top:8%;  animation-duration: 18s; animation-delay:-2s;">💸</span>
+      <span style="top:18%; animation-duration: 22s; animation-delay:-7s; font-size:48px;">🪙</span>
+      <span style="top:30%; animation-duration: 20s; animation-delay:-11s;">${currency}</span>
+      <span style="top:42%; animation-duration: 26s; animation-delay:-5s; font-size:54px;">💵</span>
+      <span style="top:54%; animation-duration: 19s; animation-delay:-9s;">💰</span>
+      <span style="top:66%; animation-duration: 24s; animation-delay:-14s; font-size:50px;">${currency}${currency}</span>
+      <span style="top:78%; animation-duration: 21s; animation-delay:-4s;">💸</span>
+      <span style="top:88%; animation-duration: 28s; animation-delay:-16s; font-size:52px;">🪙</span>
     </div>
 
-    <pre id="out">Click "Test fetch"</pre>
+    <div class="top">
+      <div class="brand"><span class="dot"></span><span>Finance</span></div>
+      <div class="updated">Updated • ${updated}</div>
+    </div>
+
+    <div class="layout">
+      <!-- BIG BOX: NET WORTH -->
+      <div class="card big accent-white">
+        <div class="row1">
+          <div class="label">
+            <span class="icon">
+              <!-- Money bag (white) -->
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                <path d="M9 7c1.2 1.2 4.8 1.2 6 0" stroke="white" stroke-width="1.8" stroke-linecap="round"/>
+                <path d="M10 4h4" stroke="white" stroke-width="1.8" stroke-linecap="round"/>
+                <path d="M7.5 10.5c-1.6 1.6-2.5 3.5-2.5 6 0 4.2 3.6 6.5 7 6.5s7-2.3 7-6.5c0-2.5-.9-4.4-2.5-6" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M9 11h6" stroke="white" stroke-width="1.8" stroke-linecap="round"/>
+              </svg>
+            </span>
+            <span>NET WORTH</span>
+          </div>
+          <div class="pill"><span class="white">⬤</span><span>White</span></div>
+        </div>
+
+        <div class="bigValue">${netText}</div>
+
+        <div class="subline">
+          <span>Savings − Debt</span>
+          <span>${netWorth >= 0 ? "OK" : "Negative"}</span>
+        </div>
+      </div>
+
+      <!-- RIGHT SIDE: 3 small boxes -->
+      <div class="stack">
+        <!-- Small 1: CASHFLOW (BLUE) -->
+        <div class="card accent-blue">
+          <div class="row1">
+            <div class="label">
+              <span class="icon">
+                <!-- Money flow (blue) -->
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                  <path d="M7 7h10a3 3 0 0 1 0 6H9" stroke="var(--blue)" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M9 13l-2-2 2-2" stroke="var(--blue)" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M17 17H7a3 3 0 0 1 0-6h8" stroke="var(--blue)" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M15 11l2 2-2 2" stroke="var(--blue)" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </span>
+              <span>CASHFLOW</span>
+            </div>
+            <div class="pill"><span class="blue">${cashflow >= 0 ? "↑" : "↓"}</span><span>This month</span></div>
+          </div>
+          <div class="value blue">${flowText}</div>
+        </div>
+
+        <!-- Small 2: INCOME (GREEN) -->
+        <div class="card accent-green">
+          <div class="row1">
+            <div class="label">
+              <span class="icon">
+                <!-- Rising chart (green) -->
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                  <path d="M4 19V5" stroke="var(--green)" stroke-width="1.9" stroke-linecap="round"/>
+                  <path d="M4 19h16" stroke="var(--green)" stroke-width="1.9" stroke-linecap="round"/>
+                  <path d="M7 14l4-4 3 3 5-6" stroke="var(--green)" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M18 7h3v3" stroke="var(--green)" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </span>
+              <span>INCOME</span>
+            </div>
+            <div class="pill"><span class="green">↗</span><span>This month</span></div>
+          </div>
+          <div class="value green">${inText}</div>
+        </div>
+
+        <!-- Small 3: EXPENSE (RED) -->
+        <div class="card accent-red">
+          <div class="row1">
+            <div class="label">
+              <span class="icon">
+                <!-- Down chart (red) -->
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                  <path d="M4 19V5" stroke="var(--red)" stroke-width="1.9" stroke-linecap="round"/>
+                  <path d="M4 19h16" stroke="var(--red)" stroke-width="1.9" stroke-linecap="round"/>
+                  <path d="M7 10l4 4 3-3 5 6" stroke="var(--red)" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M18 17h3v-3" stroke="var(--red)" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </span>
+              <span>EXPENSE</span>
+            </div>
+            <div class="pill"><span class="red">↘</span><span>This month</span></div>
+          </div>
+          <div class="value red">${outText}</div>
+        </div>
+      </div>
+    </div>
   </div>
-
-  <script>
-    const API_URL = "https://notion-kpi-api.windows-10-mugdho.workers.dev/"; // <-- this is correct
-
-    const out = document.getElementById("out");
-    const statusEl = document.getElementById("status");
-    const apiLink = document.getElementById("apiLink");
-    apiLink.href = API_URL;
-    apiLink.textContent = API_URL;
-
-    async function test() {
-      try {
-        statusEl.textContent = "Fetching...";
-        out.textContent = "";
-
-        // cache buster avoids embed caching issues
-        const url = API_URL + "?t=" + Date.now();
-
-        const r = await fetch(url, { mode: "cors", cache: "no-store" });
-
-        const text = await r.text(); // read raw
-        statusEl.textContent = `HTTP ${r.status}`;
-
-        out.textContent =
-          "=== Raw response (first 1500 chars) ===\n" +
-          text.slice(0, 1500) +
-          "\n\n=== Parsed JSON (if possible) ===\n";
-
-        try {
-          const j = JSON.parse(text);
-          out.textContent += JSON.stringify(j, null, 2);
-        } catch {
-          out.textContent += "(Not JSON)";
-        }
-      } catch (e) {
-        statusEl.textContent = "FAILED";
-        out.textContent =
-          "Fetch error:\n" + (e && e.message ? e.message : String(e)) +
-          "\n\nMost common cause: missing CORS headers on the Worker response.";
-      }
-    }
-
-    document.getElementById("btn").addEventListener("click", test);
-
-    // auto test once on load
-    test();
-  </script>
 </body>
-</html>
+</html>`;
+}
+
+async function getMetrics(env) {
+  const queryBody = {
+    filter: { property: "Name", title: { contains: "Dashboard" } }, // matches "Finance Dashboard"
+    page_size: 1,
+  };
+
+  const qRes = await fetch(
+    `https://api.notion.com/v1/databases/${env.DASHBOARD_DB_ID}/query`,
+    {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${env.NOTION_TOKEN}`,
+        "Notion-Version": "2022-06-28",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(queryBody),
+    }
+  );
+
+  if (!qRes.ok) {
+    const body = await qRes.text();
+    throw new Error(`Notion DB query failed: ${qRes.status} ${body.slice(0, 200)}`);
+  }
+
+  const qData = await qRes.json();
+  const page = qData.results?.[0];
+  if (!page) throw new Error('No row found (title contains "Dashboard").');
+
+  const props = page.properties || {};
+  const getNumber = (name) => {
+    const p = props[name];
+    if (!p) return 0;
+    if (p.type === "number") return p.number ?? 0;
+    if (p.type === "formula" && p.formula?.type === "number") return p.formula.number ?? 0;
+    return 0;
+  };
+
+  return {
+    currency: env.CURRENCY_SYMBOL || "৳",
+    netWorth: getNumber("NET WORTH"),
+    incoming: getNumber("Incoming (This Month)"),
+    outgoing: getNumber("Outgoing (This Month)"),
+    cashflow: getNumber("Cashflow (This Month)"),
+    updatedAt: new Date().toISOString(),
+  };
+}
+
+export default {
+  async fetch(request, env) {
+    if (request.method === "OPTIONS") return new Response(null, { status: 204, headers: CORS });
+
+    const url = new URL(request.url);
+
+    try {
+      const metrics = await getMetrics(env);
+
+      // JSON endpoint (optional)
+      if (url.pathname === "/api") return json(metrics);
+
+      // Widget HTML (embed this)
+      return new Response(htmlWidget(metrics), {
+        headers: {
+          "Content-Type": "text/html; charset=utf-8",
+          "Cache-Control": "no-store",
+          ...CORS,
+        },
+      });
+    } catch (e) {
+      const msg = e?.message ? e.message : String(e);
+
+      if (url.pathname === "/api") return json({ error: msg }, 500);
+
+      return new Response(
+        `<!doctype html><html><body style="margin:0;background:#191919;color:#fff;font-family:monospace;padding:16px">
+          <div style="border:1px solid rgba(255,255,255,.12);border-radius:14px;padding:12px;background:rgba(0,0,0,.35)">
+            <div style="color:rgba(255,255,255,.65);font-size:12px;letter-spacing:.12em;text-transform:uppercase">Error</div>
+            <div style="margin-top:10px;font-size:14px">${escapeHtml(msg)}</div>
+          </div>
+        </body></html>`,
+        { headers: { "Content-Type": "text/html; charset=utf-8", ...CORS }, status: 500 }
+      );
+    }
+  },
+};

@@ -1,66 +1,26 @@
-const CORS = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Methods": "GET, OPTIONS",
-  "Access-Control-Allow-Headers": "Content-Type",
-};
-
-function json(data, status = 200) {
-  return new Response(JSON.stringify(data), {
-    status,
-    headers: { "Content-Type": "application/json", ...CORS },
-  });
-}
-
-function escapeHtml(s) {
-  return String(s)
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#039;");
-}
-
-function fmtMoney(n, currency) {
-  const sign = n < 0 ? "-" : "";
-  const abs = Math.abs(n);
-  return sign + currency + abs.toLocaleString();
-}
-
-function htmlWidget(m) {
-  const currency = escapeHtml(m.currency || "৳");
-  const netWorth = Number(m.netWorth ?? 0);
-  const incoming = Number(m.incoming ?? 0);
-  const outgoing = Number(m.outgoing ?? 0);
-  const cashflow = Number(m.cashflow ?? 0);
-
-  const netText = escapeHtml(fmtMoney(netWorth, currency));
-  const inText = escapeHtml(fmtMoney(incoming, currency));
-  const outText = escapeHtml(fmtMoney(outgoing, currency));
-  const flowText = escapeHtml(fmtMoney(cashflow, currency));
-
-  const updated = escapeHtml(new Date(m.updatedAt).toLocaleString());
-
-  return `<!doctype html>
+<!doctype html>
 <html>
 <head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <title>Finance Widget</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Finance KPI Widget</title>
+
   <style>
     :root{
       --bg: #191919;
-      --card: rgba(0,0,0,0.32);
-      --stroke: rgba(255,255,255,0.10);
-      --stroke2: rgba(255,255,255,0.18);
-      --text: rgba(255,255,255,0.94);
+      --card: rgba(0,0,0,0.38);        /* less blurry: we use translucent, no backdrop blur */
+      --stroke: rgba(255,255,255,0.12);
+      --stroke2: rgba(255,255,255,0.20);
+      --text: rgba(255,255,255,0.92);
       --muted: rgba(255,255,255,0.62);
-      --shadow: 0 18px 60px rgba(0,0,0,0.55);
-      --r: 18px;
 
       --white: #ffffff;
       --green: #3EF28A;
-      --red: #FF4D6D;
-      --blue: #4DA3FF;
+      --red:   #FF4D6D;
+      --blue:  #4DA3FF;
+
+      --shadow: 0 18px 60px rgba(0,0,0,0.60);
+      --r: 18px;
     }
 
     *{ box-sizing:border-box; }
@@ -68,12 +28,11 @@ function htmlWidget(m) {
     body{
       margin:0;
       background: var(--bg);
-      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
       color: var(--text);
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
       overflow:hidden;
     }
 
-    /* Frame */
     .frame{
       position:relative;
       height:100%;
@@ -85,39 +44,42 @@ function htmlWidget(m) {
       background: var(--bg);
     }
 
-    /* Subtle texture */
+    /* subtle animated texture */
     .texture{
-      position:absolute; inset:-80px;
+      position:absolute; inset:-60px;
       background:
         repeating-linear-gradient(135deg,
           rgba(255,255,255,0.05) 0px,
           rgba(255,255,255,0.05) 1px,
           transparent 1px,
-          transparent 46px
+          transparent 48px
         );
-      opacity: .16;
-      animation: drift 12s linear infinite;
+      opacity: .14;
+      animation: drift 14s linear infinite;
       pointer-events:none;
     }
     @keyframes drift{
-      from{ transform: translateX(-50px); }
-      to{ transform: translateX(50px); }
+      from{ transform: translateX(-60px); }
+      to  { transform: translateX(60px); }
     }
 
-    /* Flying money layer (low opacity) */
+    /* Flying money behind cards (low opacity) */
     .money{
       position:absolute; inset:0;
       pointer-events:none;
       overflow:hidden;
     }
-    .money span{
+    .money i{
       position:absolute;
-      left:-20%;
-      opacity: .08;
-      font-size: 42px;
-      filter: blur(.2px);
-      animation: fly linear infinite;
+      left:-30%;
+      top: var(--top);
+      font-style: normal;
+      font-size: var(--size);
+      opacity: 0.10;                 /* low opacity */
       transform: translateZ(0);
+      animation: fly var(--dur) linear infinite;
+      animation-delay: var(--delay);
+      filter: blur(0px);             /* no blur so you can see it */
       user-select:none;
       white-space:nowrap;
     }
@@ -126,7 +88,6 @@ function htmlWidget(m) {
       100% { transform: translateX(140vw) rotate(10deg); }
     }
 
-    /* Header */
     .top{
       position:relative;
       display:flex;
@@ -144,11 +105,9 @@ function htmlWidget(m) {
     .dot{
       width:10px; height:10px; border-radius:999px;
       background: rgba(255,255,255,0.95);
-      box-shadow: 0 0 18px rgba(255,255,255,0.22);
+      box-shadow: 0 0 18px rgba(255,255,255,0.20);
     }
-    .updated{
-      font-size:12px; color: var(--muted);
-    }
+    .updated{ font-size:12px; color: var(--muted); }
 
     /* Layout: BIG left + 3 stacked right */
     .layout{
@@ -157,8 +116,8 @@ function htmlWidget(m) {
       grid-template-columns: 1.65fr 1fr;
       gap: 12px;
       z-index:2;
+      min-height: 220px;
       height: calc(100% - 44px);
-      min-height: 210px;
     }
     .stack{
       display:grid;
@@ -174,7 +133,6 @@ function htmlWidget(m) {
       border: 1px solid var(--stroke);
       padding: 14px;
       overflow:hidden;
-      backdrop-filter: blur(10px);
       transition: transform .16s ease, border-color .16s ease;
     }
     .card:hover{
@@ -182,34 +140,30 @@ function htmlWidget(m) {
       border-color: var(--stroke2);
     }
 
-    /* Accent strip */
+    /* Glass animation (no blur): inner highlights + moving sheen */
     .card::before{
       content:"";
       position:absolute;
-      left:0; top:0; bottom:0;
-      width: 3px;
-      background: rgba(255,255,255,0.18);
-      opacity:.9;
+      inset:0;
+      background:
+        radial-gradient(600px 120px at 20% 0%, rgba(255,255,255,0.10), transparent 60%),
+        radial-gradient(500px 90px at 80% 10%, rgba(255,255,255,0.07), transparent 55%);
+      opacity: .55;
+      pointer-events:none;
     }
-    .accent-white::before{ background: rgba(255,255,255,0.75); }
-    .accent-blue::before{ background: var(--blue); }
-    .accent-green::before{ background: var(--green); }
-    .accent-red::before{ background: var(--red); }
-
-    /* Shimmer */
     .card::after{
       content:"";
       position:absolute;
       inset:-60% -70%;
       background: linear-gradient(120deg,
         transparent 0%,
-        rgba(255,255,255,0.05) 45%,
+        rgba(255,255,255,0.04) 45%,
         rgba(255,255,255,0.12) 50%,
-        rgba(255,255,255,0.05) 55%,
+        rgba(255,255,255,0.04) 55%,
         transparent 100%);
-      transform: translateX(-55%) rotate(10deg);
+      transform: translateX(-60%) rotate(10deg);
       animation: shimmer 7.5s ease-in-out infinite;
-      opacity: .22;
+      opacity: .20;
       pointer-events:none;
     }
     @keyframes shimmer{
@@ -218,11 +172,25 @@ function htmlWidget(m) {
       100%  { transform: translateX(55%) rotate(10deg); }
     }
 
+    /* Accent strip */
+    .card .accent{
+      position:absolute;
+      left:0; top:0; bottom:0;
+      width:3px;
+      background: rgba(255,255,255,0.20);
+    }
+    .accent.white{ background: rgba(255,255,255,0.75); }
+    .accent.blue{ background: var(--blue); }
+    .accent.green{ background: var(--green); }
+    .accent.red{ background: var(--red); }
+
     .row1{
+      position:relative;
       display:flex;
       align-items:center;
       justify-content:space-between;
       gap:10px;
+      z-index:2;
     }
     .label{
       display:flex;
@@ -233,6 +201,7 @@ function htmlWidget(m) {
       text-transform: uppercase;
       color: var(--muted);
     }
+
     .icon{
       width: 30px; height: 30px;
       display:grid; place-items:center;
@@ -250,16 +219,20 @@ function htmlWidget(m) {
       border-radius: 999px;
       display:flex; align-items:center; gap: 7px;
       white-space:nowrap;
+      z-index:2;
+      position:relative;
     }
 
-    /* Big net worth card */
+    /* Big NET WORTH */
     .big{
       display:flex;
       flex-direction:column;
       justify-content:space-between;
-      min-height: 220px;
+      min-height: 240px;
     }
     .bigValue{
+      position:relative;
+      z-index:2;
       margin-top: 18px;
       font-size: 56px;
       font-weight: 900;
@@ -271,6 +244,8 @@ function htmlWidget(m) {
       text-overflow: ellipsis;
     }
     .subline{
+      position:relative;
+      z-index:2;
       display:flex;
       justify-content:space-between;
       gap:10px;
@@ -279,8 +254,9 @@ function htmlWidget(m) {
       margin-top: 12px;
     }
 
-    /* Small values */
     .value{
+      position:relative;
+      z-index:2;
       margin-top: 12px;
       font-size: 32px;
       font-weight: 900;
@@ -304,7 +280,7 @@ function htmlWidget(m) {
     }
 
     @media (prefers-reduced-motion: reduce){
-      .texture, .money span, .card::after{ animation:none !important; }
+      .texture, .money i, .card::after{ animation:none !important; }
       .card{ transition:none !important; }
     }
   </style>
@@ -314,30 +290,30 @@ function htmlWidget(m) {
   <div class="frame">
     <div class="texture"></div>
 
-    <!-- Flying money (low opacity) -->
+    <!-- money behind -->
     <div class="money" aria-hidden="true">
-      <span style="top:8%;  animation-duration: 18s; animation-delay:-2s;">💸</span>
-      <span style="top:18%; animation-duration: 22s; animation-delay:-7s; font-size:48px;">🪙</span>
-      <span style="top:30%; animation-duration: 20s; animation-delay:-11s;">${currency}</span>
-      <span style="top:42%; animation-duration: 26s; animation-delay:-5s; font-size:54px;">💵</span>
-      <span style="top:54%; animation-duration: 19s; animation-delay:-9s;">💰</span>
-      <span style="top:66%; animation-duration: 24s; animation-delay:-14s; font-size:50px;">${currency}${currency}</span>
-      <span style="top:78%; animation-duration: 21s; animation-delay:-4s;">💸</span>
-      <span style="top:88%; animation-duration: 28s; animation-delay:-16s; font-size:52px;">🪙</span>
+      <i style="--top: 8%;  --size: 44px; --dur: 20s; --delay: -3s;">💸</i>
+      <i style="--top: 18%; --size: 52px; --dur: 26s; --delay: -11s;">💵</i>
+      <i style="--top: 30%; --size: 46px; --dur: 22s; --delay: -7s;">৳</i>
+      <i style="--top: 44%; --size: 56px; --dur: 30s; --delay: -15s;">💰</i>
+      <i style="--top: 58%; --size: 48px; --dur: 24s; --delay: -9s;">🪙</i>
+      <i style="--top: 72%; --size: 54px; --dur: 34s; --delay: -19s;">৳৳</i>
+      <i style="--top: 84%; --size: 46px; --dur: 28s; --delay: -6s;">💸</i>
     </div>
 
     <div class="top">
       <div class="brand"><span class="dot"></span><span>Finance</span></div>
-      <div class="updated">Updated • ${updated}</div>
+      <div id="updated" class="updated">Loading…</div>
     </div>
 
     <div class="layout">
       <!-- BIG BOX: NET WORTH -->
-      <div class="card big accent-white">
+      <div class="card big" id="cardNet">
+        <span class="accent white"></span>
         <div class="row1">
           <div class="label">
             <span class="icon">
-              <!-- Money bag (white) -->
+              <!-- white money bag -->
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
                 <path d="M9 7c1.2 1.2 4.8 1.2 6 0" stroke="white" stroke-width="1.8" stroke-linecap="round"/>
                 <path d="M10 4h4" stroke="white" stroke-width="1.8" stroke-linecap="round"/>
@@ -347,25 +323,25 @@ function htmlWidget(m) {
             </span>
             <span>NET WORTH</span>
           </div>
-          <div class="pill"><span class="white">⬤</span><span>White</span></div>
+          <div class="pill"><span class="white">⬤</span><span>Balance</span></div>
         </div>
 
-        <div class="bigValue">${netText}</div>
-
+        <div id="netWorth" class="bigValue">—</div>
         <div class="subline">
           <span>Savings − Debt</span>
-          <span>${netWorth >= 0 ? "OK" : "Negative"}</span>
+          <span id="netNote">—</span>
         </div>
       </div>
 
-      <!-- RIGHT SIDE: 3 small boxes -->
+      <!-- RIGHT: 3 stacked -->
       <div class="stack">
-        <!-- Small 1: CASHFLOW (BLUE) -->
-        <div class="card accent-blue">
+        <!-- CASHFLOW blue -->
+        <div class="card">
+          <span class="accent blue"></span>
           <div class="row1">
             <div class="label">
               <span class="icon">
-                <!-- Money flow (blue) -->
+                <!-- blue money flow -->
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
                   <path d="M7 7h10a3 3 0 0 1 0 6H9" stroke="var(--blue)" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/>
                   <path d="M9 13l-2-2 2-2" stroke="var(--blue)" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/>
@@ -375,17 +351,18 @@ function htmlWidget(m) {
               </span>
               <span>CASHFLOW</span>
             </div>
-            <div class="pill"><span class="blue">${cashflow >= 0 ? "↑" : "↓"}</span><span>This month</span></div>
+            <div id="flowPill" class="pill"><span class="blue">↕</span><span>This month</span></div>
           </div>
-          <div class="value blue">${flowText}</div>
+          <div id="cashflow" class="value blue">—</div>
         </div>
 
-        <!-- Small 2: INCOME (GREEN) -->
-        <div class="card accent-green">
+        <!-- INCOME green -->
+        <div class="card">
+          <span class="accent green"></span>
           <div class="row1">
             <div class="label">
               <span class="icon">
-                <!-- Rising chart (green) -->
+                <!-- green rising chart -->
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
                   <path d="M4 19V5" stroke="var(--green)" stroke-width="1.9" stroke-linecap="round"/>
                   <path d="M4 19h16" stroke="var(--green)" stroke-width="1.9" stroke-linecap="round"/>
@@ -397,15 +374,16 @@ function htmlWidget(m) {
             </div>
             <div class="pill"><span class="green">↗</span><span>This month</span></div>
           </div>
-          <div class="value green">${inText}</div>
+          <div id="incoming" class="value green">—</div>
         </div>
 
-        <!-- Small 3: EXPENSE (RED) -->
-        <div class="card accent-red">
+        <!-- EXPENSE red -->
+        <div class="card">
+          <span class="accent red"></span>
           <div class="row1">
             <div class="label">
               <span class="icon">
-                <!-- Down chart (red) -->
+                <!-- red down chart -->
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
                   <path d="M4 19V5" stroke="var(--red)" stroke-width="1.9" stroke-linecap="round"/>
                   <path d="M4 19h16" stroke="var(--red)" stroke-width="1.9" stroke-linecap="round"/>
@@ -417,96 +395,52 @@ function htmlWidget(m) {
             </div>
             <div class="pill"><span class="red">↘</span><span>This month</span></div>
           </div>
-          <div class="value red">${outText}</div>
+          <div id="outgoing" class="value red">—</div>
         </div>
       </div>
     </div>
   </div>
+
+  <script>
+    function fmt(n, currency){
+      const sign = n < 0 ? "-" : "";
+      const abs = Math.abs(n);
+      return sign + currency + abs.toLocaleString();
+    }
+
+    async function load(){
+      // Same-origin fetch (works in Notion embeds)
+      const r = await fetch("/api?t=" + Date.now(), { cache: "no-store" });
+      const j = await r.json();
+
+      const c = j.currency || "৳";
+      const net = Number(j.netWorth ?? 0);
+      const inc = Number(j.incoming ?? 0);
+      const out = Number(j.outgoing ?? 0);
+      const flow = Number(j.cashflow ?? 0);
+
+      document.getElementById("netWorth").textContent = fmt(net, c);
+      document.getElementById("cashflow").textContent = fmt(flow, c);
+      document.getElementById("incoming").textContent = fmt(inc, c);
+      document.getElementById("outgoing").textContent = fmt(out, c);
+
+      document.getElementById("updated").textContent =
+        "Updated • " + new Date(j.updatedAt).toLocaleString();
+
+      document.getElementById("netNote").textContent =
+        net >= 0 ? "OK" : "Negative";
+
+      const flowPill = document.getElementById("flowPill");
+      flowPill.innerHTML = flow >= 0
+        ? '<span class="green">↑</span><span>Surplus</span>'
+        : '<span class="red">↓</span><span>Deficit</span>';
+    }
+
+    load().catch(() => {
+      document.getElementById("updated").textContent = "Error loading data";
+    });
+
+    setInterval(() => load().catch(()=>{}), 60000);
+  </script>
 </body>
-</html>`;
-}
-
-async function getMetrics(env) {
-  const queryBody = {
-    filter: { property: "Name", title: { contains: "Dashboard" } }, // matches "Finance Dashboard"
-    page_size: 1,
-  };
-
-  const qRes = await fetch(
-    `https://api.notion.com/v1/databases/${env.DASHBOARD_DB_ID}/query`,
-    {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${env.NOTION_TOKEN}`,
-        "Notion-Version": "2022-06-28",
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(queryBody),
-    }
-  );
-
-  if (!qRes.ok) {
-    const body = await qRes.text();
-    throw new Error(`Notion DB query failed: ${qRes.status} ${body.slice(0, 200)}`);
-  }
-
-  const qData = await qRes.json();
-  const page = qData.results?.[0];
-  if (!page) throw new Error('No row found (title contains "Dashboard").');
-
-  const props = page.properties || {};
-  const getNumber = (name) => {
-    const p = props[name];
-    if (!p) return 0;
-    if (p.type === "number") return p.number ?? 0;
-    if (p.type === "formula" && p.formula?.type === "number") return p.formula.number ?? 0;
-    return 0;
-  };
-
-  return {
-    currency: env.CURRENCY_SYMBOL || "৳",
-    netWorth: getNumber("NET WORTH"),
-    incoming: getNumber("Incoming (This Month)"),
-    outgoing: getNumber("Outgoing (This Month)"),
-    cashflow: getNumber("Cashflow (This Month)"),
-    updatedAt: new Date().toISOString(),
-  };
-}
-
-export default {
-  async fetch(request, env) {
-    if (request.method === "OPTIONS") return new Response(null, { status: 204, headers: CORS });
-
-    const url = new URL(request.url);
-
-    try {
-      const metrics = await getMetrics(env);
-
-      // JSON endpoint (optional)
-      if (url.pathname === "/api") return json(metrics);
-
-      // Widget HTML (embed this)
-      return new Response(htmlWidget(metrics), {
-        headers: {
-          "Content-Type": "text/html; charset=utf-8",
-          "Cache-Control": "no-store",
-          ...CORS,
-        },
-      });
-    } catch (e) {
-      const msg = e?.message ? e.message : String(e);
-
-      if (url.pathname === "/api") return json({ error: msg }, 500);
-
-      return new Response(
-        `<!doctype html><html><body style="margin:0;background:#191919;color:#fff;font-family:monospace;padding:16px">
-          <div style="border:1px solid rgba(255,255,255,.12);border-radius:14px;padding:12px;background:rgba(0,0,0,.35)">
-            <div style="color:rgba(255,255,255,.65);font-size:12px;letter-spacing:.12em;text-transform:uppercase">Error</div>
-            <div style="margin-top:10px;font-size:14px">${escapeHtml(msg)}</div>
-          </div>
-        </body></html>`,
-        { headers: { "Content-Type": "text/html; charset=utf-8", ...CORS }, status: 500 }
-      );
-    }
-  },
-};
+</html>

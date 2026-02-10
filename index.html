@@ -3,394 +3,92 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Notion KPI Test</title>
   <style>
-    :root{
-      --bg: #07090d;
-      --card: rgba(255,255,255,0.04);
-      --stroke: rgba(255,255,255,0.08);
-      --stroke2: rgba(255,255,255,0.13);
-      --text: rgba(255,255,255,0.92);
-      --muted: rgba(255,255,255,0.58);
-
-      --green: #3EF28A;
-      --red:   #FF5470;
-      --blue:  #5AA7FF;
-
-      --shadow: 0 18px 60px rgba(0,0,0,0.62);
-      --r: 18px;
-    }
-
-    *{ box-sizing:border-box; }
     body{
       margin:0;
-      background: transparent;
-      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
-      color: var(--text);
+      background:#000;
+      color:#fff;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
     }
-
-    /* Black animated frame */
-    .frame{
-      position:relative;
-      border-radius: 22px;
-      padding: 14px;
-      background: linear-gradient(180deg, rgba(7,9,13,0.98), rgba(7,9,13,0.92));
-      border: 1px solid rgba(255,255,255,0.06);
-      box-shadow: var(--shadow);
-      overflow:hidden;
+    .wrap{ padding:16px; }
+    .row{ display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+    button{
+      background:#111; color:#fff; border:1px solid #333;
+      padding:10px 12px; border-radius:10px; cursor:pointer;
     }
-
-    /* Diagonal line texture (animated) */
-    .frame::before{
-      content:"";
-      position:absolute; inset:-60px;
-      background:
-        repeating-linear-gradient(
-          120deg,
-          rgba(255,255,255,0.045) 0px,
-          rgba(255,255,255,0.045) 1px,
-          transparent 1px,
-          transparent 44px
-        );
-      opacity: 0.25;
-      transform: translateX(-30px);
-      animation: drift 10s linear infinite;
-      pointer-events:none;
+    button:hover{ border-color:#555; }
+    a{ color:#7fb3ff; text-decoration:none; }
+    pre{
+      margin-top:12px;
+      background:#0b0b0b;
+      border:1px solid #222;
+      border-radius:12px;
+      padding:12px;
+      overflow:auto;
+      white-space:pre-wrap;
+      word-break:break-word;
     }
-    @keyframes drift{
-      from { transform: translateX(-60px); }
-      to   { transform: translateX(60px); }
-    }
-
-    /* Scan glow */
-    .frame::after{
-      content:"";
-      position:absolute; inset:-30%;
-      background: radial-gradient(circle at 30% 20%, rgba(90,167,255,0.12), transparent 45%),
-                  radial-gradient(circle at 70% 80%, rgba(62,242,138,0.10), transparent 45%);
-      opacity: 0.18;
-      filter: blur(26px);
-      animation: pulse 6s ease-in-out infinite;
-      pointer-events:none;
-    }
-    @keyframes pulse{
-      0%,100%{ transform: scale(1); opacity: .14; }
-      50%    { transform: scale(1.05); opacity: .22; }
-    }
-
-    .top{
-      position:relative;
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      gap:12px;
-      z-index:2;
-      margin-bottom: 10px;
-    }
-    .brand{
-      display:flex; align-items:center; gap:10px;
-      font-weight: 800;
-      letter-spacing: .02em;
-    }
-    .dot{
-      width: 10px; height: 10px; border-radius: 999px;
-      background: rgba(255,255,255,0.9);
-      box-shadow: 0 0 14px rgba(255,255,255,0.22);
-    }
-    .updated{ font-size: 12px; color: var(--muted); }
-
-    /* Layout: big left + 3 stacked right */
-    .layout{
-      position:relative;
-      display:grid;
-      grid-template-columns: 1.6fr 1fr;
-      gap: 12px;
-      z-index:2;
-    }
-    .stack{
-      display:grid;
-      grid-template-rows: repeat(3, 1fr);
-      gap: 12px;
-    }
-
-    .card{
-      position:relative;
-      background: var(--card);
-      border: 1px solid var(--stroke);
-      border-radius: var(--r);
-      padding: 14px;
-      overflow:hidden;
-      transition: border-color .18s ease, transform .18s ease;
-      backdrop-filter: blur(10px);
-    }
-    .card:hover{ border-color: var(--stroke2); transform: translateY(-1px); }
-
-    /* subtle animated shimmer line */
-    .card .shine{
-      content:"";
-      position:absolute;
-      inset:-60% -60%;
-      background: linear-gradient(120deg, transparent 0%, rgba(255,255,255,0.06) 50%, transparent 100%);
-      transform: translateX(-50%) rotate(10deg);
-      animation: shimmer 7.5s ease-in-out infinite;
-      pointer-events:none;
-      opacity: .22;
-    }
-    @keyframes shimmer{
-      0%,45% { transform: translateX(-55%) rotate(10deg); }
-      70%    { transform: translateX(35%) rotate(10deg); }
-      100%   { transform: translateX(55%) rotate(10deg); }
-    }
-
-    .row1{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap: 10px;
-    }
-    .label{
-      display:flex;
-      align-items:center;
-      gap: 10px;
-      font-size: 12px;
-      letter-spacing: .12em;
-      text-transform: uppercase;
-      color: var(--muted);
-    }
-
-    .icon{
-      width: 28px; height: 28px;
-      border-radius: 10px;
-      display:grid; place-items:center;
-      border: 1px solid rgba(255,255,255,0.10);
-      background: rgba(255,255,255,0.03);
-    }
-
-    .pill{
-      font-size: 11px;
-      color: var(--muted);
-      border: 1px solid rgba(255,255,255,0.10);
-      background: rgba(255,255,255,0.03);
-      padding: 6px 10px;
-      border-radius: 999px;
-      display:flex; align-items:center; gap: 7px;
-      white-space: nowrap;
-    }
-
-    /* Big Net Worth */
-    .big{
-      min-height: 180px;
-      display:flex;
-      flex-direction:column;
-      justify-content:space-between;
-    }
-    .bigValue{
-      margin-top: 18px;
-      font-size: 52px;
-      font-weight: 900;
-      letter-spacing: .01em;
-      line-height: 1.02;
-      color: rgba(255,255,255,0.94); /* always white as requested */
-      white-space: nowrap;
-      overflow:hidden;
-      text-overflow: ellipsis;
-    }
-    .subline{
-      display:flex;
-      justify-content:space-between;
-      gap: 10px;
-      font-size: 12px;
-      color: var(--muted);
-      margin-top: 12px;
-    }
-
-    /* Small cards values */
-    .value{
-      margin-top: 12px;
-      font-size: 30px;
-      font-weight: 900;
-      line-height: 1.05;
-      white-space: nowrap;
-      overflow:hidden;
-      text-overflow: ellipsis;
-    }
-    .green{ color: var(--green); }
-    .red{ color: var(--red); }
-    .blue{ color: var(--blue); }
-
-    /* Accent bars */
-    .bar{
-      position:absolute; left:0; bottom:0; height:3px; width:100%;
-      background: rgba(255,255,255,0.06);
-    }
-    .bar > i{
-      display:block; height:100%; width:40%;
-      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.25), transparent);
-      animation: sweep 2.2s ease-in-out infinite;
-      opacity: .7;
-    }
-    @keyframes sweep{
-      0%{ transform: translateX(-70%); }
-      100%{ transform: translateX(250%); }
-    }
-
-    /* Responsive */
-    @media (max-width: 980px){
-      .layout{ grid-template-columns: 1fr; }
-      .stack{ grid-template-rows: none; grid-template-columns: 1fr; }
-      .big{ min-height: 160px; }
-      .bigValue{ font-size: 44px; }
-    }
-
-    /* Reduced motion */
-    @media (prefers-reduced-motion: reduce){
-      .frame::before,.frame::after,.shine,.bar>i{ animation:none !important; }
-      .card{ transition:none !important; }
-    }
+    .muted{ color:#aaa; font-size:12px; }
   </style>
 </head>
 <body>
-  <div class="frame">
-    <div class="top">
-      <div class="brand"><span class="dot"></span><span>Finance KPIs</span></div>
-      <div id="updated" class="updated">Loading…</div>
+  <div class="wrap">
+    <div class="row">
+      <button id="btn">Test fetch</button>
+      <span class="muted">API:</span>
+      <a id="apiLink" target="_blank" rel="noreferrer">open worker</a>
+      <span class="muted" id="status">Idle</span>
     </div>
 
-    <div class="layout">
-      <!-- BIG NET WORTH BOX -->
-      <div class="card big">
-        <div class="shine"></div>
-        <div class="row1">
-          <div class="label">
-            <span class="icon">
-              <!-- wallet -->
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                <path d="M3 7.5A3.5 3.5 0 0 1 6.5 4H20a1 1 0 0 1 1 1v2" stroke="rgba(255,255,255,.78)" stroke-width="1.7" stroke-linecap="round"/>
-                <path d="M3 9.5A3.5 3.5 0 0 1 6.5 6H21v11a3 3 0 0 1-3 3H6.5A3.5 3.5 0 0 1 3 16.5v-7Z" stroke="rgba(255,255,255,.78)" stroke-width="1.7" stroke-linejoin="round"/>
-                <path d="M17 12h4v3h-4a1.5 1.5 0 0 1 0-3Z" stroke="rgba(255,255,255,.78)" stroke-width="1.7" stroke-linejoin="round"/>
-              </svg>
-            </span>
-            <span>NET WORTH</span>
-          </div>
-          <div class="pill"><span>↕</span><span>Balance</span></div>
-        </div>
-
-        <div id="netWorth" class="bigValue">—</div>
-
-        <div class="subline">
-          <span>Savings − Debt</span>
-          <span id="netNote">—</span>
-        </div>
-
-        <div class="bar"><i></i></div>
-      </div>
-
-      <!-- RIGHT STACK: 3 SMALL BOXES -->
-      <div class="stack">
-        <div class="card">
-          <div class="shine"></div>
-          <div class="row1">
-            <div class="label">
-              <span class="icon">
-                <!-- up -->
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                  <path d="M12 19V6" stroke="rgba(255,255,255,.78)" stroke-width="1.8" stroke-linecap="round"/>
-                  <path d="M7 10l5-5 5 5" stroke="rgba(255,255,255,.78)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-              </span>
-              <span>TOTAL INCOME</span>
-            </div>
-            <div class="pill"><span class="green">↗</span><span>This month</span></div>
-          </div>
-          <div id="incoming" class="value green">—</div>
-          <div class="bar"><i></i></div>
-        </div>
-
-        <div class="card">
-          <div class="shine"></div>
-          <div class="row1">
-            <div class="label">
-              <span class="icon">
-                <!-- down -->
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                  <path d="M12 5v13" stroke="rgba(255,255,255,.78)" stroke-width="1.8" stroke-linecap="round"/>
-                  <path d="M7 14l5 5 5-5" stroke="rgba(255,255,255,.78)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-              </span>
-              <span>TOTAL EXPENSE</span>
-            </div>
-            <div class="pill"><span class="red">↘</span><span>This month</span></div>
-          </div>
-          <div id="outgoing" class="value red">—</div>
-          <div class="bar"><i></i></div>
-        </div>
-
-        <div class="card">
-          <div class="shine"></div>
-          <div class="row1">
-            <div class="label">
-              <span class="icon">
-                <!-- wave -->
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                  <path d="M3 15c2.2 0 2.8-3 5-3s2.8 3 5 3 2.8-3 5-3 2.8 3 5 3" stroke="rgba(255,255,255,.78)" stroke-width="1.8" stroke-linecap="round"/>
-                </svg>
-              </span>
-              <span>NET CASHFLOW</span>
-            </div>
-            <div id="flowPill" class="pill"><span class="blue">↕</span><span>This month</span></div>
-          </div>
-          <div id="cashflow" class="value blue">—</div>
-          <div class="bar"><i></i></div>
-        </div>
-      </div>
-    </div>
+    <pre id="out">Click "Test fetch"</pre>
   </div>
 
   <script>
-    const API_URL = "https://notion-kpi-api.windows-10-mugdho.workers.dev/";
+    const API_URL = "https://notion-kpi-api.windows-10-mugdho.workers.dev/"; // <-- this is correct
 
-    function fmt(n, currency) {
-      const sign = n < 0 ? "-" : "";
-      const abs = Math.abs(n);
-      return sign + currency + abs.toLocaleString();
+    const out = document.getElementById("out");
+    const statusEl = document.getElementById("status");
+    const apiLink = document.getElementById("apiLink");
+    apiLink.href = API_URL;
+    apiLink.textContent = API_URL;
+
+    async function test() {
+      try {
+        statusEl.textContent = "Fetching...";
+        out.textContent = "";
+
+        // cache buster avoids embed caching issues
+        const url = API_URL + "?t=" + Date.now();
+
+        const r = await fetch(url, { mode: "cors", cache: "no-store" });
+
+        const text = await r.text(); // read raw
+        statusEl.textContent = `HTTP ${r.status}`;
+
+        out.textContent =
+          "=== Raw response (first 1500 chars) ===\n" +
+          text.slice(0, 1500) +
+          "\n\n=== Parsed JSON (if possible) ===\n";
+
+        try {
+          const j = JSON.parse(text);
+          out.textContent += JSON.stringify(j, null, 2);
+        } catch {
+          out.textContent += "(Not JSON)";
+        }
+      } catch (e) {
+        statusEl.textContent = "FAILED";
+        out.textContent =
+          "Fetch error:\n" + (e && e.message ? e.message : String(e)) +
+          "\n\nMost common cause: missing CORS headers on the Worker response.";
+      }
     }
 
-    async function load() {
-      // Bust caches inside embeds
-      const url = API_URL + "?t=" + Date.now();
-      const r = await fetch(url, { cache: "no-store", mode: "cors" });
-      const text = await r.text();
-      if (!r.ok) throw new Error(`HTTP ${r.status}: ${text.slice(0, 120)}`);
-      const j = JSON.parse(text);
+    document.getElementById("btn").addEventListener("click", test);
 
-      const c = j.currency || "৳";
-      const net = Number(j.netWorth ?? 0);
-      const inc = Number(j.incoming ?? 0);
-      const out = Number(j.outgoing ?? 0);
-      const flow = Number(j.cashflow ?? 0);
-
-      document.getElementById("netWorth").textContent = fmt(net, c);
-      document.getElementById("incoming").textContent = fmt(inc, c);
-      document.getElementById("outgoing").textContent = fmt(out, c);
-      document.getElementById("cashflow").textContent = fmt(flow, c);
-
-      document.getElementById("updated").textContent =
-        "Updated • " + new Date(j.updatedAt).toLocaleString();
-
-      // Notes (small)
-      document.getElementById("netNote").textContent =
-        net >= 0 ? "Stable" : "Needs focus";
-
-      const flowPill = document.getElementById("flowPill");
-      flowPill.innerHTML = flow >= 0
-        ? `<span class="green">↑</span><span>Surplus</span>`
-        : `<span class="red">↓</span><span>Deficit</span>`;
-    }
-
-    load().catch((e) => {
-      document.getElementById("updated").textContent = "Load error: " + e.message;
-    });
-
-    setInterval(() => load().catch(()=>{}), 60000);
+    // auto test once on load
+    test();
   </script>
 </body>
 </html>

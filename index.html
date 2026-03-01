@@ -493,14 +493,18 @@
         requestAnimationFrame((t) => this.tick(t));
         if (!this.lastTime) this.lastTime = time;
         // Cap Delta-Time (dt) to 50ms (simulates ~20fps drop). 
-        // This is extremely crucial. It prevents the chart logic from breaking if the user minimizes the tab for an hour.
         const dt = Math.min(time - this.lastTime, 50); 
         this.lastTime = time;
         
         if (this.data.length === 0) return;
         
         this.timeInState += dt;
-        const stateDur = this.states[this.curState].duration;
+        
+        // --- TIMING FIX ---
+        // Lock the duration evaluation to the OUTGOING state during the morph.
+        // This prevents the timeline thresholds from snapping mid-animation.
+        const stateIndex = (this.isMorphing && this.prevState !== undefined) ? this.prevState : this.curState;
+        const stateDur = this.states[stateIndex].duration;
         
         // Logical Timeline Bounds
         const fadeOutStart = stateDur - 500;
@@ -509,7 +513,6 @@
         const fadeInEnd = stateDur + 1500;
         
         // Evaluate state strictly sequentially from the end to the beginning 
-        // to handle perfect wrap-around seamlessly.
         if (this.timeInState >= fadeInEnd) {
             this.timeInState -= fadeInEnd; // Retain remainder for precise looping
             this.isMorphing = false;
@@ -626,7 +629,7 @@
     function renderHistoryGrid(chartData) {
       const container = document.getElementById('history-grid');
       // Reverse array to ensure newest month (Current) is index 0
-      const data = [...chartData.slice(-12)].reverse();
+      const data =[...chartData.slice(-12)].reverse();
       
       const leftCol = data.slice(0, 6); 
       const rightCol = data.slice(6, 12);

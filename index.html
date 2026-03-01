@@ -1,315 +1,761 @@
 <!doctype html>
 <html>
+<head> on your **Savings Balance** (or Net Worth) property.
+6.  Change the "Property" it looks at: Select **`Signed Taka`**.
+7.  Make sure "Calculate" is set to **Sum
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device**.
+
+*Now your Summary DB will show the correct Net Worth again, and the API will read it correctly.*
+
+---
+
+-width,initial-scale=1" />
+  <title>Casino VIP Dashboard</title>
+  <### 🎰 Part 2: The "Casino Royale" Remaster
+I have completely rewritten the CSS.
+*   **style>
+    /* --- 1. THE FOUNDATION --- */
+    :root {
+      --notion-bg:The Look:** Rich "Poker Table" Green Felt texture for cards, deep `#191919` background #191919;
+      --felt-green: #0a2f15;
+ to blend with Notion.
+*   **The Borders:** Real Metallic Gold Gradients.
+*   **The Chips      --felt-texture: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMj:** The graph now looks like **real stacked poker chips** (Red/White/Green/Black) with edge details.
+*AwMC9zdmciIHdpZHRoPSI0IiBoZWlnaHQ9IjQiPgo8cmVjdCB3aWR0aD0iNCIgaGVpZ2h0PSI0   **The Animation:** Slower, heavier, more dramatic slot-machine spins.
+
+**You do NOT need to touchIiBmaWxsPSIjMGEyZjE1Ii8+CjxyZWN0IHdpZHRoPSIxIiBoZWlnaHQ9IjEiIGZpbGw9IiMwZTM4MTgiLz4KPC9zdmc+');
+      
+      --gold: #D4AF37; `api.js`. It is working fine.**
+
+**Copy and Replace your entire `index.html` with this:**
+
+```html
+<!doctype html>
+<html>
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>VIP Casino Finance</title>
+  
+      --gold-glow: rgba(212, 175, 55, 0.4);
+      --neon-green: #39FF14;
+      --neon-red:<title>Casino VIP Dashboard</title>
   <style>
     :root {
-      --bg: #191919;
-      --card-bg: #222222;
-      --gold: #FFD700;
-      --gold-dim: rgba(255, 215, 0, 0.3);
-      --green: #00FF66;
-      --green-dim: rgba(0, 255, 102, 0.2);
-      --red: #FF3366;
-      --red-dim: rgba(255, 51, 102, 0.2);
-      --text: #F0F0F0;
-      --muted: #888888;
-      --radius: 16px;
+      --bg: #1 #FF003C;
+      --text-main: #EAEAEA;
+      --text-dim: #8899A6;
     }
 
-    * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    body {
+      margin: 0; padding: 0;
+      background-color: var(--notion-bg);
+      color: var(--text-main);91919; 
+      --felt: #1a271d; /* Deep poker table green */
+      --gold: #D4AF37;
+      --gold-light: #FEDC56;
+      --gold-shadow: rgba(212, 175, 55, 0.2);
+      --red-chip: #D92B2B;
+      --green-chip: #2B8A3E;
+      --black-chip: #111;
+      --text
+      font-family: "Courier Prime", "Courier New", monospace; /* Casino Ticket Font */
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+      justify-content: center: #EAEAEA;
+      --text-dim: #8F9E92;
+    }
+
+    * { box-sizing: border-box; }
     
     body {
-      margin: 0; padding: 16px; background: var(--bg); color: var(--text);
-      display: grid; grid-template-columns: 1fr 1fr; gap: 20px; height: 100vh; overflow: hidden;
+      margin: ;
+      align-items: center;
     }
 
-    /* --- Left Column: KPI Cards --- */
-    .kpi-col { display: grid; grid-template-rows: repeat(4, 1fr); gap: 16px; }
-    
+    /* The Main Container (Fits in Notion Embed) */0; padding: 20px; 
+      background-color: var(--bg); /* Matches Notion Dark
+    .dashboard-grid {
+      width: 100%; height: 100%;
+      display Mode */
+      color: var(--text);
+      font-family: "Courier New", Courier, monospace; /* Old: grid;
+      grid-template-columns: 1fr 1.2fr; /* Left KPI, Right Stats */ school receipt/ticket font */
+      display: grid; grid-template-columns: 1fr 1.
+      gap: 12px;
+      padding: 12px;
+      box-sizing: border-box2fr; gap: 24px; 
+      height: 100vh; overflow: hidden;
+    ;
+    }
+
+    /* --- 2. THE CARDS (The Tables) --- */
+    .card {}
+
+    /* --- THE CASINO CARDS --- */
     .card {
-      background: var(--card-bg);
-      border-radius: var(--radius);
-      padding: 16px 20px;
       position: relative;
-      display: flex; flex-direction: column; justify-content: space-between;
-      background-image: radial-gradient(circle at center, rgba(255,255,255,0.03) 0, transparent 2px);
-      background-size: 8px 8px;
+      background: var(--felt);
+      /* Subtle noise texture for Felt look */
+      background-image: repeating-linear-
+      position: relative;
+      background-color: #1a1a1a;
+      /* Subtle Felt Texture */
+      background-image: var(--felt-texture);
+      border-radius: 12gradient(45deg, rgba(255,255,255,0.02) 0px, rgba(255,255,255,0.02)px;
+      border: 1px solid #333;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      box-shadow: inset 0 0 30px rgba(0,0,0,0.8); /* 1px, transparent 1px, transparent 10px);
+      border-radius: 12px;
+      padding: 16px;
+      display: flex; flex-direction: column; justify-content: Deep shadow inside */
+      transition: transform 0.2s;
+    }
+    
+    /* Golden space-between;
+      
+      /* The Golden Border */
+      border: 1px solid var(--gold);
+ Rims for VIP Feel */
+    .card::after {
+      content: ''; position: absolute; inset: 0;      box-shadow: 0 0 15px var(--gold-shadow), inset 0 0 20px rgba(0,0,0,0.8);
+    }
+
+    .kpi
+      border-radius: 12px;
       border: 1px solid rgba(255,255,255,0.05);
-      box-shadow: inset 0 0 20px rgba(0,0,0,0.5);
+      pointer-events: none;
+    }-col { display: grid; grid-template-rows: repeat(4, 1fr); gap: 
+
+    .kpi-col { display: grid; grid-template-rows: repeat(4, 1fr); gap16px; }
+
+    /* Headers look like engraved plates */
+    .label {
+      font-size: : 10px; }
+    .right-col { display: grid; grid-template-rows:11px; text-transform: uppercase; letter-spacing: 2px;
+      color: var(-- 1.5fr 1fr; gap: 10px; }
+
+    /* Theme Accents */
+gold); text-shadow: 0 1px 2px rgba(0,0,0,0.8);
+    .border-gold { border-left: 4px solid var(--gold); }
+    .border-green { border      border-bottom: 1px solid rgba(212, 175, 55, 0-left: 4px solid var(--neon-green); }
+    .border-red { border-left.3);
+      padding-bottom: 4px; margin-bottom: 4px;
+      display:flex: 4px solid var(--neon-red); }
+
+    /* --- 3. TYPOGRAPHY & SLOT MACHINE --- */
+    .label {
+      font-size: 10px; text-transform: uppercase; letter-spacing: 2px;
+      color: var(--gold); opacity: 0.8;
+      ; justify-content: space-between;
     }
 
-    .card.gold { border-left: 3px solid var(--gold); box-shadow: -5px 0 15px var(--gold-dim); }
-    .card.dynamic-green { border-left: 3px solid var(--green); box-shadow: -5px 0 15px var(--green-dim); }
-    .card.dynamic-red { border-left: 3px solid var(--red); box-shadow: -5px 0 15px var(--red-dim); }
-    .card.green { border-left: 3px solid var(--green); box-shadow: -5px 0 15px var(--green-dim); }
-    .card.red { border-left: 3px solid var(--red); box-shadow: -5px 0 15px var(--red-dim); }
-
-    .card-header { display: flex; justify-content: space-between; align-items: center; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); }
+    /* Slot Machine Text */
+    .value {
+      font-family: "Georgia", serif; /* Elegant casino font */
+      font-size: 36px; font-display: flex; align-items: center; gap: 6px;
+      text-shadow: 0 0 5px rgba(212, 175, 55, 0.2);
+    }
     
-    .value { font-size: 32px; font-weight: 800; letter-spacing: -0.5px; margin: 4px 0; font-variant-numeric: tabular-nums; }
-    .val-gold { color: var(--gold); text-shadow: 0 0 10px var(--gold-dim); }
-    .val-green { color: var(--green); text-shadow: 0 0 10px var(--green-dim); }
-    .val-red { color: var(--red); text-shadow: 0 0 10px var(--red-dim); }
+    .slot-machine {
+      font-size: 28px; font-weight: 7weight: 700;
+      text-shadow: 2px 2px 0px rgba(0,0,0,0.5);
+      margin: 2px 0;
+      white-space: nowrap;
+    }
+    .val-gold { color: var(--gold-light); }
+    .val-green { color: #4FFFA3; text-shadow: 0 0 10px rgba(79, 255, 163, 0.4); }
+    .val-red { color: #FF4F4F; text-shadow: 0 0 10px rgba00;
+      font-family: -apple-system, BlinkMacSystemFont, sans-serif; /* Clean numbers */
+      margin: 2px 0;
+      letter-spacing: -1px;
+    }
+    .text-gold { color: var(--gold); text-shadow: 0 0 1(255, 79, 79, 0.4); }
 
-    .insight-container { perspective: 1000px; height: 20px; position: relative; width: 100%; margin-top: 5px;}
-    .insight-flipper {
+    /* 35px var(--gold-glow); }
+    .text-green { color: var(--neon-green);D Insight Flipper */
+    .insight-box {
+      height: 24px; position: relative; text-shadow: 0 0 15px rgba(57, 255, 20, 0.3); }
+    .text-red { color: var(--neon-red); text-shadow: perspective: 1000px;
+    }
+    .flipper {
       width: 100%; height: 100%; position: absolute;
-      transform-style: preserve-3d; transition: transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1);
+      transform-style: preserve-3d 0 0 15px rgba(255, 0, 60, 0.; transition: transform 0.8s cubic-bezier(0.68, -0.55,3); }
+
+    /* --- 4. 3D TEXT FLIPPER (The Dealer) --- */
+     0.27, 1.55); /* Bouncy flip */
     }
-    .insight-front, .insight-back {
-      width: 100%; height: 100%; position: absolute; backface-visibility: hidden;
-      font-size: 13px; color: #BBBBBB; font-style: italic; display: flex; align-items: center;
+    .front, .back {
+      position: absolute; width: 100%; height: 100%; back.dealer-box {
+      height: 18px; perspective: 600px; margin-top: face-visibility: hidden;
+      display: flex; align-items: center;
+      font-size: 12px; font-style: italic; color: var(--text-dim);
     }
-    .insight-back { transform: rotateX(180deg); }
-    .flip-active { transform: rotateX(180deg); }
+    .back { transform: rotateX(180deg); }
+    .flipped { transform: rotateX(184px;
+    }
+    .flipper {
+      width: 100%; height: 100%; position: relative;
+      transform-style: preserve-3d;
+      transition: transform 0.8s cubic-bezier(0.68, -0.55, 0.20deg); }
 
-    .sub-stats { display: flex; justify-content: space-between; font-size: 11px; color: var(--muted); font-family: monospace; margin-top: 4px;}
-
-    /* --- Right Column: Charts & Ledger --- */
-    .right-col { display: grid; grid-template-rows: 1.5fr 1fr; gap: 20px; }
+    /* --- RIGHT COLUMN: CHIPS & LEDGER --- */
+    .right-col { display: grid; grid-template-rows: 1.5fr 1fr; gap: 20px; }65, 1.55); /* Bouncy flip */
+    }
+    .front, .back {
+      position: absolute; inset: 0; backface-visibility: hidden;
+      font-size: 11px; color: var(--text-dim); display: flex; align-items: center;
+      white-space: nowrap
     
-    .panel { background: var(--card-bg); border-radius: var(--radius); padding: 20px; border: 1px solid rgba(255,255,255,0.05); display:flex; flex-direction: column;}
-    .panel-title { font-size: 14px; font-weight: bold; color: var(--gold); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 15px; text-shadow: 0 0 5px var(--gold-dim); border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 8px;}
+    .panel {
+      border: 1px solid rgba(255,255,25; overflow: hidden; text-overflow: ellipsis;
+    }
+    .back { transform: rotateX(5,0.1);
+      border-radius: 12px;
+      background: rgba(0,0180deg); }
+    .flipped { transform: rotateX(180deg); }
 
-    .chart-container { flex-grow: 1; display: flex; align-items: flex-end; justify-content: space-around; padding-top: 10px; }
-    .stack-group { display: flex; flex-direction: column; align-items: center; gap: 5px; cursor: pointer; transition: transform 0.2s; }
-    .stack-group:hover { transform: translateY(-5px); }
-    .chips { display: flex; align-items: flex-end; gap: 4px; height: 120px; }
-    .chip-col { display: flex; flex-direction: column-reverse; justify-content: flex-start; gap: 2px; width: 20px;}
-    .chip { width: 20px; height: 6px; border-radius: 3px; border: 1px solid rgba(0,0,0,0.5); box-shadow: inset 0 1px 1px rgba(255,255,255,0.3); }
-    .chip.inc { background: var(--green); }
-    .chip.exp { background: var(--red); }
-    .month-label { font-size: 10px; color: var(--muted); text-transform: uppercase; }
+    ,0,0.3);
+      padding: 16px;
+      display: flex; flex-/* --- 5. CHIP STACKS (The Graph) --- */
+    .panel-header {
+      fontdirection: column;
+    }
 
-    .ledger-list { overflow-y: auto; flex-grow: 1; display: flex; flex-direction: column; gap: 10px; padding-right: 5px;}
-    .ledger-list::-webkit-scrollbar { width: 4px; }
-    .ledger-list::-webkit-scrollbar-thumb { background: var(--muted); border-radius: 4px; }
+    /* POKER CHIP GRAPH */
+    .chart-area {
+-size: 11px; color: var(--text-dim); border-bottom: 1px solid      flex-grow: 1; display: flex; align-items: flex-end; justify-content: space-around #333;
+      padding-bottom: 5px; margin-bottom: 10px;;
+      padding-bottom: 5px; border-bottom: 2px solid var(--gold);
+ text-transform: uppercase;
+    }
+    .chart-area {
+      flex-grow: 1    }
+    .stack {
+      display: flex; flex-direction: column-reverse; align-items: center; display: flex; align-items: flex-end; justify-content: space-between;
+      padding; gap: -2px; /* Overlap slightly like real chips */
+      cursor: pointer; transition: transform: 0 5px;
+    }
+    .stack-col {
+      display: flex; flex-direction 0.2s;
+    }
+    .stack:hover { transform: translateY(-10px): column; align-items: center; gap: 6px;
+      cursor: pointer; transition: transform scale(1.1); z-index: 10; }
     
-    .iou-slip {
-      background: repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(0,0,0,0.1) 10px, rgba(0,0,0,0.1) 20px), #2A2A2A;
-      border-left: 2px dashed var(--muted);
-      padding: 10px 14px; border-radius: 4px;
+    /* The Chip CSS */
+    .poker-chip {
+      width: 24px; height: 6px;
+      border-radius 0.2s;
+    }
+    .stack-col:hover { transform: translateY(-5px); }
+    
+    /* Realistic Chip CSS */
+    .chip {
+      width: 24px; height: 50%; /* Looks like side profile of a chip */
+      border: 1px solid rgba(0,0,0,0.5);
+      box-shadow: 0 2px 0 rgba(0,: 6px;
+      border-radius: 50%; /* Oval look from side */
+      border: 1px dashed rgba(0,0,0,0.4);
+      box-shadow: 0 20,0,0.3);
+      position: relative;
+    }
+    /* Chip Edge Detail */px 0 rgba(0,0,0,0.3), inset 0 2px 3px rgba(2
+    .poker-chip::after {
+      content: ""; position: absolute; left: 0;55,255,255,0.2);
+      margin-top: -3px right: 0; top: 1px; bottom: 1px;
+      border-left: ; /* Stack overlap */
+      position: relative;
+    }
+    .chip-green { background: var4px dashed rgba(255,255,255,0.4);
+      border-right: 4px dashed rgba(255,255,255,0.4);
+(--neon-green); border-color: #228B22; }
+    .chip-red { background:      opacity: 0.5;
+    }
+    .chip-inc { background: radial-gradient(circle var(--neon-red); border-color: #8B0000; }
+    
+    .month-tag { font-size: 9px; color: #555; margin-top: 4px;, var(--green-chip), #1a5225); }
+    .chip-exp { background: radial }
+
+    /* --- 6. THE LEDGER (Debts) --- */
+    .ledger-scroll { overflow-y-gradient(circle, var(--red-chip), #7a1818); }
+    
+    .month-: auto; flex-grow: 1; padding-right: 4px; }
+    .ledger-scroll::-lbl { margin-top: 8px; font-size: 10px; color: var(--gold); text-webkit-scrollbar { width: 3px; background: transparent; }
+    .ledger-scroll::-webkit-align: center; }
+
+    /* DEBT TICKET LIST */
+    .ledger { overflow-y: auto; paddingscrollbar-thumb { background: #444; border-radius: 3px; }
+
+    .ticket-right: 5px; display: flex; flex-direction: column; gap: 8px;}
+ {
+      background: #1e1e1e;
+      border-left: 2px dashed #    .ledger::-webkit-scrollbar { width: 4px; background: #222; }
+    .ledger444;
+      padding: 8px 10px; margin-bottom: 6px;
+      ::-webkit-scrollbar-thumb { background: var(--gold); }
+
+    .ticket {
+      background: #display: flex; justify-content: space-between; align-items: center;
+      transition: all EFEFEF; color: #111; /* Physical paper look */
+      padding: 8px 12px;
+      font-family: "Courier New", monospace; font-weight: bold;
+      border0.2s;
+    }
+    .ticket:hover { background: #252525; }
+    .ticket-name { font-size: 12px; color: #ccc; display-left: 4px solid #111;
       display: flex; justify-content: space-between; align-items: center;
-    }
-    .iou-info h4 { margin: 0; font-size: 14px; color: var(--text); }
-    .iou-info p { margin: 2px 0 0 0; font-size: 11px; color: var(--muted); }
-    .iou-amt { font-weight: bold; font-family: monospace; font-size: 14px; }
-    .urgent { border-left-color: var(--red); box-shadow: inset 2px 0 10px var(--red-dim); }
-    .urgent .iou-info p, .urgent .iou-amt { color: var(--red); }
+      box-shadow: 2px 2px 5px rgba(0: block; }
+    .ticket-time { font-size: 10px; color: #666; }
+    .ticket-amt { font-size: 12px; font-weight: bold; color: var(--text-main); }
     
-    .loading { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: var(--bg); z-index: 10; font-family: monospace; color: var(--gold); font-size: 18px; text-align:center; padding: 20px;}
+    .ticket.urgent { border-left:,0,0,0.5);
+      transform: rotate(-1deg); /* Imperfect paper placement */
+       2px solid var(--neon-red); box-shadow: inset 5px 0 10px rgbatransition: transform 0.2s;
+    }
+    .ticket:hover { transform: rotate(0(255,0,60,0.1); }
+    .ticket.urgent .ticket-timedeg) scale(1.02); }
+    .ticket.urgent { background: #ffcccc; border-left { color: var(--neon-red); font-weight: bold; }
+
+    /* Load Screen */
+    #: 4px solid var(--red-chip); color: #8a0000; }
+    loader { position: fixed; inset: 0; background: #191919; z-index: 9.ticket-name { font-size: 13px; text-transform: uppercase; }
+    .ticket-meta9; display: flex; flex-direction: column; align-items: center; justify-content: center; color { font-size: 10px; opacity: 0.7; }
+
+    /* Loader */
+    #loader: var(--gold); font-size: 12px; letter-spacing: 2px; }
+    . {
+      position: absolute; inset: 0; background: #000; z-index: 9spinner { width: 30px; height: 30px; border: 2px solid #333;9;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--gold border-top-color: var(--gold); border-radius: 50%; animation: spin 1s); letter-spacing: 4px; font-weight: bold;
+    }
+  </style>
+ linear infinite; margin-bottom: 15px; }
+    @keyframes spin { to {transform: rotate</head>
+<body>
+  <div id="loader">DEALING CARDS...</div>
+
+  <!-- LEFT: KPI CAR(360deg);} }
+
   </style>
 </head>
 <body>
-  <div id="loader" class="loading">CONNECTING TO VIP SERVER...</div>
 
+  <!-- Loading Screen -->
+  <div id="loader">
+    <div class="spinner"></div>
+    <div id="status-text">ENTER THE VIP LOUNGE...</div>
+  </div>
+
+  <div class="dashboard-grid">
+DS -->
   <div class="kpi-col">
-    <div class="card gold">
-      <div class="card-header"><span>💎 True Net Worth</span></div>
-      <div class="value val-gold" id="val-net">৳0</div>
-      <div class="sub-stats">
-        <span id="sub-bal">Bal: ৳0</span>
-        <span id="sub-debt">Debt: ৳0</span>
+    <!-- Net Worth -->
+    <div class="card">
+      <div class="label"><span>VIP NET WORTH</span><span>♠️</span></div>
+      <div class="    
+    <!-- LEFT: THE KPIS -->
+    <div class="kpi-col">
+      
+      <!-- Net Worth -->
+      <div class="card border-gold">
+        <div class="label"><span>value val-gold" id="val-net">---</div>
+      <div class="label" style="border:none; margin:0; font-size:9px; color:var(--text-dim);">
+        <span id="sub-bal">Bal: ---</span> <span id="sub-debt">Debt: ---</span>💎 NET WORTH</span></div>
+        <div class="slot-machine text-gold" id="nw-val">0
       </div>
     </div>
 
-    <div class="card" id="card-flow">
-      <div class="card-header"><span id="icon-flow">⚖️ 30-Day Cash Flow</span></div>
-      <div class="value" id="val-flow">৳0</div>
-      <div class="insight-container">
-        <div class="insight-flipper" id="flip-flow">
-          <div class="insight-front" id="txt-flow-1">Loading insight...</div>
-          <div class="insight-back" id="txt-flow-2">Analyzing data...</div>
+    <!-- Cash Flow -->
+    <div class="card">
+      <div</div>
+        <div class="dealer-box"><div class="flipper" id="nw-flip"><div class="label"><span>MONTHLY HAND</span><span>♣️</span></div>
+      <div class="value" id="val-flow">---</div>
+      <div class="insight-box" id="box-flow">
+        <div class class="front" id="nw-sub">Calculated Assets</div><div class="back" id="nw-="flipper" id="flip-flow">
+          <div class="front" id="t-flow-sub2">Liquid + Locked</div></div></div>
+      </div>
+
+      <!-- Cash Flow -->
+      <div class="card"1">Reading table...</div>
+          <div class="back" id="t-flow-2">Calculating odds id="cf-card">
+        <div class="label"><span>⚖️ CASH FLOW</span></div>
+        <...</div>
         </div>
       </div>
     </div>
 
-    <div class="card green">
-      <div class="card-header"><span>📈 30-Day Income</span></div>
-      <div class="value val-green" id="val-inc">৳0</div>
-      <div class="insight-container">
-        <div class="insight-flipper" id="flip-inc">
-          <div class="insight-front" id="txt-inc-1">Loading insight...</div>
-          <div class="insight-back" id="txt-inc-2">Analyzing data...</div>
+    <!-- Income -->
+    <div class="card">div class="slot-machine" id="cf-val">0</div>
+        <div class="dealer-box
+      <div class="label"><span>WINNINGS (IN)</span><span>♦️</span></div>
+      <div"><div class="flipper" id="cf-flip"><div class="front" id="cf-txt1">... class="value val-green" id="val-inc">---</div>
+      <div class="insight-box</div><div class="back" id="cf-txt2">...</div></div></div>
+      </div>
+
+      <!--" id="box-inc">
+        <div class="flipper" id="flip-inc">
+           Income -->
+      <div class="card border-green">
+        <div class="label"><span>💵 INCOME</span></div>
+<div class="front" id="t-inc-1">...</div>
+          <div class="back" id="t-inc-2">...</div>
         </div>
       </div>
     </div>
 
-    <div class="card red">
-      <div class="card-header"><span>📉 30-Day Expense</span></div>
-      <div class="value val-red" id="val-exp">৳0</div>
-      <div class="insight-container">
-        <div class="insight-flipper" id="flip-exp">
-          <div class="insight-front" id="txt-exp-1">Loading insight...</div>
-          <div class="insight-back" id="txt-exp-2">Analyzing data...</div>
+    <!-- Expense -->
+    <div class="card">
+      <div class="label"><span>BETS (OUT)</span><span>♥️</span></div>
+      <div class="value val-red" id="val-exp">---</div>
+      <div class="insight-box" id="box-exp">
+        <div class="flipper" id        <div class="slot-machine text-green" id="in-val">0</div>
+        <div class="dealer-box"><div class="flipper" id="in-flip"><div class="front" id="in-txt1">...</div><div class="back" id="in-txt2">...</div></div></div>
+      </div>
+
+      <!-- Expense -->
+      <div class="card border-red">
+        <div class="label="flip-exp">
+          <div class="front" id="t-exp-1">...</div>
+          <div class="back" id="t-exp-2">...</div>
         </div>
       </div>
     </div>
   </div>
 
-  <div class="right-col">
+  <!-- RIGHT: CHIPS & LEDGER -->
+  <div class="right-"><span>💸 EXPENSE</span></div>
+        <div class="slot-machine text-red" id="ex-val">0</div>
+        <div class="dealer-box"><div class="flipper" id="ex-flip"><div class="front" id="ex-txt1">...</div><div class="back" id="ex-txt2">...</div></div></div>
+      </div>
+
+    </div>
+
+    <!-- RIGHT: STATS & DEBTScol">
     <div class="panel">
-      <div class="panel-title">Past 6 Months (Winnings vs Losses)</div>
-      <div class="chart-container" id="chip-chart"></div>
+      <div class="label">HISTORY (LAST 6 ROUND -->
+    <div class="right-col">
+      
+      <!-- Chip Stacks -->
+      <div classS)</div>
+      <div class="chart-area" id="poker-chart"></div>
     </div>
 
     <div class="panel">
-      <div class="panel-title">The House Ledger (Outstanding)</div>
-      <div class="ledger-list" id="ledger-list"></div>
+      <div class="label">HOUSE LEDGER (DEBTS)</div>
+="card">
+        <div class="panel-header">Last 6 Months History</div>
+        <div class="chart-area" id="chip-chart"></div>
+      </div>
+
+      <!-- House Ledger -->
+      <div class="card      <div class="ledger" id="ledger-list"></div>
     </div>
   </div>
 
   <script>
     const fmt = (n) => "৳" + Math.abs(n).toLocaleString();
 
-    function spinNumber(el, finalValue) {
-      const duration = 1200; 
-      const start = Date.now();
-      const isNeg = finalValue < 0;
+    ">
+        <div class="panel-header">The House Ledger (Debts)</div>
+        <div class="ledger-scroll" id="ledger-list"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <// 1. Slot Machine Spin Effect
+    function slotSpin(element, targetVal) {
+      if(!element) returnscript>
+    /* --- LOGIC ENGINE --- */
+    const fmt = (n) => "৳" + Math.abs;
+      let current = 0;
+      const isNeg = targetVal < 0;
+      const absTarget(n).toLocaleString();
+
+    // 1. Slot Machine Animation
+    function runSlot(elementId, end = Math.abs(targetVal);
+      const step = Math.max(1, Math.floor(absTarget /Value, colorClass) {
+      const el = document.getElementById(elementId);
+      if(colorClass) el.classList.add(colorClass);
       
-      const timer = setInterval(() => {
-        const passed = Date.now() - start;
-        if (passed > duration) {
-          clearInterval(timer);
-          el.innerText = (isNeg ? "-" : "") + fmt(finalValue);
-        } else {
-          const randomVal = Math.floor(Math.random() * Math.abs(finalValue) * 1.5);
-          el.innerText = (isNeg ? "-" : "") + fmt(randomVal);
+      let current = 0;
+      const step = Math.abs 30));
+      
+      const interval = setInterval(() => {
+        current += step;
+        if(current >= absTarget) {
+          current = absTarget;
+          clearInterval(interval);
         }
-      }, 40); 
+        //(endValue) / 30; // 30 frames
+      
+      const interval = setInterval(() => {
+        current += step;
+        if (current >= Math.abs(endValue)) {
+          clearInterval(interval);
+          el.innerText = (endValue < 0 ? "-" : "") + fmt(endValue);
+ Randomize last digit for "blur" effect
+        let display = current;
+        if(current !== absTarget) display = Math.floor(display / 10) * 10 + Math.floor(Math.random()*9);
+        
+        element.innerText = (isNeg ? "-" : "") + "৳" + display        } else {
+          el.innerText = (endValue < 0 ? "-" : "") + fmt(Math.toLocaleString();
+      }, 30);
     }
 
-    function startRotator(flipId, textFrontId, textBackId, templates) {
-      if(!templates || templates.length === 0) return;
+    // 2. 3D Insight Flipper
+    .floor(current));
+        }
+      }, 30);
+    }
+
+    // 2. Thefunction initFlipper(flipId, fId, bId, msgs) {
+      if(!msgs || msgs Dealer (Text Flipper)
+    function dealCards(flipId, t1Id, t2Id, messages.length === 0) return;
       let idx = 0;
+      const flipper = document.getElementById() {
+      if(!messages || messages.length === 0) return;
+      let i = 0;flipId);
+      const front = document.getElementById(fId);
+      const back = document.getElementById(
       const flipper = document.getElementById(flipId);
-      const front = document.getElementById(textFrontId);
-      const back = document.getElementById(textBackId);
+      const t1 = document.getElementById(t1Id);
+      const t2 = document.getElementById(t2Id);
+
+      t1.innerText = messages[bId);
       
-      front.innerText = templates[0];
+      front.innerText = msgs[0];
       
       setInterval(() => {
-        idx = (idx + 1) % templates.length;
-        const isFlipped = flipper.classList.contains('flip-active');
+        0];
+
+      setInterval(() => {
+        i = (i + 1) % messages.length;
+idx = (idx + 1) % msgs.length;
+        const isFlipped = flipper.classList.contains('flipped');
         
-        if (isFlipped) {
-          front.innerText = templates[idx];
-          flipper.classList.remove('flip-active');
+        if(isFlipped) {
+          front.innerText = msgs[idx];
+          flipper.classList.remove('flipped');
         } else {
-          back.innerText = templates[idx];
-          flipper.classList.add('flip-active');
+          back.        // If currently displaying Front, set Back and Flip
+        if (!flipper.classList.contains('flipped')) {
+          t2.innerText = messages[i];
+          flipper.classList.add('flipped');
+        } elseinnerText = msgs[idx];
+          flipper.classList.add('flipped');
         }
-      }, 10000); 
+      }, {
+          t1.innerText = messages[i];
+          flipper.classList.remove('flipped');
+ 8000); // 8 seconds per card flip
     }
 
-    function buildChart(data) {
+    // 3. Build Poker Chip        }
+      }, 8000); // 8 seconds per deal
+    }
+
+    // 3 Stacks
+    function drawChips(data) {
+      const container = document.getElementById('poker-chart');
+. Render Chips
+    function stackChips(data) {
       const container = document.getElementById('chip-chart');
-      let maxVal = 1;
+            // Normalize height: find max value
+      let max = 1;
       data.forEach(d => {
-        if(d.income > maxVal) maxVal = d.income;
-        if(d.expense > maxVal) maxVal = d.expense;
+// Normalize height (max 10 chips per stack to fit)
+      let max = 0;
+      data.forEach        if(d.income > max) max = d.income;
+        if(d.expense > max(d => { if(d.income > max) max = d.income; if(d.expense >) max = d.expense;
       });
-      const chipValue = maxVal / 18; 
+      const chipVal = max / 12; // Max 12 chips high
 
-      data.forEach(month => {
-        const incChipsCount = Math.ceil(month.income / chipValue) || 0;
-        const expChipsCount = Math.ceil(month.expense / chipValue) || 0;
-        
-        const group = document.createElement('div');
-        group.className = 'stack-group';
-        group.title = `In: ${fmt(month.income)} | Out: ${fmt(month.expense)}`; 
-        
-        let incHtml = '', expHtml = '';
-        for(let i=0; i<incChipsCount; i++) incHtml += `<div class="chip inc"></div>`;
-        for(let i=0; i<expChipsCount; i++) expHtml += `<div class="chip exp"></div>`;
+      data.forEach(d => {
+        const col = document.createElement('div max) max = d.expense; });
+      const valPerChip = max / 10;
 
-        group.innerHTML = `
-          <div class="chips">
-            <div class="chip-col">${incHtml}</div>
-            <div class="chip-col">${expHtml}</div>
-          </div>
-          <div class="month-label">${month.label}</div>
-        `;
-        container.appendChild(group);
+      data');
+        col.style.display = 'flex';
+        col.style.flexDirection = 'column';.forEach(m => {
+        const inC = Math.ceil(m.income / valPerChip);
+        const
+        col.style.alignItems = 'center';
+        
+        const inChips = Math.ceil(d.income exC = Math.ceil(m.expense / valPerChip);
+        
+        const col = document. / chipVal);
+        const exChips = Math.ceil(d.expense / chipVal);
+        
+createElement('div');
+        col.className = 'stack-col';
+        col.title = `${m.label}:        let chipsHtml = `<div class="stack" title="In: ${fmt(d.income)} \nOut +${fmt(m.income)} / -${fmt(m.expense)}`;
+        
+        let html = '<: ${fmt(d.expense)}">`;
+        
+        // Expense Chips (Red) - Stacked firstdiv style="display:flex; align-items:flex-end; gap:2px;">';
+        
+        // Income Stack
+        html += '<div style="display:flex; flex-direction:column-reverse;">? No, let's stack them side by side or overlap
+        // Simplified: One stack, Red on bottom,';
+        for(let k=0; k<inC; k++) html += `<div class="chip chip-green Green on top? 
+        // Better: Two tiny columns next to each other
+        
+        chipsHtml ="></div>`;
+        html += '</div>';
+
+        // Expense Stack
+        html += '<div style="display `<div style="display:flex; align-items:flex-end; gap:2px;">`;
+        
+:flex; flex-direction:column-reverse;">';
+        for(let k=0; k<ex        // Green Stack
+        chipsHtml += `<div class="stack">`;
+        for(let i=0; i<C; k++) html += `<div class="chip chip-red"></div>`;
+        html += '</div>';inChips; i++) chipsHtml += `<div class="poker-chip chip-inc"></div>`;
+        
+
+        html += `</div><div class="month-tag">${m.label}</div>`;
+        col.innerHTML =chipsHtml += `</div>`;
+
+        // Red Stack
+        chipsHtml += `<div class="stack">`;
+ html;
+        container.appendChild(col);
       });
     }
 
-    function buildLedger(debts) {
-      const container = document.getElementById('ledger-list');
+    // 4. Render Ledger        for(let i=0; i<exChips; i++) chipsHtml += `<div class="poker
+    function writeLedger(debts) {
+      const list = document.getElementById('ledger-list');-chip chip-exp"></div>`;
+        chipsHtml += `</div>`;
+        
+        chipsHtml += `</div>
       if(debts.length === 0) {
-        container.innerHTML = `<div style="color:var(--muted); font-size:12px; text-align:center; margin-top:20px;">All accounts settled.</div>`;
+        list.innerHTML = `<div style="text`; // End container
+
+        col.innerHTML = chipsHtml + `<div class="month-lbl">${d.label}</div>`;-align:center; padding:20px; color:#555; font-size:10px;">NO
+        container.appendChild(col);
+      });
+    }
+
+    // 4. Build Tickets
+    function draw DEBTS FOUND</div>`;
         return;
       }
-
       debts.forEach(d => {
-        const isUrgent = d.daysLeft.includes("Overdue") || parseInt(d.daysLeft.match(/\d+/)?.[0] || 99) <= 30;
-        container.innerHTML += `
-          <div class="iou-slip ${isUrgent ? 'urgent' : ''}">
-            <div class="iou-info">
-              <h4>${d.name}</h4>
-              <p>${d.daysLeft}</p>
+        //Tickets(debts) {
+      const list = document.getElementById('ledger-list');
+      if(deb Parse "Pay in X Days"
+        const days = parseInt(d.daysLeft.replace(/\D/gts.length === 0) {
+        list.innerHTML = `<div style="text-align:center; color:var,'')) || 999;
+        const isUrgent = days < 30 || d.daysLeft(--text-dim); font-size:10px; margin-top:20px;">NO DEBTS OUT.includes("Overdue");
+        
+        list.innerHTML += `
+          <div class="ticket ${isSTANDING</div>`;
+        return;
+      }
+      debts.forEach(d => {
+        const isUrgent ? 'urgent' : ''}">
+            <div>
+              <span class="ticket-name">${d.name}</span>
+              <span class="ticket-time">${d.daysLeft}</span>
             </div>
-            <div class="iou-amt">${fmt(d.amount)}</div>
+            Urgent = d.daysLeft.includes("Overdue") || (parseInt(d.daysLeft.match(/\d+/)) < 30);
+        list.innerHTML += `
+          <div class="ticket ${is<span class="ticket-amt">${fmt(d.amount)}</span>
+          </div>
+        `;
+      });
+    Urgent ? 'urgent' : ''}">
+            <div>
+              <div class="ticket-name">${d.}
+
+    // MAIN
+    async function init() {
+      try {
+        const res = await fetch('/api?name}</div>
+              <div class="ticket-meta">${d.daysLeft}</div>
+            </div>
+            t=' + Date.now());
+        const text = await res.text();
+
+        if(text.trim().<div>${fmt(d.amount)}</div>
           </div>
         `;
       });
     }
 
-    async function loadData() {
+    // MAINstartsWith('<')) throw new Error("API Config Error");
+        
+        const data = JSON.parse(text);
+         LOAD
+    async function init() {
       try {
-        const res = await fetch('/api?t=' + Date.now());
-        const text = await res.text();
+        const res = await fetch('/api?t=' + Dateif(data.backendError) throw new Error(data.backendError);
 
-        // 🚨 1. Check if Cloudflare returned an HTML Error Page
-        if (text.trim().startsWith('<')) {
-          console.error("Received HTML instead of API Data:", text);
-          document.getElementById('loader').innerText = "ERROR: CLOUDFLARE ROUTE NOT FOUND. Check your 'functions' folder structure!";
+        // Hide Loader
+        document.getElementById('.now());
+        const data = await res.json();
+
+        // Error Handling
+        if(data.backendError) {
+          document.getElementById('loader').innerText = "API ERROR: " + data.backendError;loader').style.display = 'none';
+
+        // Net Worth
+        runSlot('nw-val', data.
           return;
         }
 
-        const data = JSON.parse(text);
-
-        // 🚨 2. Check if the API threw a custom error
-        if (data.backendError) {
-           document.getElementById('loader').innerText = "API ERROR: " + data.backendError;
-           return;
-        }
-        
         document.getElementById('loader').style.display = 'none';
 
-        spinNumber(document.getElementById('val-net'), data.summary.netWorth);
-        document.getElementById('sub-bal').innerText = `Bal: ${fmt(data.summary.balance)}`;
+        summary.netWorth, 'text-gold');
+        document.getElementById('nw-sub').innerText = `Bal: ${fmt(data.summary.balance)}`;
+        document.getElementById('nw-sub2').innerText = // Set Values
+        slotSpin(document.getElementById('val-net'), data.summary.netWorth);
+        document`Debt: ${fmt(data.summary.totalDebt)}`;
+
+        // Cash Flow
+        const cf = data..getElementById('sub-bal').innerText = `Bal: ${fmt(data.summary.balance)}`;
         document.getElementById('sub-debt').innerText = `Debt: ${fmt(data.summary.totalDebt)}`;
 
-        const flowCard = document.getElementById('card-flow');
         const flowVal = document.getElementById('val-flow');
-        spinNumber(flowVal, data.kpis.current.cashflow);
-        if(data.kpis.current.cashflow >= 0) {
-          flowCard.classList.add('dynamic-green'); flowVal.classList.add('val-green');
-        } else {
-          flowCard.classList.add('dynamic-red'); flowVal.classList.add('val-red');
-        }
+        slotSpin(flowVal, data.kpis.current.kpis.current.cashflow;
+        runSlot('cf-val', cf, cf >= 0 ? 'text-green' : 'text-red');
+        document.getElementById('cf-card').classList.addcashflow);
+        if(data.kpis.current.cashflow >= 0) flowVal.classList.add('val-green');
+        else flowVal.classList.add('val-red');
 
-        spinNumber(document.getElementById('val-inc'), data.kpis.current.income);
-        spinNumber(document.getElementById('val-exp'), data.kpis.current.expense);
+        slotSpin(document.getElementById('val-inc'), data.kpis.current.income);
+        slotSpin((cf >= 0 ? 'border-green' : 'border-red');
+        dealCards('cf-flip', 'cf-txt1', 'cf-txt2', data.insights.cashflow);
 
-        startRotator('flip-flow', 'txt-flow-1', 'txt-flow-2', data.insights.cashflow);
-        startRotator('flip-inc', 'txt-inc-1', 'txt-inc-2', data.insights.income);
-        startRotator('flip-exp', 'txt-exp-1', 'txt-exp-2', data.insights.expense);
+        // Income & Expense
+        runSlot('in-val', data.kpis.current.income);
+        dealCards('in-flip', 'in-txt1', 'in-txt2', data.insights.income);
+        
+        runSlot('ex-val', data.kpis.current.expense);
+        dealCards('ex-document.getElementById('val-exp'), data.kpis.current.expense);
 
-        buildChart(data.chartData);
-        buildLedger(data.debts);
+        // Start Rotators
+        initFlipper('flip-flow', 't-flow-1', 't-flow-2', data.insights.cashflow);
+        initFlipper('flip-inc', 't-inc-1', 't-inc-2', data.insights.income);
+        initFlipper('flip-exp', 't-inc-1', 't-inc-2', data.insights.expense);
 
-      } catch (err) {
-        document.getElementById('loader').innerText = "CRITICAL FRONTEND ERROR. PRESS F12 AND CHECK CONSOLE.";
-        console.error("Critical error:", err);
+        // Draw Viz
+        drawChips(data.chartData);
+        drawTickets(data.debts);
+
+      } catch(e) {
+        console.error(e);
+        document.getElementById('loader').innerText = "CONNECTION LOST";
       }
     }
 
-    window.onload = loadData;
+    window.onload = init;
   </script>
 </body>
 </html>

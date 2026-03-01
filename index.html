@@ -1,437 +1,539 @@
-<!doctype html>
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Casino Royale Finance</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Casino Royale Finance - VIP Room</title>
+  
+  <!-- High-End Casino Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;800&family=Playfair+Display:wght@700;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+
   <style>
-    /* --- 1. THE CASINO THEME ENGINE --- */
+    /* --- 1. THEME ENGINE & LAYOUT --- */
     :root {
-      --bg: #191919;               /* Matches Notion Dark Mode */
-      --felt-dark: #0f2215;        /* Deep Green Felt Base */
-      --felt-light: #183621;       /* Lighter Green Texture */
+      --bg: #191919;
+      --felt-color: #0d361c;
+      --felt-highlight: #16522c;
+      --bumper-color: #1a0f0a;
       
-      --gold: #D4AF37;
-      --gold-gradient: linear-gradient(135deg, #BF953F, #FCF6BA, #B38728, #FBF5B7, #AA771C);
-      --gold-glow: rgba(212, 175, 55, 0.5);
+      --gold-solid: #D4AF37;
+      --gold-grad: linear-gradient(135deg, #BF953F, #FCF6BA, #B38728, #FBF5B7, #AA771C);
+      --gold-glow: drop-shadow(0 0 10px rgba(212, 175, 55, 0.4));
       
       --neon-green: #39FF14;
       --neon-red: #FF003C;
-      
-      --chip-red: #8a1c1c;
-      --chip-green: #1c5c2a;
-      
       --text-main: #EAEAEA;
-      --text-muted: #8aa192;
     }
 
-    * { box-sizing: border-box; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
-      margin: 0; padding: 20px;
       background-color: var(--bg);
+      background-image: radial-gradient(circle at center, #222 0%, #111 100%);
       color: var(--text-main);
-      font-family: "Courier Prime", "Courier New", monospace; 
-      height: 100vh; overflow: hidden;
-      display: flex; flex-direction: column;
+      font-family: "Space Mono", monospace;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      padding: 2vw;
     }
 
-    /* Loading Screen */
-    #loader {
-      position: fixed; inset: 0; background: #000; z-index: 999;
-      display: flex; flex-direction: column; align-items: center; justify-content: center;
-      color: var(--gold); letter-spacing: 4px; font-weight: bold; font-size: 14px;
+    /* 2x2 Grid Layout */
+    .casino-floor {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      grid-template-rows: repeat(2, 1fr);
+      gap: 30px;
+      width: 100%;
+      max-width: 1400px;
+      height: 100%;
+      max-height: 900px;
     }
-    .spinner {
-      width: 40px; height: 40px; border: 3px solid #333;
-      border-top-color: var(--gold); border-radius: 50%;
-      animation: spin 0.8s linear infinite; margin-bottom: 20px;
-    }
-    @keyframes spin { to {transform: rotate(360deg);} }
 
-    /* Layout */
-    .dashboard-grid {
-      display: grid; grid-template-columns: 1fr 1.3fr; gap: 20px;
-      width: 100%; height: 100%;
-    }
-    .kpi-col { display: grid; grid-template-rows: repeat(4, 1fr); gap: 15px; }
-    .right-col { display: grid; grid-template-rows: 1.5fr 1fr; gap: 20px; }
-
-    /* --- 2. THE VIP CARDS (Felt Texture) --- */
-    .card {
+    /* --- 2. CASINO TABLE CARDS (FELT & WOOD BUMPER) --- */
+    .table-card {
       position: relative;
-      background-color: var(--felt-dark);
-      /* Felt Noise Texture */
-      background-image: radial-gradient(var(--felt-light) 1px, transparent 1px);
-      background-size: 4px 4px;
+      background-color: var(--felt-color);
+      /* Highly realistic casino felt texture */
+      background-image: 
+        radial-gradient(circle at 50% 0%, var(--felt-highlight) 0%, transparent 70%),
+        url('data:image/svg+xml;utf8,%3Csvg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="noise"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="4" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="100%25" height="100%25" filter="url(%23noise)" opacity="0.12"/%3E%3C/svg%3E');
+      border-radius: 28px;
+      border: 14px solid var(--bumper-color); /* Leather bumper */
+      box-shadow: 
+        inset 0 0 0 3px #000, 
+        inset 0 0 0 6px var(--gold-solid), 
+        inset 0 0 40px rgba(0,0,0,0.8),
+        0 15px 35px rgba(0,0,0,0.5);
+      padding: 25px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      overflow: hidden;
+    }
+
+    /* Card Labels */
+    .card-title {
+      font-family: "Cinzel", serif;
+      font-size: 1.2rem;
+      letter-spacing: 3px;
+      color: var(--gold-solid);
+      text-align: center;
+      text-shadow: 0 4px 10px rgba(0,0,0,1);
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+    .card-title::before, .card-title::after {
+      content: ''; flex: 1; height: 1px;
+      background: linear-gradient(90deg, transparent, var(--gold-solid), transparent);
+    }
+
+    /* --- 3. SLOT MACHINE DISPLAY --- */
+    .slot-window {
+      background: linear-gradient(180deg, #0a0a0a 0%, #1a1a1a 15%, #1a1a1a 85%, #0a0a0a 100%);
       border-radius: 12px;
-      padding: 15px;
-      display: flex; flex-direction: column; justify-content: space-between;
-      box-shadow: inset 0 0 40px rgba(0,0,0,0.8);
-      border: 1px solid #222;
-    }
-
-    /* Metallic Borders */
-    .border-gold { border-left: 4px solid; border-image: var(--gold-gradient) 1; box-shadow: -5px 0 15px rgba(212, 175, 55, 0.15); }
-    .border-green { border-left: 4px solid var(--neon-green); box-shadow: -5px 0 15px rgba(57, 255, 20, 0.15); }
-    .border-red { border-left: 4px solid var(--neon-red); box-shadow: -5px 0 15px rgba(255, 0, 60, 0.15); }
-
-    /* Typography */
-    .label {
-      font-size: 11px; text-transform: uppercase; letter-spacing: 2px;
-      color: var(--gold); text-shadow: 0 2px 2px rgba(0,0,0,1);
-      display: flex; justify-content: space-between;
-    }
-    
-    /* Slot Machine Numbers */
-    .slot-val {
-      font-family: "Georgia", serif; /* Classy Casino Font */
-      font-size: 32px; font-weight: 700;
-      margin: 2px 0; letter-spacing: -0.5px;
-      white-space: nowrap;
-    }
-    .text-gold { 
-      background: var(--gold-gradient); 
-      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-      text-shadow: 0 0 20px rgba(212,175,55,0.3);
-    }
-    .text-green { color: var(--neon-green); text-shadow: 0 0 10px rgba(57, 255, 20, 0.4); }
-    .text-red { color: var(--neon-red); text-shadow: 0 0 10px rgba(255, 0, 60, 0.4); }
-
-    /* 3D Text Flipper (The Dealer) */
-    .dealer-area { height: 18px; perspective: 800px; overflow: hidden;}
-    .flipper {
-      width: 100%; height: 100%; position: relative;
-      transform-style: preserve-3d; transition: transform 0.8s cubic-bezier(0.68, -0.55, 0.27, 1.55);
-    }
-    .front, .back {
-      position: absolute; width: 100%; height: 100%; backface-visibility: hidden;
-      display: flex; align-items: center;
-      font-size: 11px; color: var(--text-muted); font-style: italic;
-    }
-    .back { transform: rotateX(180deg); }
-    .flipped { transform: rotateX(180deg); }
-
-    /* --- 3. THE CHIP STACKS (Graph) --- */
-    .panel-header {
-      font-size: 11px; color: var(--gold); border-bottom: 1px solid #444;
-      padding-bottom: 6px; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px;
-    }
-    
-    .chart-area {
-      flex-grow: 1; display: flex; align-items: flex-end; justify-content: space-around;
-      padding-bottom: 5px;
-    }
-    
-    .stack-group {
-      display: flex; gap: 4px; align-items: flex-end;
-      cursor: pointer; transition: transform 0.2s;
-    }
-    .stack-group:hover { transform: translateY(-5px) scale(1.05); }
-
-    .stack-col { display: flex; flex-direction: column-reverse; gap: 2px; }
-
-    /* Realistic 3D Chip CSS */
-    .chip {
-      width: 20px; height: 6px;
-      border-radius: 50%; /* Oval profile */
-      border: 1px dashed rgba(255,255,255,0.3);
-      box-shadow: 0 3px 0 rgba(0,0,0,0.5), inset 0 2px 3px rgba(255,255,255,0.2);
+      border: 3px solid #000;
+      box-shadow: 
+        inset 0 10px 20px rgba(0,0,0,0.9),
+        0 2px 0 rgba(255,255,255,0.1);
+      height: 90px;
       position: relative;
-    }
-    .c-green { background: var(--chip-green); }
-    .c-red { background: var(--chip-red); }
-    
-    .month-lbl { margin-top: 6px; font-size: 9px; color: #666; text-align: center; }
-
-    /* --- 4. THE HOUSE LEDGER (Debts) --- */
-    .ledger-scroll { overflow-y: auto; padding-right: 5px; display: flex; flex-direction: column; gap: 8px;}
-    .ledger-scroll::-webkit-scrollbar { width: 3px; background: #222; }
-    .ledger-scroll::-webkit-scrollbar-thumb { background: var(--gold); }
-
-    .ticket {
-      background: #EFEFEF; color: #111; /* Physical Paper Look */
-      border-left: 4px solid #333;
-      padding: 8px 10px; 
-      display: flex; justify-content: space-between; align-items: center;
-      transform: rotate(-0.5deg); /* Imperfect paper look */
-      box-shadow: 2px 2px 5px rgba(0,0,0,0.5);
-      transition: transform 0.2s;
-    }
-    .ticket:hover { transform: rotate(0deg) scale(1.02); }
-    
-    .t-urgent { 
-      background: #ffdbdb; 
-      border-left-color: var(--neon-red); 
-      color: #8a0000; font-weight: bold; 
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      padding: 0 20px;
+      margin: 15px 0;
     }
     
-    .t-name { font-size: 12px; font-weight: 800; text-transform: uppercase; }
-    .t-meta { font-size: 10px; opacity: 0.8; }
-    .t-amt { font-family: monospace; font-size: 13px; font-weight: bold; }
+    /* Slot Machine Glass Reflection */
+    .slot-window::after {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0; height: 40%;
+      background: linear-gradient(180deg, rgba(255,255,255,0.08) 0%, transparent 100%);
+      pointer-events: none;
+      border-radius: 12px 12px 0 0;
+    }
 
+    /* The Reels Container */
+    .slot-machine {
+      display: flex;
+      align-items: center;
+      font-family: "Playfair Display", serif;
+      font-size: 3.5rem;
+      font-weight: 900;
+      line-height: 1;
+    }
+
+    /* Currency Symbol */
+    .currency-symbol {
+      margin-right: 12px;
+      color: var(--gold-solid);
+      filter: var(--gold-glow);
+    }
+
+    /* Individual Reel CSS */
+    .reel-wrapper {
+      height: 1em;
+      overflow: hidden;
+      position: relative;
+      display: inline-block;
+      vertical-align: top;
+      margin: 0 1px;
+    }
+    
+    .reel-strip {
+      display: flex;
+      flex-direction: column;
+      will-change: transform;
+    }
+    
+    .reel-digit {
+      height: 1em;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .static-char { margin: 0 2px; }
+
+    /* Thematic Colors for Digits */
+    .theme-gold .reel-strip, .theme-gold .static-char {
+      background: var(--gold-grad);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      filter: var(--gold-glow);
+    }
+    .theme-green .reel-strip, .theme-green .static-char {
+      color: var(--neon-green);
+      text-shadow: 0 0 15px rgba(57, 255, 20, 0.6);
+    }
+    .theme-red .reel-strip, .theme-red .static-char {
+      color: var(--neon-red);
+      text-shadow: 0 0 15px rgba(255, 0, 60, 0.6);
+    }
+
+    /* --- 4. SUB-INFO & DEALER INSIGHTS --- */
+    .sub-info-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.85rem;
+      color: #9ab3a1;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      font-weight: bold;
+      margin-top: auto;
+    }
+    .sub-val { color: var(--gold-solid); }
+    .debt-val { color: #ff6b6b; }
+
+    /* 3D Dealer Card Flipper */
+    .dealer-card-container {
+      perspective: 1000px;
+      height: 40px;
+      width: 100%;
+      margin-top: auto;
+    }
+    .dealer-card {
+      width: 100%; height: 100%;
+      position: relative;
+      transform-style: preserve-3d;
+      transition: transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* Bouncy flip */
+    }
+    .dealer-card.flipped { transform: rotateX(180deg); }
+    
+    .dealer-face {
+      position: absolute;
+      inset: 0;
+      backface-visibility: hidden;
+      background: rgba(0,0,0,0.4);
+      border: 1px solid rgba(212, 175, 55, 0.3);
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 15px;
+      font-size: 0.75rem;
+      color: #e0e0e0;
+      text-align: center;
+    }
+    .dealer-back {
+      transform: rotateX(180deg);
+      border-color: rgba(57, 255, 20, 0.3);
+    }
+
+    /* Loading Overlay */
+    #loader {
+      position: fixed; inset: 0;
+      background: #000; z-index: 9999;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      transition: opacity 0.5s ease;
+    }
+    .chip-loader {
+      width: 60px; height: 60px;
+      border: 6px dashed var(--gold-solid);
+      border-radius: 50%;
+      animation: spin 2s linear infinite;
+    }
+    .loader-text {
+      margin-top: 20px; color: var(--gold-solid);
+      font-family: "Cinzel", serif; font-size: 1.2rem; letter-spacing: 4px;
+      animation: pulse 1s infinite alternate;
+    }
+    @keyframes spin { 100% { transform: rotate(360deg); } }
+    @keyframes pulse { 0% { opacity: 0.5; } 100% { opacity: 1; } }
+
+    /* Responsive adjustments */
+    @media (max-width: 900px) {
+      .casino-floor { grid-template-columns: 1fr; grid-template-rows: auto; }
+      .slot-machine { font-size: 2.8rem; }
+      .slot-window { height: 75px; }
+      body { overflow-y: auto; padding: 20px; }
+    }
   </style>
 </head>
 <body>
 
-  <!-- Loading Overlay -->
+  <!-- Loading Screen -->
   <div id="loader">
-    <div class="spinner"></div>
-    <div id="status-text">OPENING VIP LOUNGE...</div>
+    <div class="chip-loader"></div>
+    <div class="loader-text">THE DEALER IS SHUFFLING...</div>
   </div>
 
-  <div class="dashboard-grid">
+  <div class="casino-floor">
     
-    <!-- LEFT: KPI CARDS -->
-    <div class="kpi-col">
-      
-      <!-- Net Worth -->
-      <div class="card border-gold">
-        <div class="label"><span>💎 VIP NET WORTH</span></div>
-        <div class="slot-val text-gold" id="val-net">---</div>
-        <div class="label" style="border:none; margin:0; font-size:9px; color:var(--text-muted); text-shadow:none;">
-          <span id="sub-bal">Bal: ---</span> <span id="sub-debt">Debt: ---</span>
+    <!-- 1. TRUE NET WORTH -->
+    <div class="table-card">
+      <div class="card-title">💎 TRUE NET WORTH</div>
+      <div class="slot-window">
+        <div class="slot-machine theme-gold">
+          <span class="currency-symbol">৳</span>
+          <div id="slot-net" class="reels-container"></div>
         </div>
       </div>
+      <div class="sub-info-row">
+        <div>LIQUID: <span class="sub-val" id="lbl-bal">...</span></div>
+        <div>HOUSE DEBT: <span class="debt-val" id="lbl-debt">...</span></div>
+      </div>
+    </div>
 
-      <!-- Cash Flow -->
-      <div class="card border-gold" id="card-flow">
-        <div class="label"><span>⚖️ MONTHLY HAND</span></div>
-        <div class="slot-val" id="val-flow">---</div>
-        <div class="dealer-area">
-          <div class="flipper" id="flip-flow">
-            <div class="front" id="txt-flow-1">Reading table...</div>
-            <div class="back" id="txt-flow-2">Calculating odds...</div>
-          </div>
+    <!-- 2. MONTHLY CASHFLOW -->
+    <div class="table-card">
+      <div class="card-title">⚖️ MONTHLY HAND</div>
+      <div class="slot-window">
+        <div class="slot-machine" id="theme-flow">
+          <span class="currency-symbol">৳</span>
+          <div id="slot-flow" class="reels-container"></div>
         </div>
       </div>
-
-      <!-- Income -->
-      <div class="card border-green">
-        <div class="label"><span>💵 WINNINGS (IN)</span></div>
-        <div class="slot-val text-green" id="val-inc">---</div>
-        <div class="dealer-area">
-          <div class="flipper" id="flip-inc">
-            <div class="front" id="txt-inc-1">Counting chips...</div>
-            <div class="back" id="txt-inc-2">...</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Expense -->
-      <div class="card border-red">
-        <div class="label"><span>📉 LOSSES (OUT)</span></div>
-        <div class="slot-val text-red" id="val-exp">---</div>
-        <div class="dealer-area">
-          <div class="flipper" id="flip-exp">
-            <div class="front" id="txt-exp-1">Reviewing bets...</div>
-            <div class="back" id="txt-exp-2">...</div>
-          </div>
+      <div class="dealer-card-container">
+        <div class="dealer-card" id="dealer-flow">
+          <div class="dealer-face front">Reading the table...</div>
+          <div class="dealer-face dealer-back back">Calculating odds...</div>
         </div>
       </div>
     </div>
 
-    <!-- RIGHT: CHIPS & LEDGER -->
-    <div class="right-col">
-      
-      <!-- Chip Stacks -->
-      <div class="card">
-        <div class="panel-header">LAST 6 ROUNDS (HISTORY)</div>
-        <div class="chart-area" id="chip-chart"></div>
+    <!-- 3. INCOME -->
+    <div class="table-card">
+      <div class="card-title">💵 WINNINGS (IN)</div>
+      <div class="slot-window">
+        <div class="slot-machine theme-green">
+          <span class="currency-symbol">৳</span>
+          <div id="slot-inc" class="reels-container"></div>
+        </div>
       </div>
-
-      <!-- House Ledger -->
-      <div class="card">
-        <div class="panel-header">HOUSE LEDGER (OUTSTANDING)</div>
-        <div class="ledger-scroll" id="ledger-list"></div>
+      <div class="dealer-card-container">
+        <div class="dealer-card" id="dealer-inc">
+          <div class="dealer-face front">Counting chips...</div>
+          <div class="dealer-face dealer-back back">...</div>
+        </div>
       </div>
-
     </div>
+
+    <!-- 4. EXPENSE -->
+    <div class="table-card">
+      <div class="card-title">📉 LOSSES (OUT)</div>
+      <div class="slot-window">
+        <div class="slot-machine theme-red">
+          <span class="currency-symbol">৳</span>
+          <div id="slot-exp" class="reels-container"></div>
+        </div>
+      </div>
+      <div class="dealer-card-container">
+        <div class="dealer-card" id="dealer-exp">
+          <div class="dealer-face front">Reviewing the bets...</div>
+          <div class="dealer-face dealer-back back">...</div>
+        </div>
+      </div>
+    </div>
+
   </div>
 
   <script>
-    const fmt = (n) => "৳" + Math.abs(n).toLocaleString();
-
-    // 1. Slot Machine Animation
-    function runSlot(elementId, endValue) {
-      const el = document.getElementById(elementId);
-      if(!el) return;
-      
-      let current = 0;
-      const target = Math.abs(endValue);
-      const step = Math.max(1, Math.floor(target / 30)); 
-      
-      const interval = setInterval(() => {
-        current += step;
-        if (current >= target) {
-          clearInterval(interval);
-          el.innerText = (endValue < 0 ? "-" : "") + fmt(endValue);
-        } else {
-          // Add random jitter to last digit for blur effect
-          let display = current - (current % 10) + Math.floor(Math.random()*9);
-          el.innerText = (endValue < 0 ? "-" : "") + fmt(display);
-        }
-      }, 30);
-    }
-
-    // 2. The Dealer (3D Text Flipper)
-    function startDealer(flipId, fId, bId, messages) {
-      if(!messages || messages.length === 0) return;
-      let idx = 0;
-      const flipper = document.getElementById(flipId);
-      const front = document.getElementById(fId);
-      const back = document.getElementById(bId);
-
-      front.innerText = messages[0];
-
-      setInterval(() => {
-        idx = (idx + 1) % messages.length;
-        
-        if (!flipper.classList.contains('flipped')) {
-          back.innerText = messages[idx];
-          flipper.classList.add('flipped');
-        } else {
-          front.innerText = messages[idx];
-          flipper.classList.remove('flipped');
-        }
-      }, 8000); // Flip every 8 seconds
-    }
-
-    // 3. Render 3D Chip Stacks
-    function stackChips(data) {
-      const container = document.getElementById('chip-chart');
-      
-      // Find max to scale height (max 12 chips high)
-      let max = 0;
-      data.forEach(d => { 
-        if(d.income > max) max = d.income; 
-        if(d.expense > max) max = d.expense; 
-      });
-      const valPerChip = max / 10; 
-
-      data.forEach(m => {
-        const inC = Math.ceil(m.income / valPerChip) || 1;
-        const exC = Math.ceil(m.expense / valPerChip) || 1;
-        
-        // Create the group container
-        const group = document.createElement('div');
-        group.style.display = 'flex';
-        group.style.flexDirection = 'column';
-        group.style.alignItems = 'center';
-
-        // Inner HTML for the two stacks (Green left, Red right)
-        let html = `<div class="stack-group" title="${m.label}\nIn: ${fmt(m.income)}\nOut: ${fmt(m.expense)}">`;
-        
-        // Green Column
-        html += `<div class="stack-col">`;
-        for(let i=0; i<inC; i++) html += `<div class="chip c-green"></div>`;
-        html += `</div>`;
-
-        // Red Column
-        html += `<div class="stack-col">`;
-        for(let i=0; i<exC; i++) html += `<div class="chip c-red"></div>`;
-        html += `</div>`;
-        
-        html += `</div>`; // End stack-group
-        html += `<div class="month-lbl">${m.label}</div>`;
-        
-        group.innerHTML = html;
-        container.appendChild(group);
-      });
-    }
-
-    // 4. Render Debt Tickets
-    function printTickets(debts) {
-      const list = document.getElementById('ledger-list');
-      if(!debts || debts.length === 0) {
-        list.innerHTML = `<div style="text-align:center; color:#555; margin-top:20px; font-size:10px;">ALL BETS SETTLED</div>`;
-        return;
+    /**
+     * 🎰 CASINO SLOT MACHINE ANIMATION ENGINE
+     */
+    class SlotMachine {
+      constructor(containerId) {
+        this.container = document.getElementById(containerId);
       }
 
-      debts.forEach(d => {
-        // Parse "Pay in X Days" logic
-        const daysNum = parseInt(d.daysLeft.match(/\d+/)?.[0]) || 999;
-        const isUrgent = d.daysLeft.toLowerCase().includes('overdue') || daysNum < 30;
+      // Pre-fill reels so they look like they are spinning instantly on load
+      prepareSpinning() {
+        this.container.innerHTML = '<div style="font-size:1.5rem; letter-spacing:4px; opacity:0.5; animation:pulse 1s infinite alternate;">SPINNING...</div>';
+      }
+
+      async spinTo(targetValue, isNegative = false) {
+        this.container.innerHTML = ''; // Clear container
         
-        list.innerHTML += `
-          <div class="ticket ${isUrgent ? 't-urgent' : ''}">
-            <div>
-              <div class="t-name">${d.name}</div>
-              <div class="t-meta">${d.daysLeft}</div>
-            </div>
-            <div class="t-amt">${fmt(d.amount)}</div>
-          </div>
-        `;
-      });
+        // Setup negative sign if applicable
+        if (isNegative) {
+          const negSign = document.createElement('div');
+          negSign.className = 'static-char';
+          negSign.innerText = '-';
+          this.container.appendChild(negSign);
+        }
+
+        // Format number with commas
+        const valStr = Math.abs(targetValue).toLocaleString('en-US');
+        const stripsToAnimate =[];
+
+        // Build DOM for reels
+        for (let i = 0; i < valStr.length; i++) {
+          const char = valStr[i];
+          
+          if (char === ',') {
+            const comma = document.createElement('div');
+            comma.className = 'static-char';
+            comma.innerText = ',';
+            this.container.appendChild(comma);
+          } else {
+            const wrapper = document.createElement('div');
+            wrapper.className = 'reel-wrapper';
+            
+            const strip = document.createElement('div');
+            strip.className = 'reel-strip';
+            
+            // Generate standard digits 0-9 repeatedly to simulate long spin
+            // 4 loops of 0-9 = 40 digits
+            let sequenceHTML = '';
+            for(let loop = 0; loop < 4; loop++) {
+              for(let d = 0; d <= 9; d++) {
+                sequenceHTML += `<div class="reel-digit">${d}</div>`;
+              }
+            }
+            // Append final target digit at the very bottom
+            sequenceHTML += `<div class="reel-digit target-digit">${char}</div>`;
+            
+            strip.innerHTML = sequenceHTML;
+            wrapper.appendChild(strip);
+            this.container.appendChild(wrapper);
+            
+            stripsToAnimate.push(strip);
+          }
+        }
+
+        // Wait a frame for DOM rendering to measure heights correctly
+        await new Promise(r => requestAnimationFrame(r));
+
+        // Trigger Animations sequentially (Left to Right)
+        stripsToAnimate.forEach((strip, index) => {
+          // Calculate offset based on child height
+          const itemHeight = strip.children[0].getBoundingClientRect().height;
+          const totalItems = strip.children.length;
+          const finalOffset = -((totalItems - 1) * itemHeight);
+
+          // Staggering delay for realistic left-to-right reel locking
+          const delay = index * 300; 
+
+          setTimeout(() => {
+            // Easing: Pulls back slightly, spins fast, then bounces slightly on lock
+            strip.style.transition = 'transform 3.5s cubic-bezier(0.15, 0.85, 0.2, 1.1)';
+            strip.style.transform = `translateY(${finalOffset}px)`;
+          }, delay + 100);
+        });
+      }
     }
 
-    // MAIN LOAD FUNCTION
-    async function init() {
-      try {
-        const res = await fetch('/api?t=' + Date.now());
-        const text = await res.text();
+    /**
+     * 🃏 THE DEALER (Card Flipper Logic)
+     */
+    class Dealer {
+      constructor(cardId, messages) {
+        this.card = document.getElementById(cardId);
+        this.front = this.card.querySelector('.front');
+        this.back = this.card.querySelector('.back');
+        this.messages = messages || ["All bets settled."];
+        this.currentIndex = 0;
+      }
+
+      startDealing() {
+        if(this.messages.length <= 1) {
+            this.front.innerText = this.messages[0];
+            return;
+        }
         
-        // HTML Error Check
-        if(text.trim().startsWith('<')) {
-          throw new Error("Cloudflare Config Error: API route returned HTML");
-        }
+        this.front.innerText = this.messages[0];
+        
+        setInterval(() => {
+          this.currentIndex = (this.currentIndex + 1) % this.messages.length;
+          
+          if (!this.card.classList.contains('flipped')) {
+            this.back.innerText = this.messages[this.currentIndex];
+            this.card.classList.add('flipped');
+          } else {
+            this.front.innerText = this.messages[this.currentIndex];
+            this.card.classList.remove('flipped');
+          }
+        }, 7000); // Flips every 7 seconds
+      }
+    }
 
-        const data = JSON.parse(text);
+    /**
+     * 🚀 MAIN INITIALIZATION
+     */
+    async function initCasino() {
+      // Instantiate Slots
+      const slots = {
+        net: new SlotMachine('slot-net'),
+        flow: new SlotMachine('slot-flow'),
+        inc: new SlotMachine('slot-inc'),
+        exp: new SlotMachine('slot-exp')
+      };
 
-        // API Error Check
-        if(data.backendError) {
-          throw new Error(data.backendError);
-        }
+      Object.values(slots).forEach(s => s.prepareSpinning());
+
+      try {
+        // Fetch Data from your Cloudflare Worker
+        const res = await fetch('/api?t=' + Date.now());
+        if (!res.ok) throw new Error("API Route failed");
+        const data = await res.json();
+        
+        if(data.backendError) throw new Error(data.backendError);
 
         // Hide Loader
-        document.getElementById('loader').style.display = 'none';
+        document.getElementById('loader').style.opacity = '0';
+        setTimeout(() => document.getElementById('loader').style.display = 'none', 500);
 
-        // 1. Net Worth & Summary
-        runSlot('val-net', data.summary.netWorth);
-        document.getElementById('sub-bal').innerText = `Bal: ${fmt(data.summary.balance)}`;
-        document.getElementById('sub-debt').innerText = `Debt: ${fmt(data.summary.totalDebt)}`;
+        // 1. Trigger Net Worth
+        slots.net.spinTo(data.summary.netWorth, data.summary.netWorth < 0);
+        document.getElementById('lbl-bal').innerText = '৳' + data.summary.balance.toLocaleString();
+        document.getElementById('lbl-debt').innerText = '৳' + data.summary.totalDebt.toLocaleString();
 
-        // 2. Cash Flow
-        const cf = data.kpis.current.cashflow;
-        const cfCard = document.getElementById('card-flow');
-        const cfVal = document.getElementById('val-flow');
-        
-        runSlot('val-flow', cf);
-        if(cf >= 0) {
-          cfVal.classList.add('text-green');
-          cfCard.classList.add('border-green');
+        // 2. Trigger Cashflow & dynamic theme
+        const flowTheme = document.getElementById('theme-flow');
+        if (data.kpis.current.cashflow >= 0) {
+            flowTheme.classList.add('theme-green');
         } else {
-          cfVal.classList.add('text-red');
-          cfCard.classList.add('border-red');
+            flowTheme.classList.add('theme-red');
         }
-        startDealer('flip-flow', 'txt-flow-1', 'txt-flow-2', data.insights.cashflow);
-
-        // 3. Income & Expense
-        runSlot('val-inc', data.kpis.current.income);
-        startDealer('flip-inc', 'txt-inc-1', 'txt-inc-2', data.insights.income);
-
-        runSlot('val-exp', data.kpis.current.expense);
-        startDealer('flip-exp', 'txt-exp-1', 'txt-exp-2', data.insights.expense);
-
-        // 4. Draw Viz
-        stackChips(data.chartData);
-        printTickets(data.debts);
-
-      } catch(e) {
-        console.error(e);
-        document.getElementById('status-text').innerText = "SYSTEM ERROR";
-        document.getElementById('status-text').style.color = "red";
+        slots.flow.spinTo(data.kpis.current.cashflow, data.kpis.current.cashflow < 0);
         
-        const errDiv = document.createElement('div');
-        errDiv.style.color = "#666";
-        errDiv.style.fontSize = "10px";
-        errDiv.style.marginTop = "10px";
-        errDiv.innerText = e.message;
-        document.getElementById('loader').appendChild(errDiv);
+        new Dealer('dealer-flow', data.insights.cashflow).startDealing();
+
+        // 3. Trigger Income
+        slots.inc.spinTo(data.kpis.current.income);
+        new Dealer('dealer-inc', data.insights.income).startDealing();
+
+        // 4. Trigger Expense
+        slots.exp.spinTo(data.kpis.current.expense);
+        new Dealer('dealer-exp', data.insights.expense).startDealing();
+
+      } catch (e) {
+        console.error("Casino Systems Error:", e);
+        
+        // FAILSAFE / DEMO MODE (If API is unreachable, play the animations anyway!)
+        document.getElementById('loader').style.opacity = '0';
+        setTimeout(() => document.getElementById('loader').style.display = 'none', 500);
+
+        slots.net.spinTo(1245000);
+        document.getElementById('lbl-bal').innerText = "৳245,000";
+        document.getElementById('lbl-debt').innerText = "৳12,000";
+
+        document.getElementById('theme-flow').classList.add('theme-green');
+        slots.flow.spinTo(45200);
+        new Dealer('dealer-flow', ["API Disconnected.", "Loading offline chips...", "Simulated Hand."]).startDealing();
+
+        slots.inc.spinTo(85000);
+        new Dealer('dealer-inc', ["Fallback data applied.", "The house always wins."]).startDealing();
+
+        slots.exp.spinTo(39800);
+        new Dealer('dealer-exp', ["Offline tracking active.", "Minimize your losses."]).startDealing();
       }
     }
 
-    window.onload = init;
+    // Enter the VIP Lounge
+    window.onload = initCasino;
   </script>
 </body>
 </html>

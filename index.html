@@ -5,16 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Sci-Fi Finance HUD</title>
   
-  <!-- High-End Cyber Fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@500;600;700&family=Space+Mono:wght@700&display=swap" rel="stylesheet">
-
   <style>
-    /* --- 1. CORE VARIABLES --- */
+    /* --- 1. CORE VARIABLES & PROPERTIES --- */
     :root {
       --bg-color: #191919;
-      --card-bg: rgba(10, 12, 16, 0.7);
+      --card-bg: #111111; /* Slightly darker than background to make borders pop */
       
       --neon-white: #ffffff;
       --neon-green: #00ff66;
@@ -22,8 +17,14 @@
       --neon-yellow: #ffcc00;
       
       --text-main: #e2e8f0;
-      --text-gray: #64748b;
-      --text-dark: #334155;
+      --text-gray: #7a8a9e;
+    }
+
+    /* Enables smooth color transitioning for the Cashflow card */
+    @property --neon-color {
+      syntax: '<color>';
+      inherits: true;
+      initial-value: transparent;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -31,7 +32,7 @@
     body {
       background-color: var(--bg-color);
       color: var(--text-main);
-      font-family: 'Rajdhani', sans-serif;
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
       min-height: 100vh;
       display: flex;
       flex-direction: column;
@@ -39,7 +40,7 @@
       overflow-x: hidden;
     }
 
-    /* --- 2. LAYOUT: 1x4 Left, 1 Big Right --- */
+    /* --- 2. LAYOUT --- */
     .dashboard-layout {
       display: grid;
       grid-template-columns: 420px 1fr;
@@ -53,171 +54,168 @@
     .left-column {
       display: grid;
       grid-template-rows: repeat(4, 1fr);
-      gap: 20px;
+      gap: 25px;
       height: 100%;
     }
 
-    /* --- 3. HIGH-EFFORT HUD CARDS --- */
+    /* --- 3. ANIMATED LIVELY BORDERS (WRAPPER) --- */
+    .card-wrapper {
+      position: relative;
+      padding: 2px; /* Thickness of the animated border */
+      border-radius: 8px;
+      background: rgba(255,255,255,0.05); /* Fallback */
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      z-index: 1;
+      height: 100%;
+      /* Setup base color variable for inheritance */
+      --neon-color: var(--neon-white); 
+    }
+
+    /* The rotating conic gradient tracking the border */
+    .card-wrapper::before {
+      content: '';
+      position: absolute;
+      top: -100%; left: -100%; width: 300%; height: 300%;
+      background: conic-gradient(transparent, transparent, var(--neon-color), transparent, transparent);
+      animation: rotate-border 4s linear infinite;
+      z-index: -1;
+    }
+
+    @keyframes rotate-border {
+      100% { transform: rotate(360deg); }
+    }
+
+    /* --- 4. HIGH-EFFORT HUD CARDS --- */
     .hud-card {
       background: var(--card-bg);
-      border: 1px solid rgba(255, 255, 255, 0.05);
-      border-radius: 4px;
+      border-radius: 6px;
       padding: 20px 25px;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
       position: relative;
-      overflow: hidden;
-      backdrop-filter: blur(12px);
-      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+      height: 100%;
+      z-index: 2;
+      box-shadow: inset 0 0 10px rgba(0,0,0,0.8);
     }
 
-    /* Sci-Fi Targeting Corners */
-    .hud-card::before, .hud-card::after {
-      content: ''; position: absolute; width: 15px; height: 15px;
-      pointer-events: none;
+    /* Sub-Stats lowered opacity */
+    .text-up, .text-down {
+      opacity: 0.65;
+      font-weight: 700;
     }
-    .hud-card::before {
-      top: 0; left: 0;
-      border-top: 2px solid; border-left: 2px solid;
-    }
-    .hud-card::after {
-      bottom: 0; right: 0;
-      border-bottom: 2px solid; border-right: 2px solid;
-    }
+    .text-up { color: var(--neon-green); text-shadow: 0 0 8px rgba(0,255,102,0.4); }
+    .text-down { color: var(--neon-red); text-shadow: 0 0 8px rgba(255,0,68,0.4); }
+    .text-gray { color: var(--text-gray); }
 
-    /* Scanline Overlay */
-    .scanlines {
-      position: absolute; inset: 0; pointer-events: none;
-      background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,0) 50%, rgba(0,0,0,0.2) 50%, rgba(0,0,0,0.2));
-      background-size: 100% 4px; z-index: 1; opacity: 0.4;
-    }
-
-    /* Header */
+    /* Header & Text Coloring tied to --neon-color */
     .hud-header {
       display: flex; justify-content: space-between; align-items: center;
-      position: relative; z-index: 2;
     }
     .hud-title {
-      font-family: 'Orbitron', sans-serif;
-      font-size: 0.9rem; letter-spacing: 3px; font-weight: 700;
-      display: flex; align-items: center; gap: 8px;
+      font-size: 0.95rem; letter-spacing: 2px; font-weight: 700; text-transform: uppercase;
+      color: var(--neon-color);
+      text-shadow: 0 0 10px var(--neon-color);
     }
-    .hud-sys {
-      font-family: 'Space Mono', monospace;
-      font-size: 0.65rem; color: var(--text-dark); letter-spacing: 2px;
+    
+    /* Animated SVGs */
+    .hud-icon {
+      color: var(--neon-color);
+      filter: drop-shadow(0 0 5px var(--neon-color));
+      width: 22px; height: 22px;
     }
 
     /* Number Display Box (Left-Aligned Taka, Right-Aligned Number) */
     .hud-number-box {
-      background: rgba(0, 0, 0, 0.4);
+      background: rgba(0, 0, 0, 0.6);
       border: 1px solid rgba(255, 255, 255, 0.05);
-      border-radius: 2px;
+      border-radius: 4px;
       padding: 12px 20px;
       margin: 15px 0;
       display: flex;
       justify-content: space-between; /* Perfect Alignment */
       align-items: center;
-      position: relative;
-      z-index: 2;
     }
 
     .currency {
-      font-family: 'Space Mono', monospace;
-      font-size: 1.5rem; opacity: 0.7;
+      font-size: 1.5rem; opacity: 0.8; font-weight: 600;
+      color: var(--neon-color);
     }
     .amount {
-      font-family: 'Space Mono', monospace;
-      font-size: 2.2rem; font-weight: 700;
-      letter-spacing: -1px; text-align: right; width: 100%;
+      font-size: 2.3rem; font-weight: 700; letter-spacing: -1px; 
+      text-align: right; width: 100%;
+      font-variant-numeric: tabular-nums; /* Keeps numbers visually stable */
+      color: var(--neon-color);
+      text-shadow: 0 0 15px var(--neon-color);
     }
 
-    /* Footer / Sub-stats */
     .hud-footer {
       display: flex; justify-content: space-between;
-      font-size: 0.85rem; font-family: 'Space Mono', monospace;
-      position: relative; z-index: 2;
+      font-size: 0.85rem; font-weight: 600;
     }
-    .hud-footer span { font-weight: 700; }
 
-    /* --- 4. THEMES & DYNAMIC COLORS --- */
+    /* --- 5. THEMES & DYNAMIC PULSING --- */
     
-    /* White (Net Worth) */
-    .theme-white .hud-card::before, .theme-white .hud-card::after { border-color: var(--neon-white); }
-    .theme-white .hud-title { color: var(--neon-white); text-shadow: 0 0 10px rgba(255,255,255,0.5); }
-    .theme-white .amount { color: var(--neon-white); text-shadow: 0 0 15px rgba(255,255,255,0.5); }
-
-    /* Green (Income) */
-    .theme-green .hud-card::before, .theme-green .hud-card::after { border-color: var(--neon-green); }
-    .theme-green .hud-title { color: var(--neon-green); text-shadow: 0 0 10px rgba(0,255,102,0.5); }
-    .theme-green .amount { color: var(--neon-green); text-shadow: 0 0 15px rgba(0,255,102,0.5); }
-    .theme-green .currency { color: var(--neon-green); }
-
-    /* Red (Expense) */
-    .theme-red .hud-card::before, .theme-red .hud-card::after { border-color: var(--neon-red); }
-    .theme-red .hud-title { color: var(--neon-red); text-shadow: 0 0 10px rgba(255,0,68,0.5); }
-    .theme-red .amount { color: var(--neon-red); text-shadow: 0 0 15px rgba(255,0,68,0.5); }
-    .theme-red .currency { color: var(--neon-red); }
-
-    /* Cashflow Pulse Animations (Yellow <-> Green OR Yellow <-> Red) */
-    @keyframes pulse-yellow-green {
-      0% { border-color: var(--neon-yellow); box-shadow: 0 0 0 rgba(255, 204, 0, 0); }
-      50% { border-color: var(--neon-green); box-shadow: inset 10px 0 30px -10px rgba(0,255,102,0.2); }
-      100% { border-color: var(--neon-yellow); box-shadow: 0 0 0 rgba(255, 204, 0, 0); }
+    /* 1. White (Net Worth) & BREATHING GLOW */
+    .theme-white { --neon-color: var(--neon-white); }
+    .theme-white .hud-card {
+      animation: breath-white 3s ease-in-out infinite;
     }
-    @keyframes text-yellow-green {
-      0% { color: var(--neon-yellow); text-shadow: 0 0 10px rgba(255,204,0,0.5); }
-      50% { color: var(--neon-green); text-shadow: 0 0 15px rgba(0,255,102,0.6); }
-      100% { color: var(--neon-yellow); text-shadow: 0 0 10px rgba(255,204,0,0.5); }
+    @keyframes breath-white {
+      0%, 100% { box-shadow: 0 0 15px rgba(255,255,255,0.05), inset 0 0 10px rgba(255,255,255,0.02); }
+      50% { box-shadow: 0 0 35px rgba(255,255,255,0.4), inset 0 0 25px rgba(255,255,255,0.15); }
     }
 
-    @keyframes pulse-yellow-red {
-      0% { border-color: var(--neon-yellow); box-shadow: 0 0 0 rgba(255, 204, 0, 0); }
-      50% { border-color: var(--neon-red); box-shadow: inset 10px 0 30px -10px rgba(255,0,68,0.2); }
-      100% { border-color: var(--neon-yellow); box-shadow: 0 0 0 rgba(255, 204, 0, 0); }
+    /* 2. Green & Red Basics */
+    .theme-green { --neon-color: var(--neon-green); }
+    .theme-red { --neon-color: var(--neon-red); }
+
+    /* 3. Cashflow Pulse Animations */
+    .pulse-yg { animation: pulse-color-yg 3s infinite ease-in-out; }
+    @keyframes pulse-color-yg {
+      0%, 100% { --neon-color: var(--neon-yellow); }
+      50% { --neon-color: var(--neon-green); }
     }
-    @keyframes text-yellow-red {
-      0% { color: var(--neon-yellow); text-shadow: 0 0 10px rgba(255,204,0,0.5); }
-      50% { color: var(--neon-red); text-shadow: 0 0 15px rgba(255,0,68,0.6); }
-      100% { color: var(--neon-yellow); text-shadow: 0 0 10px rgba(255,204,0,0.5); }
+
+    .pulse-yr { animation: pulse-color-yr 3s infinite ease-in-out; }
+    @keyframes pulse-color-yr {
+      0%, 100% { --neon-color: var(--neon-yellow); }
+      50% { --neon-color: var(--neon-red); }
     }
 
-    /* Assign dynamically via JS */
-    .pulse-yg .hud-card { animation: pulse-yellow-green 3s infinite ease-in-out; border-left: 2px solid; }
-    .pulse-yg .hud-card::before, .pulse-yg .hud-card::after { animation: border-yellow-green 3s infinite ease-in-out; }
-    .pulse-yg .hud-title, .pulse-yg .amount, .pulse-yg .currency { animation: text-yellow-green 3s infinite ease-in-out; }
+    /* --- 6. SVG SPECIFIC ANIMATIONS --- */
+    .icon-diamond { animation: svg-float 3s infinite ease-in-out; }
+    .icon-wave { animation: svg-wave 2s infinite linear; }
+    .icon-up { animation: svg-bounce-up 2s infinite ease-in-out; }
+    .icon-down { animation: svg-bounce-down 2s infinite ease-in-out; }
 
-    .pulse-yr .hud-card { animation: pulse-yellow-red 3s infinite ease-in-out; border-left: 2px solid; }
-    .pulse-yr .hud-card::before, .pulse-yr .hud-card::after { animation: border-yellow-red 3s infinite ease-in-out; }
-    .pulse-yr .hud-title, .pulse-yr .amount, .pulse-yr .currency { animation: text-yellow-red 3s infinite ease-in-out; }
+    @keyframes svg-float { 0%, 100% { transform: translateY(0) scale(0.95); } 50% { transform: translateY(-4px) scale(1.05); } }
+    @keyframes svg-wave { 0% { transform: scaleY(1); } 50% { transform: scaleY(0.6); } 100% { transform: scaleY(1); } }
+    @keyframes svg-bounce-up { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
+    @keyframes svg-bounce-down { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(4px); } }
 
 
-    /* Utility Text Colors */
-    .text-gray { color: var(--text-gray); }
-    .text-white { color: var(--neon-white); }
-    .text-up { color: var(--neon-green); text-shadow: 0 0 8px rgba(0,255,102,0.4); }
-    .text-down { color: var(--neon-red); text-shadow: 0 0 8px rgba(255,0,68,0.4); }
-
-    /* --- 5. BLANK RIGHT COLUMN (SCI-FI AESTHETIC) --- */
+    /* --- 7. BLANK RIGHT COLUMN --- */
     .blank-chart-box {
       background: var(--card-bg);
       border: 1px solid rgba(255, 255, 255, 0.05);
-      border-radius: 4px;
+      border-radius: 8px;
       width: 100%; height: 100%;
       display: flex; align-items: center; justify-content: center;
       position: relative; overflow: hidden;
+      box-shadow: inset 0 0 50px rgba(0,0,0,0.5);
     }
     .blank-chart-box::before {
       content: ''; position: absolute;
       width: 400px; height: 400px;
-      border: 1px solid rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.03);
       border-radius: 50%;
     }
     .blank-text {
-      font-family: 'Orbitron', sans-serif;
-      color: var(--text-dark);
-      font-size: 1.2rem; letter-spacing: 8px;
-      z-index: 2;
+      color: var(--text-gray);
+      font-size: 1.1rem; letter-spacing: 6px; font-weight: 600; text-transform: uppercase;
     }
 
     /* Loader */
@@ -227,11 +225,9 @@
       transition: opacity 0.4s;
     }
     .loader-ring {
-      width: 50px; height: 50px;
-      border: 2px solid rgba(255,255,255,0.1);
-      border-top-color: var(--neon-white);
-      border-radius: 50%;
-      animation: spin 1s cubic-bezier(0.6, 0.2, 0.4, 0.8) infinite;
+      width: 45px; height: 45px;
+      border: 2px solid rgba(255,255,255,0.1); border-top-color: var(--neon-white);
+      border-radius: 50%; animation: spin 1s infinite linear;
     }
     @keyframes spin { to { transform: rotate(360deg); } }
 
@@ -242,7 +238,7 @@
   <!-- Loading Screen -->
   <div id="loader">
     <div class="loader-ring"></div>
-    <div style="margin-top:20px; font-family:'Orbitron', sans-serif; color:var(--text-gray); font-size:0.8rem; letter-spacing:6px;">DECRYPTING LEDGER...</div>
+    <div style="margin-top:20px; color:var(--text-gray); font-size:0.85rem; letter-spacing:4px; font-weight: 600;">DECRYPTING LEDGER...</div>
   </div>
 
   <div class="dashboard-layout">
@@ -250,32 +246,38 @@
     <!-- LEFT COLUMN -->
     <div class="left-column">
       
-      <!-- 1. NET WORTH (WHITE) -->
-      <div class="theme-white">
+      <!-- 1. NET WORTH (MAIN CARD - BREATHING WHITE) -->
+      <div class="card-wrapper theme-white">
         <div class="hud-card">
-          <div class="scanlines"></div>
           <div class="hud-header">
             <div class="hud-title">NET WORTH</div>
-            <div class="hud-sys">SYS.OP.01</div>
+            <!-- Animated Diamond Icon -->
+            <svg class="hud-icon icon-diamond" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polygon points="12 2 2 7 12 22 22 7 12 2"></polygon>
+              <polyline points="2 7 12 12 22 7"></polyline>
+              <line x1="12" y1="22" x2="12" y2="12"></line>
+            </svg>
           </div>
           <div class="hud-number-box">
             <div class="currency">৳</div>
             <div class="amount" id="val-net">0</div>
           </div>
           <div class="hud-footer text-gray">
-            <div>BALANCE: <span class="text-white" id="lbl-bal">...</span></div>
-            <div>DEBT: <span class="text-white" id="lbl-debt">...</span></div>
+            <div>BALANCE: <span style="color: var(--neon-white); opacity: 1;" id="lbl-bal">...</span></div>
+            <div>DEBT: <span style="color: var(--neon-white); opacity: 1;" id="lbl-debt">...</span></div>
           </div>
         </div>
       </div>
 
       <!-- 2. CASHFLOW (YELLOW BASE -> PULSE GREEN/RED) -->
-      <div id="wrapper-flow">
+      <div class="card-wrapper" id="wrapper-flow">
         <div class="hud-card">
-          <div class="scanlines"></div>
           <div class="hud-header">
             <div class="hud-title">CASHFLOW</div>
-            <div class="hud-sys">SYS.OP.02</div>
+            <!-- Animated Sine Wave Icon -->
+            <svg class="hud-icon icon-wave" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+            </svg>
           </div>
           <div class="hud-number-box">
             <div class="currency">৳</div>
@@ -289,12 +291,15 @@
       </div>
 
       <!-- 3. INCOME (GREEN) -->
-      <div class="theme-green">
+      <div class="card-wrapper theme-green">
         <div class="hud-card">
-          <div class="scanlines"></div>
           <div class="hud-header">
             <div class="hud-title">INCOME</div>
-            <div class="hud-sys">SYS.OP.03</div>
+            <!-- Animated Trending Up Icon -->
+            <svg class="hud-icon icon-up" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="12" y1="19" x2="12" y2="5"></line>
+              <polyline points="5 12 12 5 19 12"></polyline>
+            </svg>
           </div>
           <div class="hud-number-box">
             <div class="currency">৳</div>
@@ -308,12 +313,15 @@
       </div>
 
       <!-- 4. EXPENSE (RED) -->
-      <div class="theme-red">
+      <div class="card-wrapper theme-red">
         <div class="hud-card">
-          <div class="scanlines"></div>
           <div class="hud-header">
             <div class="hud-title">EXPENSE</div>
-            <div class="hud-sys">SYS.OP.04</div>
+            <!-- Animated Trending Down Icon -->
+            <svg class="hud-icon icon-down" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="12" y1="5" x2="12" y2="19"></line>
+              <polyline points="19 12 12 19 5 12"></polyline>
+            </svg>
           </div>
           <div class="hud-number-box">
             <div class="currency">৳</div>
@@ -328,10 +336,9 @@
 
     </div>
 
-    <!-- RIGHT COLUMN: SCI-FI BLANK AREA -->
+    <!-- RIGHT COLUMN -->
     <div class="right-column">
       <div class="blank-chart-box">
-        <div class="scanlines"></div>
         <div class="blank-text">AWAITING TELEMETRY</div>
       </div>
     </div>
@@ -341,9 +348,6 @@
   <script>
     /**
      * 📟 SCI-FI CYAN DECRYPTION ENGINE
-     * Replaces the slot machine entirely. 
-     * Rapidly cycles matrix characters before locking into the correct number.
-     * ZERO DOM clipping issues.
      */
     class CyberScramble {
       constructor(elementId) {
@@ -360,24 +364,23 @@
         
         this.interval = setInterval(() => {
           this.element.innerText = finalStr.split("").map((letter, index) => {
-            if (letter === "," || letter === "-") return letter; // Keep symbols static
-            if (index < iteration) return finalStr[index]; // Lock in correct digits left-to-right
-            return this.chars[Math.floor(Math.random() * this.chars.length)]; // Scramble the rest
+            if (letter === "," || letter === "-") return letter;
+            if (index < iteration) return finalStr[index]; 
+            return this.chars[Math.floor(Math.random() * this.chars.length)]; 
           }).join("");
 
           if (iteration >= finalStr.length) {
             clearInterval(this.interval);
-            this.element.innerText = finalStr; // Ensure perfection at the end
+            this.element.innerText = finalStr; 
           }
 
-          iteration += 1 / 4; // Lower fraction = longer hacking effect
+          iteration += 1 / 4; 
         }, 30);
       }
     }
 
     /**
      * 📊 PERCENTAGE CALCULATOR
-     * Calculates % diff and returns styled HTML arrows exactly as requested.
      */
     function getStatHTML(current, previous, isExpense = false) {
       if (!previous || previous === 0) return `<span class="text-gray">0%</span>`;
@@ -386,7 +389,6 @@
       const pct = Math.abs((diff / Math.abs(previous)) * 100).toFixed(0);
       
       const isUp = diff >= 0;
-      // For expenses, going UP is BAD. For income/flow, going UP is GOOD.
       const isGood = isExpense ? !isUp : isUp; 
       
       const arrow = isUp ? '▲' : '▼';
@@ -415,28 +417,30 @@
         document.getElementById('loader').style.opacity = '0';
         setTimeout(() => document.getElementById('loader').style.display = 'none', 400);
 
-        // 1. Net Worth (White)
+        // 1. Net Worth 
         display.net.run(data.summary.netWorth, data.summary.netWorth < 0);
-        document.getElementById('lbl-bal').innerText = '৳' + Math.abs(data.summary.balance).toLocaleString();
-        document.getElementById('lbl-debt').innerText = '৳' + Math.abs(data.summary.totalDebt).toLocaleString();
+        // Robust fallback checking for data.summary.balance ensuring 0 is shown properly if empty
+        const parsedBalance = Math.abs(data.summary.balance || 0);
+        document.getElementById('lbl-bal').innerText = '৳' + parsedBalance.toLocaleString();
+        document.getElementById('lbl-debt').innerText = '৳' + Math.abs(data.summary.totalDebt || 0).toLocaleString();
 
-        // 2. Cashflow (Dynamic Pulse)
+        // 2. Cashflow (Yellow-Green vs Yellow-Red Dynamic Pulse)
         const flowWrapper = document.getElementById('wrapper-flow');
         if (data.kpis.current.cashflow >= 0) {
-            flowWrapper.className = 'pulse-yg'; // Yellow to Green
+            flowWrapper.classList.add('pulse-yg');
         } else {
-            flowWrapper.className = 'pulse-yr'; // Yellow to Red
+            flowWrapper.classList.add('pulse-yr');
         }
         display.flow.run(data.kpis.current.cashflow, data.kpis.current.cashflow < 0);
         document.getElementById('flow-prev').innerHTML = getStatHTML(data.kpis.current.cashflow, data.kpis.last.cashflow, false);
         document.getElementById('flow-avg').innerHTML = getStatHTML(data.kpis.current.cashflow, data.kpis.averages.flow, false);
 
-        // 3. Income (Green)
+        // 3. Income
         display.inc.run(data.kpis.current.income);
         document.getElementById('inc-prev').innerHTML = getStatHTML(data.kpis.current.income, data.kpis.last.income, false);
         document.getElementById('inc-avg').innerHTML = getStatHTML(data.kpis.current.income, data.kpis.averages.inc, false);
 
-        // 4. Expense (Red)
+        // 4. Expense 
         display.exp.run(data.kpis.current.expense);
         document.getElementById('exp-prev').innerHTML = getStatHTML(data.kpis.current.expense, data.kpis.last.expense, true);
         document.getElementById('exp-avg').innerHTML = getStatHTML(data.kpis.current.expense, data.kpis.averages.exp, true);
@@ -444,7 +448,7 @@
       } catch (e) {
         console.error("System Error:", e);
         
-        // --- FALLBACK MOCK DATA (Triggers if API is unreachable) ---
+        // --- FALLBACK MOCK DATA ---
         document.getElementById('loader').style.opacity = '0';
         setTimeout(() => document.getElementById('loader').style.display = 'none', 400);
 
@@ -452,19 +456,18 @@
         document.getElementById('lbl-bal').innerText = "৳245,000";
         document.getElementById('lbl-debt').innerText = "৳12,000";
 
-        // Mock Positive Cashflow (Pulses Yellow-to-Green)
-        document.getElementById('wrapper-flow').className = 'pulse-yg';
+        document.getElementById('wrapper-flow').classList.add('pulse-yg');
         display.flow.run(45200);
-        document.getElementById('flow-prev').innerHTML = getStatHTML(45200, 30000, false); // UP (Green)
-        document.getElementById('flow-avg').innerHTML = getStatHTML(45200, 50000, false); // DOWN (Red)
+        document.getElementById('flow-prev').innerHTML = getStatHTML(45200, 30000, false); 
+        document.getElementById('flow-avg').innerHTML = getStatHTML(45200, 50000, false); 
 
         display.inc.run(85000);
-        document.getElementById('inc-prev').innerHTML = getStatHTML(85000, 80000, false); // UP (Green)
-        document.getElementById('inc-avg').innerHTML = getStatHTML(85000, 70000, false); // UP (Green)
+        document.getElementById('inc-prev').innerHTML = getStatHTML(85000, 80000, false); 
+        document.getElementById('inc-avg').innerHTML = getStatHTML(85000, 70000, false); 
 
         display.exp.run(39800);
-        document.getElementById('exp-prev').innerHTML = getStatHTML(39800, 50000, true); // DOWN (Green for exp)
-        document.getElementById('exp-avg').innerHTML = getStatHTML(39800, 30000, true); // UP (Red for exp)
+        document.getElementById('exp-prev').innerHTML = getStatHTML(39800, 50000, true); 
+        document.getElementById('exp-avg').innerHTML = getStatHTML(39800, 30000, true); 
       }
     }
 

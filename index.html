@@ -35,7 +35,6 @@
       padding: 16px 20px;
       position: relative;
       display: flex; flex-direction: column; justify-content: space-between;
-      /* Casino felt texture overlay */
       background-image: radial-gradient(circle at center, rgba(255,255,255,0.03) 0, transparent 2px);
       background-size: 8px 8px;
       border: 1px solid rgba(255,255,255,0.05);
@@ -50,13 +49,11 @@
 
     .card-header { display: flex; justify-content: space-between; align-items: center; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); }
     
-    /* Slot Machine Numbers */
     .value { font-size: 32px; font-weight: 800; letter-spacing: -0.5px; margin: 4px 0; font-variant-numeric: tabular-nums; }
     .val-gold { color: var(--gold); text-shadow: 0 0 10px var(--gold-dim); }
     .val-green { color: var(--green); text-shadow: 0 0 10px var(--green-dim); }
     .val-red { color: var(--red); text-shadow: 0 0 10px var(--red-dim); }
 
-    /* 3D Flipping Insight Text */
     .insight-container { perspective: 1000px; height: 20px; position: relative; width: 100%; margin-top: 5px;}
     .insight-flipper {
       width: 100%; height: 100%; position: absolute;
@@ -77,7 +74,6 @@
     .panel { background: var(--card-bg); border-radius: var(--radius); padding: 20px; border: 1px solid rgba(255,255,255,0.05); display:flex; flex-direction: column;}
     .panel-title { font-size: 14px; font-weight: bold; color: var(--gold); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 15px; text-shadow: 0 0 5px var(--gold-dim); border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 8px;}
 
-    /* Chip Stack SVG area */
     .chart-container { flex-grow: 1; display: flex; align-items: flex-end; justify-content: space-around; padding-top: 10px; }
     .stack-group { display: flex; flex-direction: column; align-items: center; gap: 5px; cursor: pointer; transition: transform 0.2s; }
     .stack-group:hover { transform: translateY(-5px); }
@@ -88,7 +84,6 @@
     .chip.exp { background: var(--red); }
     .month-label { font-size: 10px; color: var(--muted); text-transform: uppercase; }
 
-    /* House Ledger (Debts) */
     .ledger-list { overflow-y: auto; flex-grow: 1; display: flex; flex-direction: column; gap: 10px; padding-right: 5px;}
     .ledger-list::-webkit-scrollbar { width: 4px; }
     .ledger-list::-webkit-scrollbar-thumb { background: var(--muted); border-radius: 4px; }
@@ -105,14 +100,13 @@
     .urgent { border-left-color: var(--red); box-shadow: inset 2px 0 10px var(--red-dim); }
     .urgent .iou-info p, .urgent .iou-amt { color: var(--red); }
     
-    .loading { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: var(--bg); z-index: 10; font-family: monospace; color: var(--gold); font-size: 18px; }
+    .loading { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: var(--bg); z-index: 10; font-family: monospace; color: var(--gold); font-size: 18px; text-align:center; padding: 20px;}
   </style>
 </head>
 <body>
   <div id="loader" class="loading">CONNECTING TO VIP SERVER...</div>
 
   <div class="kpi-col">
-    <!-- 1. Net Worth -->
     <div class="card gold">
       <div class="card-header"><span>💎 True Net Worth</span></div>
       <div class="value val-gold" id="val-net">৳0</div>
@@ -122,7 +116,6 @@
       </div>
     </div>
 
-    <!-- 2. Cash Flow -->
     <div class="card" id="card-flow">
       <div class="card-header"><span id="icon-flow">⚖️ 30-Day Cash Flow</span></div>
       <div class="value" id="val-flow">৳0</div>
@@ -134,7 +127,6 @@
       </div>
     </div>
 
-    <!-- 3. Income -->
     <div class="card green">
       <div class="card-header"><span>📈 30-Day Income</span></div>
       <div class="value val-green" id="val-inc">৳0</div>
@@ -146,7 +138,6 @@
       </div>
     </div>
 
-    <!-- 4. Expense -->
     <div class="card red">
       <div class="card-header"><span>📉 30-Day Expense</span></div>
       <div class="value val-red" id="val-exp">৳0</div>
@@ -160,13 +151,11 @@
   </div>
 
   <div class="right-col">
-    <!-- Chip Stacks Chart -->
     <div class="panel">
       <div class="panel-title">Past 6 Months (Winnings vs Losses)</div>
       <div class="chart-container" id="chip-chart"></div>
     </div>
 
-    <!-- Debt Ledger -->
     <div class="panel">
       <div class="panel-title">The House Ledger (Outstanding)</div>
       <div class="ledger-list" id="ledger-list"></div>
@@ -176,7 +165,6 @@
   <script>
     const fmt = (n) => "৳" + Math.abs(n).toLocaleString();
 
-    // Slot Machine Animation Physics
     function spinNumber(el, finalValue) {
       const duration = 1200; 
       const start = Date.now();
@@ -194,7 +182,6 @@
       }, 40); 
     }
 
-    // Insight Rotator (3D Flip)
     function startRotator(flipId, textFrontId, textBackId, templates) {
       if(!templates || templates.length === 0) return;
       let idx = 0;
@@ -218,7 +205,6 @@
       }, 10000); 
     }
 
-    // Build Chip Stack Chart
     function buildChart(data) {
       const container = document.getElementById('chip-chart');
       let maxVal = 1;
@@ -251,7 +237,6 @@
       });
     }
 
-    // Build Debt Ledger
     function buildLedger(debts) {
       const container = document.getElementById('ledger-list');
       if(debts.length === 0) {
@@ -273,23 +258,21 @@
       });
     }
 
-    // Main Load (Bulletproof Version)
     async function loadData() {
       try {
         const res = await fetch('/api?t=' + Date.now());
-        const text = await res.text(); // Read as raw text first
+        const text = await res.text();
 
-        // Catch HTML errors from Cloudflare
+        // 🚨 1. Check if Cloudflare returned an HTML Error Page
         if (text.trim().startsWith('<')) {
           console.error("Received HTML instead of API Data:", text);
-          document.getElementById('loader').innerText = "ERROR: CLOUDFLARE FAILED. /api ROUTE NOT FOUND.";
+          document.getElementById('loader').innerText = "ERROR: CLOUDFLARE ROUTE NOT FOUND. Check your 'functions' folder structure!";
           return;
         }
 
-        // Parse JSON safely
         const data = JSON.parse(text);
 
-        // Catch Backend Try/Catch Errors
+        // 🚨 2. Check if the API threw a custom error
         if (data.backendError) {
            document.getElementById('loader').innerText = "API ERROR: " + data.backendError;
            return;
@@ -297,7 +280,6 @@
         
         document.getElementById('loader').style.display = 'none';
 
-        // Set Values
         spinNumber(document.getElementById('val-net'), data.summary.netWorth);
         document.getElementById('sub-bal').innerText = `Bal: ${fmt(data.summary.balance)}`;
         document.getElementById('sub-debt').innerText = `Debt: ${fmt(data.summary.totalDebt)}`;
@@ -314,7 +296,6 @@
         spinNumber(document.getElementById('val-inc'), data.kpis.current.income);
         spinNumber(document.getElementById('val-exp'), data.kpis.current.expense);
 
-        // Start Animations
         startRotator('flip-flow', 'txt-flow-1', 'txt-flow-2', data.insights.cashflow);
         startRotator('flip-inc', 'txt-inc-1', 'txt-inc-2', data.insights.income);
         startRotator('flip-exp', 'txt-exp-1', 'txt-exp-2', data.insights.expense);
@@ -323,9 +304,12 @@
         buildLedger(data.debts);
 
       } catch (err) {
-        document.getElementById('loader').innerText = "CRITICAL FRONTEND ERROR. CHECK CONSOLE.";
+        document.getElementById('loader').innerText = "CRITICAL FRONTEND ERROR. PRESS F12 AND CHECK CONSOLE.";
         console.error("Critical error:", err);
       }
     }
 
     window.onload = loadData;
+  </script>
+</body>
+</html>

@@ -5,37 +5,31 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Sci-Fi Finance HUD</title>
   
-  <!-- Sci-Fi / Cyber Fonts -->
+  <!-- High-End Cyber Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;700&family=Space+Mono:wght@700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@500;600;700&family=Space+Mono:wght@700&display=swap" rel="stylesheet">
 
   <style>
-    /* --- 1. CORE SCI-FI VARIABLES --- */
+    /* --- 1. CORE VARIABLES --- */
     :root {
-      --bg-dark: #03050a;
-      --card-bg: rgba(6, 11, 25, 0.85);
+      --bg-color: #191919;
+      --card-bg: rgba(10, 12, 16, 0.7);
       
       --neon-white: #ffffff;
-      --neon-green: #00ff55;
+      --neon-green: #00ff66;
       --neon-red: #ff0044;
-      --neon-yellow: #fcee0a;
+      --neon-yellow: #ffcc00;
       
       --text-main: #e2e8f0;
-      --text-muted: #64748b;
-      
-      --slot-height: 50px; 
+      --text-gray: #64748b;
+      --text-dark: #334155;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
-      background-color: var(--bg-dark);
-      /* Sci-Fi Grid Background */
-      background-image: 
-        linear-gradient(rgba(0, 255, 255, 0.03) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(0, 255, 255, 0.03) 1px, transparent 1px);
-      background-size: 40px 40px;
+      background-color: var(--bg-color);
       color: var(--text-main);
       font-family: 'Rajdhani', sans-serif;
       min-height: 100vh;
@@ -48,7 +42,7 @@
     /* --- 2. LAYOUT: 1x4 Left, 1 Big Right --- */
     .dashboard-layout {
       display: grid;
-      grid-template-columns: 380px 1fr;
+      grid-template-columns: 420px 1fr;
       gap: 30px;
       width: 100%;
       max-width: 1800px;
@@ -63,300 +57,271 @@
       height: 100%;
     }
 
-    .right-column {
-      display: flex;
-      height: 100%;
-    }
-
-    /* --- 3. SCI-FI HUD CARDS --- */
-    .kpi-card {
-      background-color: var(--card-bg);
-      backdrop-filter: blur(10px);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 8px;
-      padding: 20px;
+    /* --- 3. HIGH-EFFORT HUD CARDS --- */
+    .hud-card {
+      background: var(--card-bg);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 4px;
+      padding: 20px 25px;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
       position: relative;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.8);
-      /* Cyberpunk angled corner effect using clip-path */
-      clip-path: polygon(0 0, 100% 0, 100% calc(100% - 15px), calc(100% - 15px) 100%, 0 100%);
+      overflow: hidden;
+      backdrop-filter: blur(12px);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
     }
 
-    .card-title {
-      font-size: 1.1rem;
-      text-transform: uppercase;
-      letter-spacing: 3px;
-      font-weight: 700;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-    .card-title::before {
-      content: '';
-      display: inline-block;
-      width: 8px; height: 8px;
-      background: currentColor;
-      box-shadow: 0 0 10px currentColor;
-    }
-
-    /* Card Specific Neon Accents */
-    .card-white {
-      border-left: 4px solid var(--neon-white);
-      box-shadow: inset 15px 0 30px -15px rgba(255,255,255,0.2);
-    }
-    .card-white .card-title { color: var(--neon-white); text-shadow: 0 0 10px rgba(255,255,255,0.5); }
-
-    .card-green {
-      border-left: 4px solid var(--neon-green);
-      box-shadow: inset 15px 0 30px -15px rgba(0,255,85,0.2);
-    }
-    .card-green .card-title { color: var(--neon-green); text-shadow: 0 0 10px rgba(0,255,85,0.5); }
-
-    .card-red {
-      border-left: 4px solid var(--neon-red);
-      box-shadow: inset 15px 0 30px -15px rgba(255,0,68,0.2);
-    }
-    .card-red .card-title { color: var(--neon-red); text-shadow: 0 0 10px rgba(255,0,68,0.5); }
-
-    /* CASHFLOW: Default Yellow, Breathing Green/Red overrides applied via JS */
-    .card-flow-base {
-      border-left: 4px solid var(--neon-yellow);
-      box-shadow: inset 15px 0 30px -15px rgba(252, 238, 10, 0.2);
-    }
-    .card-flow-base .card-title { color: var(--neon-yellow); text-shadow: 0 0 10px rgba(252, 238, 10, 0.5); }
-
-    /* Breathing Animations */
-    @keyframes breath-green {
-      0% { border-left-color: #004411; box-shadow: inset 15px 0 30px -15px rgba(0,255,85,0.0); }
-      50% { border-left-color: var(--neon-green); box-shadow: inset 15px 0 30px -15px rgba(0,255,85,0.4), 0 0 20px rgba(0,255,85,0.2); }
-      100% { border-left-color: #004411; box-shadow: inset 15px 0 30px -15px rgba(0,255,85,0.0); }
-    }
-    @keyframes breath-red {
-      0% { border-left-color: #440011; box-shadow: inset 15px 0 30px -15px rgba(255,0,68,0.0); }
-      50% { border-left-color: var(--neon-red); box-shadow: inset 15px 0 30px -15px rgba(255,0,68,0.4), 0 0 20px rgba(255,0,68,0.2); }
-      100% { border-left-color: #440011; box-shadow: inset 15px 0 30px -15px rgba(255,0,68,0.0); }
-    }
-
-    .pulse-green { animation: breath-green 2.5s infinite ease-in-out; }
-    .pulse-green .card-title { color: var(--neon-green) !important; text-shadow: 0 0 10px rgba(0,255,85,0.5) !important; }
-    
-    .pulse-red { animation: breath-red 2.5s infinite ease-in-out; }
-    .pulse-red .card-title { color: var(--neon-red) !important; text-shadow: 0 0 10px rgba(255,0,68,0.5) !important; }
-
-
-    /* --- 4. DIGITAL NUMBER DISPLAY (SLOT ENGINE) --- */
-    .number-display {
-      background: #020306;
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 4px;
-      height: calc(var(--slot-height) + 16px);
-      margin: 10px 0;
-      display: flex;
-      align-items: center;
-      padding: 0 15px;
-      position: relative;
-      overflow: hidden; 
-    }
-
-    /* Hologram Scanlines */
-    .number-display::after {
-      content: "";
-      position: absolute; inset: 0;
-      background: repeating-linear-gradient(
-        0deg,
-        transparent,
-        transparent 2px,
-        rgba(255,255,255,0.03) 2px,
-        rgba(255,255,255,0.03) 4px
-      );
+    /* Sci-Fi Targeting Corners */
+    .hud-card::before, .hud-card::after {
+      content: ''; position: absolute; width: 15px; height: 15px;
       pointer-events: none;
-      z-index: 10;
+    }
+    .hud-card::before {
+      top: 0; left: 0;
+      border-top: 2px solid; border-left: 2px solid;
+    }
+    .hud-card::after {
+      bottom: 0; right: 0;
+      border-bottom: 2px solid; border-right: 2px solid;
     }
 
-    .slot-machine {
-      display: flex;
-      align-items: center;
+    /* Scanline Overlay */
+    .scanlines {
+      position: absolute; inset: 0; pointer-events: none;
+      background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,0) 50%, rgba(0,0,0,0.2) 50%, rgba(0,0,0,0.2));
+      background-size: 100% 4px; z-index: 1; opacity: 0.4;
+    }
+
+    /* Header */
+    .hud-header {
+      display: flex; justify-content: space-between; align-items: center;
+      position: relative; z-index: 2;
+    }
+    .hud-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.9rem; letter-spacing: 3px; font-weight: 700;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .hud-sys {
       font-family: 'Space Mono', monospace;
-      font-size: 34px;
-      height: var(--slot-height);
+      font-size: 0.65rem; color: var(--text-dark); letter-spacing: 2px;
+    }
+
+    /* Number Display Box (Left-Aligned Taka, Right-Aligned Number) */
+    .hud-number-box {
+      background: rgba(0, 0, 0, 0.4);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 2px;
+      padding: 12px 20px;
+      margin: 15px 0;
+      display: flex;
+      justify-content: space-between; /* Perfect Alignment */
+      align-items: center;
       position: relative;
-      z-index: 5;
+      z-index: 2;
     }
 
     .currency {
-      margin-right: 12px;
-      line-height: var(--slot-height);
-    }
-
-    .reel-wrapper {
-      height: var(--slot-height);
-      overflow: hidden; 
-      display: inline-block;
-      vertical-align: top;
-    }
-    
-    .reel-strip {
-      display: flex;
-      flex-direction: column;
-      will-change: transform;
-    }
-    
-    .reel-digit, .static-char {
-      height: var(--slot-height);
-      line-height: var(--slot-height);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    /* Neon Number Themes */
-    .theme-white { color: var(--neon-white); text-shadow: 0 0 12px rgba(255,255,255,0.8), 0 0 25px rgba(255,255,255,0.4); }
-    .theme-green { color: var(--neon-green); text-shadow: 0 0 12px rgba(0,255,85,0.8), 0 0 25px rgba(0,255,85,0.4); }
-    .theme-red { color: var(--neon-red); text-shadow: 0 0 12px rgba(255,0,68,0.8), 0 0 25px rgba(255,0,68,0.4); }
-    .theme-yellow { color: var(--neon-yellow); text-shadow: 0 0 12px rgba(252,238,10,0.8), 0 0 25px rgba(252,238,10,0.4); }
-
-
-    /* --- 5. STATIC SUB-INFO (Net Worth Balance/Debt) --- */
-    .sub-info {
-      display: flex;
-      justify-content: space-between;
-      font-size: 0.9rem;
-      color: var(--text-muted);
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      margin-top: auto;
-    }
-    .sub-info span { 
-      color: var(--neon-white); 
-      font-weight: 700; 
       font-family: 'Space Mono', monospace;
-      text-shadow: 0 0 8px rgba(255,255,255,0.3);
+      font-size: 1.5rem; opacity: 0.7;
+    }
+    .amount {
+      font-family: 'Space Mono', monospace;
+      font-size: 2.2rem; font-weight: 700;
+      letter-spacing: -1px; text-align: right; width: 100%;
     }
 
-    /* --- 6. BLANK RIGHT COLUMN (SCI-FI STYLE) --- */
-    .blank-chart-box {
-      background: rgba(6, 11, 25, 0.4);
-      border: 1px solid rgba(0, 255, 255, 0.1);
-      border-radius: 8px;
-      width: 100%;
-      height: 100%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      position: relative;
-      overflow: hidden;
+    /* Footer / Sub-stats */
+    .hud-footer {
+      display: flex; justify-content: space-between;
+      font-size: 0.85rem; font-family: 'Space Mono', monospace;
+      position: relative; z-index: 2;
     }
-    /* Sci-Fi Radar/Targeting aesthetic for empty state */
+    .hud-footer span { font-weight: 700; }
+
+    /* --- 4. THEMES & DYNAMIC COLORS --- */
+    
+    /* White (Net Worth) */
+    .theme-white .hud-card::before, .theme-white .hud-card::after { border-color: var(--neon-white); }
+    .theme-white .hud-title { color: var(--neon-white); text-shadow: 0 0 10px rgba(255,255,255,0.5); }
+    .theme-white .amount { color: var(--neon-white); text-shadow: 0 0 15px rgba(255,255,255,0.5); }
+
+    /* Green (Income) */
+    .theme-green .hud-card::before, .theme-green .hud-card::after { border-color: var(--neon-green); }
+    .theme-green .hud-title { color: var(--neon-green); text-shadow: 0 0 10px rgba(0,255,102,0.5); }
+    .theme-green .amount { color: var(--neon-green); text-shadow: 0 0 15px rgba(0,255,102,0.5); }
+    .theme-green .currency { color: var(--neon-green); }
+
+    /* Red (Expense) */
+    .theme-red .hud-card::before, .theme-red .hud-card::after { border-color: var(--neon-red); }
+    .theme-red .hud-title { color: var(--neon-red); text-shadow: 0 0 10px rgba(255,0,68,0.5); }
+    .theme-red .amount { color: var(--neon-red); text-shadow: 0 0 15px rgba(255,0,68,0.5); }
+    .theme-red .currency { color: var(--neon-red); }
+
+    /* Cashflow Pulse Animations (Yellow <-> Green OR Yellow <-> Red) */
+    @keyframes pulse-yellow-green {
+      0% { border-color: var(--neon-yellow); box-shadow: 0 0 0 rgba(255, 204, 0, 0); }
+      50% { border-color: var(--neon-green); box-shadow: inset 10px 0 30px -10px rgba(0,255,102,0.2); }
+      100% { border-color: var(--neon-yellow); box-shadow: 0 0 0 rgba(255, 204, 0, 0); }
+    }
+    @keyframes text-yellow-green {
+      0% { color: var(--neon-yellow); text-shadow: 0 0 10px rgba(255,204,0,0.5); }
+      50% { color: var(--neon-green); text-shadow: 0 0 15px rgba(0,255,102,0.6); }
+      100% { color: var(--neon-yellow); text-shadow: 0 0 10px rgba(255,204,0,0.5); }
+    }
+
+    @keyframes pulse-yellow-red {
+      0% { border-color: var(--neon-yellow); box-shadow: 0 0 0 rgba(255, 204, 0, 0); }
+      50% { border-color: var(--neon-red); box-shadow: inset 10px 0 30px -10px rgba(255,0,68,0.2); }
+      100% { border-color: var(--neon-yellow); box-shadow: 0 0 0 rgba(255, 204, 0, 0); }
+    }
+    @keyframes text-yellow-red {
+      0% { color: var(--neon-yellow); text-shadow: 0 0 10px rgba(255,204,0,0.5); }
+      50% { color: var(--neon-red); text-shadow: 0 0 15px rgba(255,0,68,0.6); }
+      100% { color: var(--neon-yellow); text-shadow: 0 0 10px rgba(255,204,0,0.5); }
+    }
+
+    /* Assign dynamically via JS */
+    .pulse-yg .hud-card { animation: pulse-yellow-green 3s infinite ease-in-out; border-left: 2px solid; }
+    .pulse-yg .hud-card::before, .pulse-yg .hud-card::after { animation: border-yellow-green 3s infinite ease-in-out; }
+    .pulse-yg .hud-title, .pulse-yg .amount, .pulse-yg .currency { animation: text-yellow-green 3s infinite ease-in-out; }
+
+    .pulse-yr .hud-card { animation: pulse-yellow-red 3s infinite ease-in-out; border-left: 2px solid; }
+    .pulse-yr .hud-card::before, .pulse-yr .hud-card::after { animation: border-yellow-red 3s infinite ease-in-out; }
+    .pulse-yr .hud-title, .pulse-yr .amount, .pulse-yr .currency { animation: text-yellow-red 3s infinite ease-in-out; }
+
+
+    /* Utility Text Colors */
+    .text-gray { color: var(--text-gray); }
+    .text-white { color: var(--neon-white); }
+    .text-up { color: var(--neon-green); text-shadow: 0 0 8px rgba(0,255,102,0.4); }
+    .text-down { color: var(--neon-red); text-shadow: 0 0 8px rgba(255,0,68,0.4); }
+
+    /* --- 5. BLANK RIGHT COLUMN (SCI-FI AESTHETIC) --- */
+    .blank-chart-box {
+      background: var(--card-bg);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 4px;
+      width: 100%; height: 100%;
+      display: flex; align-items: center; justify-content: center;
+      position: relative; overflow: hidden;
+    }
     .blank-chart-box::before {
-      content: '';
-      position: absolute;
-      width: 300px; height: 300px;
-      border: 1px dashed rgba(0, 255, 255, 0.2);
+      content: ''; position: absolute;
+      width: 400px; height: 400px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
       border-radius: 50%;
     }
-    .blank-chart-box::after {
-      content: '';
-      position: absolute;
-      width: 100%; height: 1px;
-      background: rgba(0, 255, 255, 0.1);
-    }
-
     .blank-text {
-      color: rgba(0, 255, 255, 0.3);
-      font-size: 1.5rem;
-      letter-spacing: 6px;
-      text-transform: uppercase;
-      position: relative;
+      font-family: 'Orbitron', sans-serif;
+      color: var(--text-dark);
+      font-size: 1.2rem; letter-spacing: 8px;
       z-index: 2;
     }
 
     /* Loader */
     #loader {
-      position: fixed; inset: 0; background: var(--bg-dark); z-index: 9999;
+      position: fixed; inset: 0; background: var(--bg-color); z-index: 9999;
       display: flex; flex-direction: column; align-items: center; justify-content: center;
       transition: opacity 0.4s;
     }
-    .cyber-spinner {
+    .loader-ring {
       width: 50px; height: 50px;
-      border: 2px solid transparent;
-      border-top-color: var(--neon-yellow);
-      border-bottom-color: var(--neon-yellow);
+      border: 2px solid rgba(255,255,255,0.1);
+      border-top-color: var(--neon-white);
       border-radius: 50%;
-      animation: spin 1s linear infinite;
-    }
-    .cyber-spinner::before {
-      content: ''; position: absolute; inset: 5px;
-      border: 2px solid transparent; border-left-color: var(--neon-white); border-right-color: var(--neon-white);
-      border-radius: 50%; animation: spin-reverse 0.5s linear infinite;
+      animation: spin 1s cubic-bezier(0.6, 0.2, 0.4, 0.8) infinite;
     }
     @keyframes spin { to { transform: rotate(360deg); } }
-    @keyframes spin-reverse { to { transform: rotate(-360deg); } }
 
-    @media (max-width: 1024px) {
-      .dashboard-layout { grid-template-columns: 1fr; grid-template-rows: auto 500px; height: auto; }
-      body { overflow-y: auto; }
-    }
   </style>
 </head>
 <body>
 
   <!-- Loading Screen -->
   <div id="loader">
-    <div class="cyber-spinner"></div>
-    <div style="margin-top:20px; color:var(--neon-yellow); font-size:1rem; letter-spacing:4px; text-shadow: 0 0 10px rgba(252,238,10,0.5);">INITIALIZING SYSTEMS...</div>
+    <div class="loader-ring"></div>
+    <div style="margin-top:20px; font-family:'Orbitron', sans-serif; color:var(--text-gray); font-size:0.8rem; letter-spacing:6px;">DECRYPTING LEDGER...</div>
   </div>
 
   <div class="dashboard-layout">
     
-    <!-- LEFT COLUMN: 4 KPI CARDS -->
+    <!-- LEFT COLUMN -->
     <div class="left-column">
       
-      <!-- 1. TRUE NET WORTH (WHITE) -->
-      <div class="kpi-card card-white">
-        <div class="card-title">TRUE NET WORTH</div>
-        <div class="number-display">
-          <div class="slot-machine theme-white">
-            <span class="currency">৳</span>
-            <div id="slot-net"></div>
+      <!-- 1. NET WORTH (WHITE) -->
+      <div class="theme-white">
+        <div class="hud-card">
+          <div class="scanlines"></div>
+          <div class="hud-header">
+            <div class="hud-title">NET WORTH</div>
+            <div class="hud-sys">SYS.OP.01</div>
           </div>
-        </div>
-        <div class="sub-info">
-          <div>LIQUID: <span id="lbl-bal">...</span></div>
-          <div>DEBT: <span id="lbl-debt">...</span></div>
+          <div class="hud-number-box">
+            <div class="currency">৳</div>
+            <div class="amount" id="val-net">0</div>
+          </div>
+          <div class="hud-footer text-gray">
+            <div>BALANCE: <span class="text-white" id="lbl-bal">...</span></div>
+            <div>DEBT: <span class="text-white" id="lbl-debt">...</span></div>
+          </div>
         </div>
       </div>
 
-      <!-- 2. CASHFLOW (YELLOW BASE, PULSES GREEN/RED) -->
-      <div class="kpi-card card-flow-base" id="card-flow">
-        <div class="card-title">CASHFLOW THIS MONTH</div>
-        <div class="number-display">
-          <div class="slot-machine theme-yellow" id="theme-flow">
-            <span class="currency">৳</span>
-            <div id="slot-flow"></div>
+      <!-- 2. CASHFLOW (YELLOW BASE -> PULSE GREEN/RED) -->
+      <div id="wrapper-flow">
+        <div class="hud-card">
+          <div class="scanlines"></div>
+          <div class="hud-header">
+            <div class="hud-title">CASHFLOW</div>
+            <div class="hud-sys">SYS.OP.02</div>
+          </div>
+          <div class="hud-number-box">
+            <div class="currency">৳</div>
+            <div class="amount" id="val-flow">0</div>
+          </div>
+          <div class="hud-footer">
+            <div class="text-gray">vs prev month: <span id="flow-prev">...</span></div>
+            <div class="text-gray">vs avg year: <span id="flow-avg">...</span></div>
           </div>
         </div>
       </div>
 
       <!-- 3. INCOME (GREEN) -->
-      <div class="kpi-card card-green">
-        <div class="card-title">INCOME THIS MONTH</div>
-        <div class="number-display">
-          <div class="slot-machine theme-green">
-            <span class="currency">৳</span>
-            <div id="slot-inc"></div>
+      <div class="theme-green">
+        <div class="hud-card">
+          <div class="scanlines"></div>
+          <div class="hud-header">
+            <div class="hud-title">INCOME</div>
+            <div class="hud-sys">SYS.OP.03</div>
+          </div>
+          <div class="hud-number-box">
+            <div class="currency">৳</div>
+            <div class="amount" id="val-inc">0</div>
+          </div>
+          <div class="hud-footer">
+            <div class="text-gray">vs prev month: <span id="inc-prev">...</span></div>
+            <div class="text-gray">vs avg year: <span id="inc-avg">...</span></div>
           </div>
         </div>
       </div>
 
       <!-- 4. EXPENSE (RED) -->
-      <div class="kpi-card card-red">
-        <div class="card-title">EXPENSE THIS MONTH</div>
-        <div class="number-display">
-          <div class="slot-machine theme-red">
-            <span class="currency">৳</span>
-            <div id="slot-exp"></div>
+      <div class="theme-red">
+        <div class="hud-card">
+          <div class="scanlines"></div>
+          <div class="hud-header">
+            <div class="hud-title">EXPENSE</div>
+            <div class="hud-sys">SYS.OP.04</div>
+          </div>
+          <div class="hud-number-box">
+            <div class="currency">৳</div>
+            <div class="amount" id="val-exp">0</div>
+          </div>
+          <div class="hud-footer">
+            <div class="text-gray">vs prev month: <span id="exp-prev">...</span></div>
+            <div class="text-gray">vs avg year: <span id="exp-avg">...</span></div>
           </div>
         </div>
       </div>
@@ -366,103 +331,80 @@
     <!-- RIGHT COLUMN: SCI-FI BLANK AREA -->
     <div class="right-column">
       <div class="blank-chart-box">
-        <div class="blank-text">AWAITING VISUALS</div>
+        <div class="scanlines"></div>
+        <div class="blank-text">AWAITING TELEMETRY</div>
       </div>
     </div>
 
   </div>
 
   <script>
-    const FMT = (num) => Math.abs(num).toLocaleString('en-US');
-
     /**
-     * ⚙️ BULLETPROOF SCI-FI SLOT MACHINE ENGINE
-     * Hard-coded height (50px) perfectly matches CSS to prevent clipping.
+     * 📟 SCI-FI CYAN DECRYPTION ENGINE
+     * Replaces the slot machine entirely. 
+     * Rapidly cycles matrix characters before locking into the correct number.
+     * ZERO DOM clipping issues.
      */
-    class SlotMachine {
-      constructor(containerId) {
-        this.container = document.getElementById(containerId);
-        this.slotHeight = 50; 
+    class CyberScramble {
+      constructor(elementId) {
+        this.element = document.getElementById(elementId);
+        this.chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%&*X";
       }
 
-      prepare() {
-        this.container.innerHTML = '<div style="font-size:1.5rem; opacity:0.3; letter-spacing:2px;">CALCULATING...</div>';
-      }
-
-      async spinTo(targetValue, isNegative = false) {
-        this.container.innerHTML = ''; 
-        
-        if (isNegative) {
-          const negSign = document.createElement('div');
-          negSign.className = 'static-char';
-          negSign.innerText = '-';
-          this.container.appendChild(negSign);
-        }
-
+      run(targetValue, isNegative = false) {
         const valStr = Math.abs(targetValue).toLocaleString('en-US');
-        const stripsToAnimate =[];
+        const finalStr = (isNegative ? "-" : "") + valStr;
+        
+        let iteration = 0;
+        clearInterval(this.interval);
+        
+        this.interval = setInterval(() => {
+          this.element.innerText = finalStr.split("").map((letter, index) => {
+            if (letter === "," || letter === "-") return letter; // Keep symbols static
+            if (index < iteration) return finalStr[index]; // Lock in correct digits left-to-right
+            return this.chars[Math.floor(Math.random() * this.chars.length)]; // Scramble the rest
+          }).join("");
 
-        for (let i = 0; i < valStr.length; i++) {
-          const char = valStr[i];
-          
-          if (char === ',') {
-            const comma = document.createElement('div');
-            comma.className = 'static-char';
-            comma.innerText = ',';
-            this.container.appendChild(comma);
-          } else {
-            const wrapper = document.createElement('div');
-            wrapper.className = 'reel-wrapper';
-            
-            const strip = document.createElement('div');
-            strip.className = 'reel-strip';
-            
-            // Generate random digital scramble effect
-            let sequenceHTML = '';
-            const spins = 30; 
-            for(let loop = 0; loop < spins; loop++) {
-              sequenceHTML += `<div class="reel-digit">${Math.floor(Math.random() * 10)}</div>`;
-            }
-            // Append final correct digit
-            sequenceHTML += `<div class="reel-digit">${char}</div>`;
-            
-            strip.innerHTML = sequenceHTML;
-            wrapper.appendChild(strip);
-            this.container.appendChild(wrapper);
-            
-            stripsToAnimate.push({
-              element: strip,
-              offset: -(spins * this.slotHeight) // Perfect mathematical lock
-            });
+          if (iteration >= finalStr.length) {
+            clearInterval(this.interval);
+            this.element.innerText = finalStr; // Ensure perfection at the end
           }
-        }
 
-        // Wait a frame to allow DOM rendering
-        await new Promise(r => setTimeout(r, 50));
-
-        // Animate left to right
-        stripsToAnimate.forEach((item, index) => {
-          const delay = index * 150; 
-          setTimeout(() => {
-            item.element.style.transition = 'transform 2.5s cubic-bezier(0.1, 0.9, 0.2, 1)';
-            item.element.style.transform = `translateY(${item.offset}px)`;
-          }, delay);
-        });
+          iteration += 1 / 4; // Lower fraction = longer hacking effect
+        }, 30);
       }
     }
 
     /**
-     * 🚀 MAIN INITIALIZATION & LOGIC
+     * 📊 PERCENTAGE CALCULATOR
+     * Calculates % diff and returns styled HTML arrows exactly as requested.
+     */
+    function getStatHTML(current, previous, isExpense = false) {
+      if (!previous || previous === 0) return `<span class="text-gray">0%</span>`;
+      
+      const diff = current - previous;
+      const pct = Math.abs((diff / Math.abs(previous)) * 100).toFixed(0);
+      
+      const isUp = diff >= 0;
+      // For expenses, going UP is BAD. For income/flow, going UP is GOOD.
+      const isGood = isExpense ? !isUp : isUp; 
+      
+      const arrow = isUp ? '▲' : '▼';
+      const colorClass = isGood ? 'text-up' : 'text-down';
+
+      return `<span class="${colorClass}">${arrow}${pct}%</span>`;
+    }
+
+    /**
+     * 🚀 MAIN INITIALIZATION
      */
     async function init() {
-      const slots = {
-        net: new SlotMachine('slot-net'),
-        flow: new SlotMachine('slot-flow'),
-        inc: new SlotMachine('slot-inc'),
-        exp: new SlotMachine('slot-exp')
+      const display = {
+        net: new CyberScramble('val-net'),
+        flow: new CyberScramble('val-flow'),
+        inc: new CyberScramble('val-inc'),
+        exp: new CyberScramble('val-exp')
       };
-
-      Object.values(slots).forEach(s => s.prepare());
 
       try {
         const res = await fetch('/api?t=' + Date.now());
@@ -474,50 +416,55 @@
         setTimeout(() => document.getElementById('loader').style.display = 'none', 400);
 
         // 1. Net Worth (White)
-        slots.net.spinTo(data.summary.netWorth, data.summary.netWorth < 0);
-        document.getElementById('lbl-bal').innerText = '৳' + FMT(data.summary.balance);
-        document.getElementById('lbl-debt').innerText = '৳' + FMT(data.summary.totalDebt);
+        display.net.run(data.summary.netWorth, data.summary.netWorth < 0);
+        document.getElementById('lbl-bal').innerText = '৳' + Math.abs(data.summary.balance).toLocaleString();
+        document.getElementById('lbl-debt').innerText = '৳' + Math.abs(data.summary.totalDebt).toLocaleString();
 
-        // 2. Cashflow Logic (Breathing Green vs Red)
-        const flowCard = document.getElementById('card-flow');
-        const flowTheme = document.getElementById('theme-flow');
-        
-        flowTheme.classList.remove('theme-yellow'); // Remove default
-
+        // 2. Cashflow (Dynamic Pulse)
+        const flowWrapper = document.getElementById('wrapper-flow');
         if (data.kpis.current.cashflow >= 0) {
-            flowCard.classList.add('pulse-green');
-            flowTheme.classList.add('theme-green');
+            flowWrapper.className = 'pulse-yg'; // Yellow to Green
         } else {
-            flowCard.classList.add('pulse-red');
-            flowTheme.classList.add('theme-red');
+            flowWrapper.className = 'pulse-yr'; // Yellow to Red
         }
-        slots.flow.spinTo(data.kpis.current.cashflow, data.kpis.current.cashflow < 0);
+        display.flow.run(data.kpis.current.cashflow, data.kpis.current.cashflow < 0);
+        document.getElementById('flow-prev').innerHTML = getStatHTML(data.kpis.current.cashflow, data.kpis.last.cashflow, false);
+        document.getElementById('flow-avg').innerHTML = getStatHTML(data.kpis.current.cashflow, data.kpis.averages.flow, false);
 
         // 3. Income (Green)
-        slots.inc.spinTo(data.kpis.current.income);
+        display.inc.run(data.kpis.current.income);
+        document.getElementById('inc-prev').innerHTML = getStatHTML(data.kpis.current.income, data.kpis.last.income, false);
+        document.getElementById('inc-avg').innerHTML = getStatHTML(data.kpis.current.income, data.kpis.averages.inc, false);
 
         // 4. Expense (Red)
-        slots.exp.spinTo(data.kpis.current.expense);
+        display.exp.run(data.kpis.current.expense);
+        document.getElementById('exp-prev').innerHTML = getStatHTML(data.kpis.current.expense, data.kpis.last.expense, true);
+        document.getElementById('exp-avg').innerHTML = getStatHTML(data.kpis.current.expense, data.kpis.averages.exp, true);
 
       } catch (e) {
         console.error("System Error:", e);
         
-        // MOCK DATA FALLBACK (If API disconnected, UI still works perfectly)
+        // --- FALLBACK MOCK DATA (Triggers if API is unreachable) ---
         document.getElementById('loader').style.opacity = '0';
         setTimeout(() => document.getElementById('loader').style.display = 'none', 400);
 
-        slots.net.spinTo(1245000);
+        display.net.run(1245000);
         document.getElementById('lbl-bal').innerText = "৳245,000";
         document.getElementById('lbl-debt').innerText = "৳12,000";
 
-        // Test Positive Pulse Logic
-        document.getElementById('card-flow').classList.add('pulse-green');
-        document.getElementById('theme-flow').classList.remove('theme-yellow');
-        document.getElementById('theme-flow').classList.add('theme-green');
-        slots.flow.spinTo(45200);
+        // Mock Positive Cashflow (Pulses Yellow-to-Green)
+        document.getElementById('wrapper-flow').className = 'pulse-yg';
+        display.flow.run(45200);
+        document.getElementById('flow-prev').innerHTML = getStatHTML(45200, 30000, false); // UP (Green)
+        document.getElementById('flow-avg').innerHTML = getStatHTML(45200, 50000, false); // DOWN (Red)
 
-        slots.inc.spinTo(85000);
-        slots.exp.spinTo(39800);
+        display.inc.run(85000);
+        document.getElementById('inc-prev').innerHTML = getStatHTML(85000, 80000, false); // UP (Green)
+        document.getElementById('inc-avg').innerHTML = getStatHTML(85000, 70000, false); // UP (Green)
+
+        display.exp.run(39800);
+        document.getElementById('exp-prev').innerHTML = getStatHTML(39800, 50000, true); // DOWN (Green for exp)
+        document.getElementById('exp-avg').innerHTML = getStatHTML(39800, 30000, true); // UP (Red for exp)
       }
     }
 

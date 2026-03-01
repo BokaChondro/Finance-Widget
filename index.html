@@ -15,7 +15,6 @@
       --neon-green: #00ff66;
       --neon-red: #ff0044;
       --neon-yellow: #ffcc00;
-      --neon-cyan: #00ffff;
       
       --text-main: #e2e8f0;
       --text-gray: #7a8a9e;
@@ -36,8 +35,6 @@
       flex-direction: column;
       padding: 30px;
       overflow-x: hidden;
-      background-image: linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
-      background-size: 30px 30px;
     }
 
     /* --- 2. LAYOUT (Strict 1:3 Ratio) --- */
@@ -140,6 +137,12 @@
     .shoot-down-group { animation: shoot-down 1.5s infinite linear; }
     @keyframes shoot-down { 0% { transform: translateY(-18px); opacity: 0; } 20% { opacity: 1; } 80% { opacity: 1; } 100% { transform: translateY(18px); opacity: 0; } }
 
+    /* Grid Arrows Animation */
+    .anim-up { display: inline-block; animation: grid-shoot-up 1.5s infinite linear; }
+    .anim-down { display: inline-block; animation: grid-shoot-down 1.5s infinite linear; }
+    @keyframes grid-shoot-up { 0% { transform: translateY(5px); opacity: 0; } 20% { opacity: 1; } 80% { opacity: 1; } 100% { transform: translateY(-5px); opacity: 0; } }
+    @keyframes grid-shoot-down { 0% { transform: translateY(-5px); opacity: 0; } 20% { opacity: 1; } 80% { opacity: 1; } 100% { transform: translateY(5px); opacity: 0; } }
+
     /* --- 4. RIGHT COLUMN (CHARTS & GRIDS) --- */
     .right-column {
       display: flex; flex-direction: column; gap: 30px; height: 100%; min-width: 0;
@@ -158,10 +161,16 @@
     .chart-box::before { top: 0; left: 0; border-top: 2px solid; border-left: 2px solid; border-color: rgba(255,255,255,0.3); }
     .chart-box::after { bottom: 0; right: 0; border-bottom: 2px solid; border-right: 2px solid; border-color: rgba(255,255,255,0.3); }
 
-    .chart-header {
+    #chart-header-nw {
       font-size: 0.9rem; letter-spacing: 4px; font-weight: 700; text-transform: uppercase;
       margin-bottom: 15px; position: relative; z-index: 10;
       color: var(--neon-white); text-shadow: 0 0 10px rgba(255,255,255,0.4);
+      transition: opacity 0.4s ease, color 0.4s ease, text-shadow 0.4s ease;
+    }
+
+    .chart-header {
+      font-size: 0.9rem; letter-spacing: 4px; font-weight: 700; text-transform: uppercase;
+      margin-bottom: 15px; position: relative; z-index: 10; color: var(--text-gray);
     }
 
     /* Top Chart Canvas */
@@ -191,12 +200,14 @@
       text-align: right; font-variant-numeric: tabular-nums;
       padding: 6px 10px; border-radius: 3px; background: rgba(0,0,0,0.5);
       border: 1px solid rgba(255,255,255,0.02);
-      color: var(--text-main); /* Value color defaults to colorless white */
+      color: var(--text-main); 
     }
+    
+    /* Universally gray bottoms for Inc, Exp, and Zero Cashflow */
+    .h-inc, .h-exp, .h-flow-zero { box-shadow: inset 0 -2px 0 rgba(255,255,255,0.2); }
     
     .h-flow-pos { color: var(--neon-green); text-shadow: 0 0 5px rgba(0,255,102,0.4); box-shadow: inset 0 -2px 0 rgba(0,255,102,0.5); }
     .h-flow-neg { color: var(--neon-red); text-shadow: 0 0 5px rgba(255,0,68,0.4); box-shadow: inset 0 -2px 0 rgba(255,0,68,0.5); }
-    .h-flow-zero { color: var(--text-main); text-shadow: none; box-shadow: inset 0 -2px 0 rgba(255,255,255,0.2); }
 
     /* Loader */
     #loader {
@@ -311,11 +322,11 @@
     <!-- RIGHT COLUMN -->
     <div class="right-column">
       
-      <!-- TOP HALF: Balance Sparkline Chart -->
+      <!-- TOP HALF: 60-Second Loop Sparkline Chart -->
       <div class="chart-box">
-        <div class="chart-header">12-MONTH BALANCE TREND</div>
+        <div id="chart-header-nw">12-MONTH BALANCE TREND</div>
         <div class="canvas-container">
-          <canvas id="canvas-bal"></canvas>
+          <canvas id="canvas-nw"></canvas>
         </div>
       </div>
 
@@ -361,24 +372,45 @@
       return `<span class="${colorClass}">${arrow}${pct}%</span>`;
     }
 
+    // Number formatting for the chart labels (converts 1500 to 1.5K, 4700 to 4.7K)
     function shortFmt(num) {
-      if (num >= 1000000) return (num / 1000000).toFixed(2) + 'M';
-      if (num >= 1000) return (num / 1000).toFixed(0) + 'K';
-      return num;
+      const abs = Math.abs(num);
+      const sign = num < 0 ? '-' : '';
+      if (abs >= 1000000) return sign + (abs / 1000000).toFixed(2) + 'M';
+      if (abs >= 1000) return sign + (abs / 1000).toFixed(1) + 'K';
+      return sign + abs;
     }
 
     function fullFmt(num) {
       return Math.abs(num).toLocaleString('en-US');
     }
 
-    /** --- 2. TOP CHART: SMOOTH NEON SPARKLINE --- */
+    /** --- 2. TOP CHART: 60-SEC LOOP SMOOTH MORPHING SPARKLINE --- */
     class SparklineChart {
       constructor(canvasId) {
         this.canvas = document.getElementById(canvasId);
         this.ctx = this.canvas.getContext('2d');
-        this.data =[];
+        this.data = [];
+        this.points =[]; 
+        
+        // Loop State Configuration
+        this.states =[
+          { key: 'balance', label: '12-MONTH BALANCE TREND', color: {r:255,g:255,b:255}, shadow: 'rgba(255,255,255,0.4)', duration: 30000 },
+          { key: 'income', label: '12-MONTH INCOME TREND', color: {r:0,g:255,b:102}, shadow: 'rgba(0,255,102,0.4)', duration: 10000 },
+          { key: 'expense', label: '12-MONTH EXPENSE TREND', color: {r:255,g:0,b:68}, shadow: 'rgba(255,0,68,0.4)', duration: 10000 },
+          { key: 'cashflow', label: '12-MONTH CASHFLOW TREND', color: {r:255,g:204,b:0}, shadow: 'rgba(255,204,0,0.4)', duration: 10000 }
+        ];
+        
+        this.curState = 0;
+        this.timeInState = 0;
+        this.lastTime = 0;
+        this.morphProgress = 1;
+        this.textOpacity = 1;
+        this.isMorphing = false;
+        
         this.resize();
         window.addEventListener('resize', () => this.resize());
+        requestAnimationFrame((t) => this.tick(t));
       }
 
       resize() {
@@ -389,19 +421,19 @@
         this.ctx.scale(dpr, dpr);
         this.w = rect.width;
         this.h = rect.height;
-        if(this.data.length > 0) this.draw();
+        if(this.data.length > 0) this.updateTargets(true); // Snap immediately on resize
       }
 
       loadData(chartData) {
         this.data = chartData.slice(-12);
-        this.draw();
+        this.updateTargets(true); 
       }
 
-      draw() {
+      updateTargets(snap = false) {
         if (this.data.length === 0) return;
-        this.ctx.clearRect(0, 0, this.w, this.h);
-
-        const vals = this.data.map(d => d.balance || 0);
+        const key = this.states[this.curState].key;
+        const vals = this.data.map(d => d[key] || 0);
+        
         const minVal = Math.min(...vals);
         const maxVal = Math.max(...vals);
         const range = (maxVal - minVal) || 1;
@@ -410,109 +442,207 @@
         const padBot = 25;
         const activeH = this.h - padTop - padBot;
         const stepX = this.w / Math.max(1, this.data.length - 1);
+        
+        for (let i = 0; i < this.data.length; i++) {
+            let px = i * stepX;
+            if (i === 0) px += 15;
+            if (i === this.data.length - 1) px -= 15;
+            
+            const py = padTop + activeH - (((vals[i]) - minVal) / range) * activeH;
+            
+            if (snap || this.points.length !== this.data.length) {
+                // Initial creation
+                this.points[i] = { x: px, y: py, startY: py, targetY: py, val: vals[i], label: this.data[i].chartLabel };
+            } else {
+                // Set targets for morphing
+                this.points[i].x = px;
+                this.points[i].startY = this.points[i].y; 
+                this.points[i].targetY = py;
+                this.points[i].val = vals[i];
+            }
+        }
+      }
 
-        const points = this.data.map((d, i) => ({
-          x: i * stepX,
-          y: padTop + activeH - (((d.balance || 0) - minVal) / range) * activeH,
-          val: d.balance || 0,
-          label: d.chartLabel // Short 3-letter month (e.g. MAR)
-        }));
+      updateHeader() {
+         const el = document.getElementById('chart-header-nw');
+         const state = this.states[this.curState];
+         el.style.opacity = 0;
+         setTimeout(() => {
+             el.innerText = state.label;
+             el.style.color = `rgb(${state.color.r},${state.color.g},${state.color.b})`;
+             el.style.textShadow = `0 0 10px ${state.shadow}`;
+             el.style.opacity = 1;
+         }, 300); // Wait for fade out
+      }
 
-        points[0].x += 15;
-        points[points.length - 1].x -= 15;
+      easeInOutCubic(t) {
+        return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+      }
 
-        // Draw Smooth Bezier Curve Line
-        this.ctx.beginPath();
-        this.ctx.moveTo(points[0].x, points[0].y);
-        for (let i = 0; i < points.length - 1; i++) {
-          const x_mid = (points[i].x + points[i+1].x) / 2;
-          this.ctx.bezierCurveTo(x_mid, points[i].y, x_mid, points[i+1].y, points[i+1].x, points[i+1].y);
+      lerpColor(c1, c2, t) {
+         const r = Math.round(c1.r + (c2.r - c1.r) * t);
+         const g = Math.round(c1.g + (c2.g - c1.g) * t);
+         const b = Math.round(c1.b + (c2.b - c1.b) * t);
+         return `rgb(${r},${g},${b})`;
+      }
+
+      tick(time) {
+        requestAnimationFrame((t) => this.tick(t));
+        if (!this.lastTime) this.lastTime = time;
+        const dt = time - this.lastTime;
+        this.lastTime = time;
+        
+        if (this.data.length === 0) return;
+        
+        this.timeInState += dt;
+        const stateDur = this.states[this.curState].duration;
+        
+        // Timeline events
+        const fadeOutStart = stateDur - 500;
+        const morphStart = stateDur;
+        const morphEnd = stateDur + 1000;
+        const fadeInEnd = stateDur + 1500;
+        
+        if (this.timeInState >= fadeOutStart && this.timeInState < morphStart) {
+            this.textOpacity = 1 - (this.timeInState - fadeOutStart) / 500;
+        } else if (this.timeInState >= morphStart && this.timeInState < morphEnd) {
+            this.textOpacity = 0;
+            if (!this.isMorphing) {
+                this.isMorphing = true;
+                this.prevState = this.curState;
+                this.curState = (this.curState + 1) % this.states.length;
+                this.updateTargets();
+                this.updateHeader();
+            }
+            const rawP = (this.timeInState - morphStart) / 1000;
+            this.morphProgress = this.easeInOutCubic(rawP);
+        } else if (this.timeInState >= morphEnd && this.timeInState < fadeInEnd) {
+            this.morphProgress = 1;
+            this.textOpacity = (this.timeInState - morphEnd) / 500;
+        } else if (this.timeInState >= fadeInEnd) {
+            this.textOpacity = 1;
+            this.isMorphing = false;
+            this.timeInState = 0;
         }
         
-        this.ctx.strokeStyle = '#ffffff';
-        this.ctx.lineWidth = 3;
-        this.ctx.shadowColor = '#ffffff';
-        this.ctx.shadowBlur = 12;
-        this.ctx.stroke();
-        this.ctx.shadowBlur = 0; 
+        this.draw();
+      }
 
-        // Draw Subtle Fill Gradient
-        const fillPath = new Path2D();
-        fillPath.moveTo(points[0].x, this.h - padBot);
-        fillPath.lineTo(points[0].x, points[0].y);
-        for (let i = 0; i < points.length - 1; i++) {
-          const x_mid = (points[i].x + points[i+1].x) / 2;
-          fillPath.bezierCurveTo(x_mid, points[i].y, x_mid, points[i+1].y, points[i+1].x, points[i+1].y);
-        }
-        fillPath.lineTo(points[points.length-1].x, this.h - padBot);
-        fillPath.closePath();
-
-        const grad = this.ctx.createLinearGradient(0, padTop, 0, this.h - padBot);
-        grad.addColorStop(0, 'rgba(255, 255, 255, 0.2)');
-        grad.addColorStop(1, 'rgba(255, 255, 255, 0)');
-        this.ctx.fillStyle = grad;
-        this.ctx.fill(fillPath);
-
-        // Draw Points & Texts
-        this.ctx.textAlign = 'center';
-        points.forEach((p) => {
-          this.ctx.beginPath();
-          this.ctx.arc(p.x, p.y, 4, 0, Math.PI * 2);
-          this.ctx.fillStyle = '#111';
-          this.ctx.fill();
-          this.ctx.lineWidth = 2;
-          this.ctx.strokeStyle = '#fff';
-          this.ctx.stroke();
-
-          this.ctx.fillStyle = '#ffffff';
-          this.ctx.font = 'bold 12px "Segoe UI"';
-          this.ctx.fillText(shortFmt(p.val), p.x, p.y - 12);
-
-          this.ctx.fillStyle = '#7a8a9e';
-          this.ctx.font = '600 11px "Segoe UI"';
-          this.ctx.fillText(p.label, p.x, this.h - 5);
-        });
+      draw() {
+         this.ctx.clearRect(0, 0, this.w, this.h);
+         
+         // Update Morphing Y positions
+         for(let p of this.points) {
+            p.y = p.startY + (p.targetY - p.startY) * this.morphProgress;
+         }
+         
+         const curDef = this.states[this.curState];
+         let strokeColorStr = `rgb(${curDef.color.r},${curDef.color.g},${curDef.color.b})`;
+         
+         if (this.isMorphing) {
+             const prev = this.states[this.prevState];
+             strokeColorStr = this.lerpColor(prev.color, curDef.color, this.morphProgress);
+         }
+         
+         const padBot = 25;
+         const padTop = 35;
+         
+         // 1. Draw Bezier Curve
+         this.ctx.beginPath();
+         this.ctx.moveTo(this.points[0].x, this.points[0].y);
+         for(let i=0; i<this.points.length - 1; i++) {
+             const xm = (this.points[i].x + this.points[i+1].x)/2;
+             this.ctx.bezierCurveTo(xm, this.points[i].y, xm, this.points[i+1].y, this.points[i+1].x, this.points[i+1].y);
+         }
+         this.ctx.strokeStyle = strokeColorStr;
+         this.ctx.lineWidth = 3;
+         this.ctx.shadowColor = strokeColorStr;
+         this.ctx.shadowBlur = 12;
+         this.ctx.stroke();
+         this.ctx.shadowBlur = 0;
+         
+         // 2. Fill Gradient
+         const fillPath = new Path2D();
+         fillPath.moveTo(this.points[0].x, this.h - padBot);
+         fillPath.lineTo(this.points[0].x, this.points[0].y);
+         for(let i=0; i<this.points.length - 1; i++) {
+             const xm = (this.points[i].x + this.points[i+1].x)/2;
+             fillPath.bezierCurveTo(xm, this.points[i].y, xm, this.points[i+1].y, this.points[i+1].x, this.points[i+1].y);
+         }
+         fillPath.lineTo(this.points[this.points.length-1].x, this.h - padBot);
+         fillPath.closePath();
+         
+         const fillBase = strokeColorStr.replace('rgb', 'rgba').replace(')', ', 0.2)');
+         const grad = this.ctx.createLinearGradient(0, padTop, 0, this.h - padBot);
+         grad.addColorStop(0, fillBase);
+         grad.addColorStop(1, 'rgba(0,0,0,0)');
+         this.ctx.fillStyle = grad;
+         this.ctx.fill(fillPath);
+         
+         // 3. Draw Points & Fading Texts
+         this.ctx.textAlign = 'center';
+         this.points.forEach((p) => {
+             this.ctx.beginPath();
+             this.ctx.arc(p.x, p.y, 4, 0, Math.PI * 2);
+             this.ctx.fillStyle = '#111';
+             this.ctx.fill();
+             this.ctx.lineWidth = 2;
+             this.ctx.strokeStyle = strokeColorStr;
+             this.ctx.stroke();
+             
+             // Apply fade
+             this.ctx.globalAlpha = this.textOpacity;
+             
+             this.ctx.fillStyle = '#ffffff';
+             this.ctx.font = 'bold 12px "Segoe UI"';
+             this.ctx.fillText(shortFmt(p.val), p.x, p.y - 12);
+             
+             this.ctx.fillStyle = '#7a8a9e';
+             this.ctx.font = '600 11px "Segoe UI"';
+             this.ctx.fillText(p.label, p.x, this.h - 5);
+             
+             this.ctx.globalAlpha = 1.0; // reset
+         });
       }
     }
 
     /** --- 3. BOTTOM GRID: 12-MONTH HISTORY --- */
     function renderHistoryGrid(chartData) {
       const container = document.getElementById('history-grid');
-      // Sort descending (Most recent first)
       const data = [...chartData.slice(-12)].reverse();
       
-      const leftCol = data.slice(0, 6); // Months 0-5 (Newest)
-      const rightCol = data.slice(6, 12); // Months 6-11 (Oldest)
+      const leftCol = data.slice(0, 6); 
+      const rightCol = data.slice(6, 12);
 
-      const buildRow = (d) => {
-        // Colorless values with only colored arrows. Hide entirely if 0.
-        let incHtml = d.income > 0 ? `<span style="color:var(--neon-green)">▲</span> ${fullFmt(d.income)}` : ``;
-        let expHtml = d.expense > 0 ? `<span style="color:var(--neon-red)">▼</span> ${fullFmt(d.expense)}` : ``;
+      const buildRow = (d, isLatest) => {
+        // Colorless values. Arrows animated if it's the latest month.
+        let incHtml = d.income > 0 ? `<span style="color:var(--neon-green)" class="${isLatest ? 'anim-up' : ''}">▲</span> ${fullFmt(d.income)}` : ``;
+        let expHtml = d.expense > 0 ? `<span style="color:var(--neon-red)" class="${isLatest ? 'anim-down' : ''}">▼</span> ${fullFmt(d.expense)}` : ``;
         
         let flowHtml = '';
         if (d.cashflow > 0) {
-          flowHtml = `<div class="h-box h-flow-pos">▲ ${fullFmt(d.cashflow)}</div>`;
+          flowHtml = `<div class="h-box h-flow-pos"><span class="${isLatest ? 'anim-up' : ''}">▲</span> ${fullFmt(d.cashflow)}</div>`;
         } else if (d.cashflow < 0) {
-          flowHtml = `<div class="h-box h-flow-neg">▼ ${fullFmt(Math.abs(d.cashflow))}</div>`;
+          flowHtml = `<div class="h-box h-flow-neg"><span class="${isLatest ? 'anim-down' : ''}">▼</span> ${fullFmt(Math.abs(d.cashflow))}</div>`;
         } else {
-          // Exactly 0 = Colorless, no arrow
           flowHtml = `<div class="h-box h-flow-zero">0</div>`;
         }
 
         return `
           <div class="history-row">
             <div class="h-month">${d.gridLabel}</div>
-            <div class="h-box">${incHtml}</div>
-            <div class="h-box">${expHtml}</div>
+            <div class="h-box h-inc">${incHtml}</div>
+            <div class="h-box h-exp">${expHtml}</div>
             ${flowHtml}
           </div>
         `;
       };
 
       let html = '<div class="history-col">';
-      leftCol.forEach(d => html += buildRow(d));
+      // index 0 is the newest month
+      leftCol.forEach((d, i) => html += buildRow(d, i === 0));
       html += '</div><div class="history-col">';
-      rightCol.forEach(d => html += buildRow(d));
+      rightCol.forEach(d => html += buildRow(d, false));
       html += '</div>';
 
       container.innerHTML = html;
@@ -537,7 +667,6 @@
         document.getElementById('loader').style.opacity = '0';
         setTimeout(() => document.getElementById('loader').style.display = 'none', 400);
 
-        // 1. HUD Updates
         const parsedBalance = Math.abs(data.summary.balance || 0);
         display.bal.run(parsedBalance, data.summary.balance < 0);
         document.getElementById('lbl-net').innerText = '৳' + Math.abs(data.summary.netWorth || 0).toLocaleString();
@@ -559,36 +688,28 @@
         document.getElementById('exp-prev').innerHTML = getStatHTML(data.kpis.current.expense, data.kpis.last.expense, true);
         document.getElementById('exp-avg').innerHTML = getStatHTML(data.kpis.current.expense, data.kpis.averages.exp, true);
 
-        // 2. Data Processing for Charts
         if (data.chartData && data.chartData.length > 0) {
-            
-            // Format dynamic labels based on the current date
             const monthNames =["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
             const dDate = new Date();
             let runningBal = parsedBalance;
 
-            // Iterate backwards through chart data
             for(let i = data.chartData.length - 1; i >= 0; i--) {
-                // Attach generated labels
                 data.chartData[i].chartLabel = monthNames[dDate.getMonth()];
                 data.chartData[i].gridLabel = `${monthNames[dDate.getMonth()]}/${dDate.getFullYear().toString().slice(-2)}`;
                 dDate.setMonth(dDate.getMonth() - 1);
 
-                // Reverse engineer Balance
                 data.chartData[i].balance = runningBal;
                 runningBal = runningBal - (data.chartData[i].cashflow || 0); 
             }
             
-            const balChart = new SparklineChart('canvas-bal');
-            balChart.loadData(data.chartData);
-
+            const mainChart = new SparklineChart('canvas-nw');
+            mainChart.loadData(data.chartData);
             renderHistoryGrid(data.chartData);
         }
 
       } catch (e) {
         console.error("System Error:", e);
         
-        // MOCK DATA FALLBACK
         document.getElementById('loader').style.opacity = '0';
         setTimeout(() => document.getElementById('loader').style.display = 'none', 400);
 
@@ -603,7 +724,6 @@
         document.getElementById('exp-prev').innerHTML = getStatHTML(39800, 50000, true); 
         document.getElementById('exp-avg').innerHTML = getStatHTML(39800, 30000, true); 
 
-        // Generate 12-month mock dataset
         let mockData =[];
         let mockBal = 1245000; 
         const monthNames =["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
@@ -612,24 +732,20 @@
         for (let i = 0; i < 12; i++) {
           let mockInc = 60000 + (Math.random() * 40000); 
           let mockExp = 30000 + (Math.random() * 50000); 
-          // Inject an exact zero cashflow to test the "0" box rendering
           if(i===5) { mockInc = 0; mockExp = 0; } 
           mockData.unshift({ income: mockInc, expense: mockExp, cashflow: mockInc - mockExp });
         }
 
-        // Apply generated labels and reverse math
         for (let i = mockData.length - 1; i >= 0; i--) {
           mockData[i].chartLabel = monthNames[dDate.getMonth()];
           mockData[i].gridLabel = `${monthNames[dDate.getMonth()]}/${dDate.getFullYear().toString().slice(-2)}`;
           dDate.setMonth(dDate.getMonth() - 1);
-          
           mockData[i].balance = mockBal;
           mockBal = mockBal - mockData[i].cashflow;
         }
 
-        const balChart = new SparklineChart('canvas-bal');
-        balChart.loadData(mockData);
-
+        const mainChart = new SparklineChart('canvas-nw');
+        mainChart.loadData(mockData);
         renderHistoryGrid(mockData);
       }
     }

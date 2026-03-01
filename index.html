@@ -178,7 +178,7 @@
 
     // Slot Machine Animation Physics
     function spinNumber(el, finalValue) {
-      const duration = 1200; // 1.2s spin
+      const duration = 1200; 
       const start = Date.now();
       const isNeg = finalValue < 0;
       
@@ -188,11 +188,10 @@
           clearInterval(timer);
           el.innerText = (isNeg ? "-" : "") + fmt(finalValue);
         } else {
-          // Generate random fast-spinning numbers
           const randomVal = Math.floor(Math.random() * Math.abs(finalValue) * 1.5);
           el.innerText = (isNeg ? "-" : "") + fmt(randomVal);
         }
-      }, 40); // Update every 40ms for high-speed blur effect
+      }, 40); 
     }
 
     // Insight Rotator (3D Flip)
@@ -216,19 +215,18 @@
           back.innerText = templates[idx];
           flipper.classList.add('flip-active');
         }
-      }, 10000); // 10 seconds
+      }, 10000); 
     }
 
     // Build Chip Stack Chart
     function buildChart(data) {
       const container = document.getElementById('chip-chart');
-      // Find highest value to scale the chips (Max 18 chips tall)
       let maxVal = 1;
       data.forEach(d => {
         if(d.income > maxVal) maxVal = d.income;
         if(d.expense > maxVal) maxVal = d.expense;
       });
-      const chipValue = maxVal / 18; // Value per 1 physical chip
+      const chipValue = maxVal / 18; 
 
       data.forEach(month => {
         const incChipsCount = Math.ceil(month.income / chipValue) || 0;
@@ -236,7 +234,7 @@
         
         const group = document.createElement('div');
         group.className = 'stack-group';
-        group.title = `In: ${fmt(month.income)} | Out: ${fmt(month.expense)}`; // Tooltip
+        group.title = `In: ${fmt(month.income)} | Out: ${fmt(month.expense)}`; 
         
         let incHtml = '', expHtml = '';
         for(let i=0; i<incChipsCount; i++) incHtml += `<div class="chip inc"></div>`;
@@ -275,15 +273,31 @@
       });
     }
 
-    // Main Load
+    // Main Load (Bulletproof Version)
     async function loadData() {
       try {
         const res = await fetch('/api?t=' + Date.now());
-        const data = await res.json();
+        const text = await res.text(); // Read as raw text first
+
+        // Catch HTML errors from Cloudflare
+        if (text.trim().startsWith('<')) {
+          console.error("Received HTML instead of API Data:", text);
+          document.getElementById('loader').innerText = "ERROR: CLOUDFLARE FAILED. /api ROUTE NOT FOUND.";
+          return;
+        }
+
+        // Parse JSON safely
+        const data = JSON.parse(text);
+
+        // Catch Backend Try/Catch Errors
+        if (data.backendError) {
+           document.getElementById('loader').innerText = "API ERROR: " + data.backendError;
+           return;
+        }
         
         document.getElementById('loader').style.display = 'none';
 
-        // 1. Set KPI Values with Slot Spin
+        // Set Values
         spinNumber(document.getElementById('val-net'), data.summary.netWorth);
         document.getElementById('sub-bal').innerText = `Bal: ${fmt(data.summary.balance)}`;
         document.getElementById('sub-debt').innerText = `Debt: ${fmt(data.summary.totalDebt)}`;
@@ -300,22 +314,18 @@
         spinNumber(document.getElementById('val-inc'), data.kpis.current.income);
         spinNumber(document.getElementById('val-exp'), data.kpis.current.expense);
 
-        // 2. Start Rotators
+        // Start Animations
         startRotator('flip-flow', 'txt-flow-1', 'txt-flow-2', data.insights.cashflow);
         startRotator('flip-inc', 'txt-inc-1', 'txt-inc-2', data.insights.income);
         startRotator('flip-exp', 'txt-exp-1', 'txt-exp-2', data.insights.expense);
 
-        // 3. Build Graphs
         buildChart(data.chartData);
         buildLedger(data.debts);
 
       } catch (err) {
-        document.getElementById('loader').innerText = "CONNECTION FAILED. RETRYING...";
-        console.error(err);
+        document.getElementById('loader').innerText = "CRITICAL FRONTEND ERROR. CHECK CONSOLE.";
+        console.error("Critical error:", err);
       }
     }
 
     window.onload = loadData;
-  </script>
-</body>
-</html>

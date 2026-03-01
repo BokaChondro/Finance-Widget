@@ -6,7 +6,7 @@
   <title>Sci-Fi Finance HUD</title>
   
   <style>
-    /* --- 1. CORE VARIABLES & PROPERTIES --- */
+    /* --- 1. CORE VARIABLES --- */
     :root {
       --bg-color: #191919;
       --card-bg: #111111; 
@@ -23,11 +23,7 @@
       --sub-red: #fca5a5;
     }
 
-    @property --neon-color {
-      syntax: '<color>';
-      inherits: true;
-      initial-value: transparent;
-    }
+    @property --neon-color { syntax: '<color>'; inherits: true; initial-value: transparent; }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -61,131 +57,63 @@
       min-width: 0; 
     }
 
-    /* --- 3. ANIMATED LIVELY BORDERS (WRAPPER) --- */
+    /* --- 3. LEFT CARDS (Animated Borders & Themes) --- */
     .card-wrapper {
-      position: relative;
-      padding: 2px; 
-      border-radius: 8px;
-      background: rgba(255,255,255,0.05); 
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
-      z-index: 1;
-      height: 100%;
+      position: relative; padding: 2px; border-radius: 8px;
+      background: rgba(255,255,255,0.05); overflow: hidden;
+      display: flex; flex-direction: column; z-index: 1; height: 100%;
       --neon-color: var(--neon-white); 
     }
-
     .card-wrapper::before {
-      content: '';
-      position: absolute;
-      top: -100%; left: -100%; width: 300%; height: 300%;
+      content: ''; position: absolute; top: -100%; left: -100%; width: 300%; height: 300%;
       background: conic-gradient(transparent, transparent, var(--neon-color), transparent, transparent);
-      animation: rotate-border 4s linear infinite;
-      z-index: -1;
+      animation: rotate-border 4s linear infinite; z-index: -1;
     }
+    @keyframes rotate-border { 100% { transform: rotate(360deg); } }
 
-    @keyframes rotate-border {
-      100% { transform: rotate(360deg); }
-    }
-
-    /* --- 4. HIGH-EFFORT HUD CARDS --- */
     .hud-card {
-      background: var(--card-bg);
-      border-radius: 6px;
-      padding: 1.2vw 1.5vw; 
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      position: relative;
-      height: 100%;
-      z-index: 2;
-      box-shadow: inset 0 0 10px rgba(0,0,0,0.8);
+      background: var(--card-bg); border-radius: 6px; padding: 1.2vw 1.5vw; 
+      display: flex; flex-direction: column; justify-content: space-between;
+      position: relative; height: 100%; z-index: 2; box-shadow: inset 0 0 10px rgba(0,0,0,0.8);
     }
 
-    .text-up, .text-down {
-      opacity: 0.85;
-      font-weight: 600;
-    }
+    .text-up, .text-down { opacity: 0.85; font-weight: 600; }
     .text-up { color: var(--sub-green); text-shadow: 0 0 4px rgba(110, 231, 183, 0.2); }
     .text-down { color: var(--sub-red); text-shadow: 0 0 4px rgba(252, 165, 165, 0.2); }
     .text-gray { color: var(--text-gray); }
 
-    .hud-header {
-      display: flex; justify-content: space-between; align-items: center;
-    }
+    .hud-header { display: flex; justify-content: space-between; align-items: center; }
     .hud-title {
-      font-size: clamp(0.75rem, 1vw, 0.95rem); 
-      letter-spacing: 2px; font-weight: 700; text-transform: uppercase;
-      color: var(--neon-color);
-      text-shadow: 0 0 10px var(--neon-color);
+      font-size: clamp(0.75rem, 1vw, 0.95rem); letter-spacing: 2px; font-weight: 700; text-transform: uppercase;
+      color: var(--neon-color); text-shadow: 0 0 10px var(--neon-color);
       display: flex; align-items: baseline; flex-wrap: wrap;
     }
-    .timeframe {
-      font-size: 0.65em;
-      color: var(--text-gray);
-      text-shadow: none;
-      letter-spacing: 1px;
-      margin-left: 8px;
-      font-weight: 400;
-    }
+    .timeframe { font-size: 0.65em; color: var(--text-gray); text-shadow: none; letter-spacing: 1px; margin-left: 8px; font-weight: 400; }
     
     .hud-icon {
-      color: var(--neon-color);
-      filter: drop-shadow(0 0 5px var(--neon-color));
-      width: clamp(18px, 1.5vw, 24px); 
-      height: clamp(18px, 1.5vw, 24px);
+      color: var(--neon-color); filter: drop-shadow(0 0 5px var(--neon-color));
+      width: clamp(18px, 1.5vw, 24px); height: clamp(18px, 1.5vw, 24px);
     }
 
     .hud-number-box {
-      background: rgba(0, 0, 0, 0.6);
-      border: 1px solid rgba(255, 255, 255, 0.05);
-      border-radius: 4px;
-      padding: 0.8vw 1.2vw;
-      margin: auto 0;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
+      background: rgba(0, 0, 0, 0.6); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 4px;
+      padding: 0.8vw 1.2vw; margin: auto 0; display: flex; justify-content: space-between; align-items: center;
     }
-
-    .currency {
-      font-size: clamp(1rem, 1.5vw, 1.5rem); 
-      opacity: 0.8; font-weight: 600;
-      color: var(--neon-color);
-    }
+    .currency { font-size: clamp(1rem, 1.5vw, 1.5rem); opacity: 0.8; font-weight: 600; color: var(--neon-color); }
     .amount {
-      font-size: clamp(1.5rem, 2.5vw, 2.3rem); 
-      font-weight: 700; letter-spacing: -1px; 
-      text-align: right; width: 100%;
-      font-variant-numeric: tabular-nums; 
-      color: var(--neon-color);
-      text-shadow: 0 0 15px var(--neon-color);
+      font-size: clamp(1.5rem, 2.5vw, 2.3rem); font-weight: 700; letter-spacing: -1px; 
+      text-align: right; width: 100%; font-variant-numeric: tabular-nums; 
+      color: var(--neon-color); text-shadow: 0 0 15px var(--neon-color);
     }
+    .hud-footer { display: flex; justify-content: space-between; font-size: clamp(0.65rem, 0.8vw, 0.85rem); font-weight: 600; }
 
-    .hud-footer {
-      display: flex; justify-content: space-between;
-      font-size: clamp(0.65rem, 0.8vw, 0.85rem); 
-      font-weight: 600;
-    }
-
-    /* --- 5. THEMES & DYNAMIC PULSING --- */
-    
+    /* Left Column Themes */
     .theme-white { --neon-color: var(--neon-white); }
-    .theme-white .hud-card {
-      animation: breath-white 3s ease-in-out infinite;
-    }
-    .theme-white .amount, .theme-white .hud-title {
-      animation: breath-white-text 3s ease-in-out infinite;
-    }
-    
+    .theme-white .hud-card { animation: breath-white 3s ease-in-out infinite; }
+    .theme-white .amount, .theme-white .hud-title { animation: breath-white-text 3s ease-in-out infinite; }
     @keyframes breath-white {
-      0%, 100% { 
-        box-shadow: 0 0 15px rgba(255,255,255,0.1), inset 0 0 15px rgba(255,255,255,0.05); 
-        background: rgba(17, 17, 17, 1);
-      }
-      50% { 
-        box-shadow: 0 0 80px rgba(255,255,255,0.6), inset 0 0 40px rgba(255,255,255,0.25); 
-        background: rgba(25, 25, 25, 1);
-      }
+      0%, 100% { box-shadow: 0 0 15px rgba(255,255,255,0.1), inset 0 0 15px rgba(255,255,255,0.05); background: rgba(17, 17, 17, 1); }
+      50% { box-shadow: 0 0 80px rgba(255,255,255,0.6), inset 0 0 40px rgba(255,255,255,0.25); background: rgba(25, 25, 25, 1); }
     }
     @keyframes breath-white-text {
       0%, 100% { text-shadow: 0 0 10px rgba(255,255,255,0.4); }
@@ -196,80 +124,68 @@
     .theme-red { --neon-color: var(--neon-red); }
 
     .pulse-yg { animation: pulse-color-yg 3s infinite ease-in-out; }
-    @keyframes pulse-color-yg {
-      0%, 100% { --neon-color: var(--neon-yellow); }
-      50% { --neon-color: var(--neon-green); }
-    }
-
+    @keyframes pulse-color-yg { 0%, 100% { --neon-color: var(--neon-yellow); } 50% { --neon-color: var(--neon-green); } }
     .pulse-yr { animation: pulse-color-yr 3s infinite ease-in-out; }
-    @keyframes pulse-color-yr {
-      0%, 100% { --neon-color: var(--neon-yellow); }
-      50% { --neon-color: var(--neon-red); }
-    }
+    @keyframes pulse-color-yr { 0%, 100% { --neon-color: var(--neon-yellow); } 50% { --neon-color: var(--neon-red); } }
 
-    /* --- 6. GIF-LIKE SVG ANIMATIONS --- */
-    
+    /* SVG Animations */
     .icon-diamond { animation: spin-3d 3s linear infinite; }
-    @keyframes spin-3d {
-      0% { transform: perspective(400px) rotateY(0deg); }
-      100% { transform: perspective(400px) rotateY(360deg); }
-    }
-
+    @keyframes spin-3d { 0% { transform: perspective(400px) rotateY(0deg); } 100% { transform: perspective(400px) rotateY(360deg); } }
     .wave-group { animation: slide-wave 1.5s linear infinite; }
-    @keyframes slide-wave {
-      0% { transform: translateX(0); }
-      100% { transform: translateX(-24px); }
-    }
-
+    @keyframes slide-wave { 0% { transform: translateX(0); } 100% { transform: translateX(-24px); } }
     .shoot-up-group { animation: shoot-up 1.5s infinite linear; }
-    @keyframes shoot-up {
-      0% { transform: translateY(18px); opacity: 0; }
-      20% { opacity: 1; }
-      80% { opacity: 1; }
-      100% { transform: translateY(-18px); opacity: 0; }
-    }
-
+    @keyframes shoot-up { 0% { transform: translateY(18px); opacity: 0; } 20% { opacity: 1; } 80% { opacity: 1; } 100% { transform: translateY(-18px); opacity: 0; } }
     .shoot-down-group { animation: shoot-down 1.5s infinite linear; }
-    @keyframes shoot-down {
-      0% { transform: translateY(-18px); opacity: 0; }
-      20% { opacity: 1; }
-      80% { opacity: 1; }
-      100% { transform: translateY(18px); opacity: 0; }
-    }
+    @keyframes shoot-down { 0% { transform: translateY(-18px); opacity: 0; } 20% { opacity: 1; } 80% { opacity: 1; } 100% { transform: translateY(18px); opacity: 0; } }
 
-    /* --- 7. BLANK RIGHT COLUMN --- */
+    /* --- 4. RIGHT COLUMN (SCI-FI CHARTS) --- */
     .right-column {
-      min-width: 0; 
+      display: flex; flex-direction: column; gap: 30px; height: 100%; min-width: 0;
     }
-    .blank-chart-box {
+    
+    .chart-box {
+      flex: 1; /* Automatically splits height 50/50 */
       background: var(--card-bg);
       border: 1px solid rgba(255, 255, 255, 0.05);
       border-radius: 8px;
-      width: 100%; height: 100%;
-      display: flex; align-items: center; justify-content: center;
+      padding: 20px;
+      display: flex; flex-direction: column;
       position: relative; overflow: hidden;
-      box-shadow: inset 0 0 50px rgba(0,0,0,0.5);
+      box-shadow: inset 0 0 40px rgba(0,0,0,0.6);
     }
-    .blank-chart-box::before {
-      content: ''; position: absolute;
-      width: 400px; height: 400px;
-      border: 1px solid rgba(255, 255, 255, 0.03);
-      border-radius: 50%;
+
+    /* Sci-Fi Corner Accents for Charts */
+    .chart-box::before, .chart-box::after {
+      content: ''; position: absolute; width: 20px; height: 20px; pointer-events: none; z-index: 10;
     }
-    .blank-text {
-      color: var(--text-gray);
-      font-size: 1.1rem; letter-spacing: 6px; font-weight: 600; text-transform: uppercase;
+    .chart-box::before { top: 0; left: 0; border-top: 2px solid; border-left: 2px solid; }
+    .chart-box::after { bottom: 0; right: 0; border-bottom: 2px solid; border-right: 2px solid; }
+
+    /* Theme colors for the specific chart boxes */
+    .chart-box.nw-chart::before, .chart-box.nw-chart::after { border-color: var(--neon-white); opacity: 0.5; }
+    .chart-box.flow-chart::before, .chart-box.flow-chart::after { border-color: var(--neon-yellow); opacity: 0.5; }
+
+    .chart-header {
+      font-size: 0.85rem; letter-spacing: 4px; font-weight: 700; text-transform: uppercase;
+      margin-bottom: 10px; position: relative; z-index: 10;
+    }
+    .nw-chart .chart-header { color: var(--neon-white); text-shadow: 0 0 10px rgba(255,255,255,0.5); }
+    .flow-chart .chart-header { color: var(--text-gray); }
+
+    .canvas-container {
+      flex: 1; width: 100%; position: relative;
+    }
+    canvas {
+      position: absolute; top: 0; left: 0; width: 100%; height: 100%;
     }
 
     /* Loader */
     #loader {
       position: fixed; inset: 0; background: var(--bg-color); z-index: 9999;
-      display: flex; flex-direction: column; align-items: center; justify-content: center;
-      transition: opacity 0.4s;
+      display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.4s;
     }
     .loader-ring {
-      width: 45px; height: 45px;
-      border: 2px solid rgba(255,255,255,0.1); border-top-color: var(--neon-white);
+      width: 45px; height: 45px; border: 2px solid rgba(255,255,255,0.1); border-top-color: var(--neon-white);
       border-radius: 50%; animation: spin 1s infinite linear;
     }
     @keyframes spin { to { transform: rotate(360deg); } }
@@ -281,7 +197,7 @@
   <!-- Loading Screen -->
   <div id="loader">
     <div class="loader-ring"></div>
-    <div style="margin-top:20px; color:var(--text-gray); font-size:0.85rem; letter-spacing:4px; font-weight: 600;">DECRYPTING LEDGER...</div>
+    <div style="margin-top:20px; color:var(--text-gray); font-size:0.85rem; letter-spacing:4px; font-weight: 600;">RENDERING TELEMETRY...</div>
   </div>
 
   <div class="dashboard-layout">
@@ -317,9 +233,7 @@
           <div class="hud-header">
             <div class="hud-title">CASHFLOW <span class="timeframe">(LAST 30 DAYS)</span></div>
             <svg class="hud-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" overflow="hidden">
-              <g class="wave-group">
-                <path d="M 0 12 Q 6 2, 12 12 T 24 12 Q 30 2, 36 12 T 48 12"></path>
-              </g>
+              <g class="wave-group"><path d="M 0 12 Q 6 2, 12 12 T 24 12 Q 30 2, 36 12 T 48 12"></path></g>
             </svg>
           </div>
           <div class="hud-number-box">
@@ -339,10 +253,7 @@
           <div class="hud-header">
             <div class="hud-title">INCOME <span class="timeframe">(LAST 30 DAYS)</span></div>
             <svg class="hud-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" overflow="hidden">
-              <g class="shoot-up-group">
-                <line x1="12" y1="24" x2="12" y2="5"></line>
-                <polyline points="5 12 12 5 19 12"></polyline>
-              </g>
+              <g class="shoot-up-group"><line x1="12" y1="24" x2="12" y2="5"></line><polyline points="5 12 12 5 19 12"></polyline></g>
             </svg>
           </div>
           <div class="hud-number-box">
@@ -362,10 +273,7 @@
           <div class="hud-header">
             <div class="hud-title">EXPENSE <span class="timeframe">(LAST 30 DAYS)</span></div>
             <svg class="hud-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" overflow="hidden">
-              <g class="shoot-down-group">
-                <line x1="12" y1="0" x2="12" y2="19"></line>
-                <polyline points="19 12 12 19 5 12"></polyline>
-              </g>
+              <g class="shoot-down-group"><line x1="12" y1="0" x2="12" y2="19"></line><polyline points="19 12 12 19 5 12"></polyline></g>
             </svg>
           </div>
           <div class="hud-number-box">
@@ -381,40 +289,44 @@
 
     </div>
 
-    <!-- RIGHT COLUMN (3fr) -->
+    <!-- RIGHT COLUMN (3fr - SPLIT INTO TOP AND BOTTOM CHARTS) -->
     <div class="right-column">
-      <div class="blank-chart-box">
-        <div class="blank-text">AWAITING TELEMETRY</div>
+      
+      <!-- TOP HALF: Net Worth 12-Month Trajectory -->
+      <div class="chart-box nw-chart">
+        <div class="chart-header">SYSTEM ARCHIVE // 12-MONTH NET WORTH TRAJECTORY</div>
+        <div class="canvas-container">
+          <canvas id="canvas-nw"></canvas>
+        </div>
       </div>
+
+      <!-- BOTTOM HALF: Cashflow Telemetry (Income vs Expense) -->
+      <div class="chart-box flow-chart">
+        <div class="chart-header" style="color:#7a8a9e;">TELEMETRY SCAN // INCOME <span style="color:#00ff66;">▲</span> VS EXPENSE <span style="color:#ff0044;">▼</span></div>
+        <div class="canvas-container">
+          <canvas id="canvas-flow"></canvas>
+        </div>
+      </div>
+
     </div>
 
   </div>
 
   <script>
+    /** --- 1. LEFT CARD HUD ENGINE --- */
     class CyberScramble {
-      constructor(elementId) {
-        this.element = document.getElementById(elementId);
-        this.chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%&*X";
-      }
-
+      constructor(elementId) { this.element = document.getElementById(elementId); this.chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%&*X"; }
       run(targetValue, isNegative = false) {
         const valStr = Math.abs(targetValue).toLocaleString('en-US');
         const finalStr = (isNegative ? "-" : "") + valStr;
-        
-        let iteration = 0;
-        clearInterval(this.interval);
-        
+        let iteration = 0; clearInterval(this.interval);
         this.interval = setInterval(() => {
           this.element.innerText = finalStr.split("").map((letter, index) => {
             if (letter === "," || letter === "-") return letter;
             if (index < iteration) return finalStr[index]; 
             return this.chars[Math.floor(Math.random() * this.chars.length)]; 
           }).join("");
-
-          if (iteration >= finalStr.length) {
-            clearInterval(this.interval);
-            this.element.innerText = finalStr; 
-          }
+          if (iteration >= finalStr.length) { clearInterval(this.interval); this.element.innerText = finalStr; }
           iteration += 1 / 4; 
         }, 30);
       }
@@ -422,19 +334,191 @@
 
     function getStatHTML(current, previous, isExpense = false) {
       if (!previous || previous === 0) return `<span class="text-gray">0%</span>`;
-      
       const diff = current - previous;
       const pct = Math.abs((diff / Math.abs(previous)) * 100).toFixed(0);
-      
-      const isUp = diff >= 0;
-      const isGood = isExpense ? !isUp : isUp; 
-      
-      const arrow = isUp ? '▲' : '▼';
+      const isGood = isExpense ? diff < 0 : diff >= 0; 
+      const arrow = diff >= 0 ? '▲' : '▼';
       const colorClass = isGood ? 'text-up' : 'text-down';
-
       return `<span class="${colorClass}">${arrow}${pct}%</span>`;
     }
 
+    /** --- 2. ADVANCED SCI-FI CANVAS CHART ENGINE --- */
+    class SciFiChart {
+      constructor(canvasId, type) {
+        this.canvas = document.getElementById(canvasId);
+        this.ctx = this.canvas.getContext('2d');
+        this.type = type; // 'networth' or 'flow'
+        this.data =[];
+        this.scanX = 0; // The laser scanner position
+        this.resize();
+        window.addEventListener('resize', () => this.resize());
+      }
+
+      resize() {
+        const rect = this.canvas.parentElement.getBoundingClientRect();
+        // Handle high DPI (Retina) displays for perfectly crisp lines
+        const dpr = window.devicePixelRatio || 1;
+        this.canvas.width = rect.width * dpr;
+        this.canvas.height = rect.height * dpr;
+        this.ctx.scale(dpr, dpr);
+        this.w = rect.width;
+        this.h = rect.height;
+      }
+
+      loadData(chartData) {
+        this.data = chartData;
+        this.animate();
+      }
+
+      animate() {
+        this.ctx.clearRect(0, 0, this.w, this.h);
+        this.drawGrid();
+
+        if(this.type === 'networth') this.drawNetWorth();
+        if(this.type === 'flow') this.drawFlow();
+
+        this.drawScanner();
+
+        // Advance scanner
+        this.scanX += 2; 
+        if(this.scanX > this.w + 50) this.scanX = -50; // Loop scanner
+
+        requestAnimationFrame(() => this.animate());
+      }
+
+      drawGrid() {
+        this.ctx.strokeStyle = 'rgba(255, 255, 255, 0.03)';
+        this.ctx.lineWidth = 1;
+        this.ctx.beginPath();
+        // Horizontal grid
+        for(let i=0; i<this.h; i+=this.h/4) { this.ctx.moveTo(0, i); this.ctx.lineTo(this.w, i); }
+        // Vertical grid
+        const stepX = this.w / Math.max(1, this.data.length - 1);
+        for(let i=0; i<this.w; i+=stepX) { this.ctx.moveTo(i, 0); this.ctx.lineTo(i, this.h); }
+        this.ctx.stroke();
+      }
+
+      drawNetWorth() {
+        if(this.data.length === 0) return;
+        
+        const minVal = Math.min(...this.data.map(d => d.netWorth)) * 0.95;
+        const maxVal = Math.max(...this.data.map(d => d.netWorth)) * 1.05;
+        const range = maxVal - minVal || 1;
+        const stepX = this.w / (this.data.length - 1);
+
+        const points = this.data.map((d, i) => ({
+          x: i * stepX,
+          y: this.h - ((d.netWorth - minVal) / range) * this.h,
+          val: d.netWorth,
+          label: d.label
+        }));
+
+        // Draw Line
+        this.ctx.beginPath();
+        this.ctx.moveTo(points[0].x, points[0].y);
+        for(let i=1; i<points.length; i++) this.ctx.lineTo(points[i].x, points[i].y);
+        
+        this.ctx.strokeStyle = '#ffffff';
+        this.ctx.lineWidth = 3;
+        this.ctx.shadowColor = '#ffffff';
+        this.ctx.shadowBlur = 15;
+        this.ctx.stroke();
+        this.ctx.shadowBlur = 0; // reset
+
+        // Draw Fill Gradient
+        const grad = this.ctx.createLinearGradient(0, 0, 0, this.h);
+        grad.addColorStop(0, 'rgba(255, 255, 255, 0.2)');
+        grad.addColorStop(1, 'rgba(255, 255, 255, 0)');
+        this.ctx.lineTo(this.w, this.h);
+        this.ctx.lineTo(0, this.h);
+        this.ctx.fillStyle = grad;
+        this.ctx.fill();
+
+        this.checkIntersections(points, '#ffffff');
+      }
+
+      drawFlow() {
+        if(this.data.length === 0) return;
+        
+        const maxVal = Math.max(...this.data.map(d => Math.max(d.income, d.expense))) * 1.1 || 1;
+        const stepX = this.w / (this.data.length - 1);
+
+        const incPoints = this.data.map((d, i) => ({ x: i * stepX, y: this.h - (d.income / maxVal) * this.h, val: d.income, label: d.label }));
+        const expPoints = this.data.map((d, i) => ({ x: i * stepX, y: this.h - (d.expense / maxVal) * this.h, val: d.expense, label: d.label }));
+
+        // Draw Expense (Red) Area
+        this.drawArea(expPoints, '#ff0044', 'rgba(255, 0, 68, 0.2)');
+        // Draw Income (Green) Area
+        this.drawArea(incPoints, '#00ff66', 'rgba(0, 255, 102, 0.2)');
+
+        this.checkIntersections(incPoints, '#00ff66', -20);
+        this.checkIntersections(expPoints, '#ff0044', 20);
+      }
+
+      drawArea(points, color, fillRgba) {
+        this.ctx.beginPath();
+        this.ctx.moveTo(points[0].x, points[0].y);
+        for(let i=1; i<points.length; i++) this.ctx.lineTo(points[i].x, points[i].y);
+        
+        this.ctx.strokeStyle = color;
+        this.ctx.lineWidth = 2;
+        this.ctx.shadowColor = color;
+        this.ctx.shadowBlur = 10;
+        this.ctx.stroke();
+        this.ctx.shadowBlur = 0;
+
+        const grad = this.ctx.createLinearGradient(0, 0, 0, this.h);
+        grad.addColorStop(0, fillRgba);
+        grad.addColorStop(1, 'rgba(0,0,0,0)');
+        this.ctx.lineTo(this.w, this.h);
+        this.ctx.lineTo(0, this.h);
+        this.ctx.fillStyle = grad;
+        this.ctx.fill();
+      }
+
+      drawScanner() {
+        // The vertical sweeping laser
+        this.ctx.beginPath();
+        this.ctx.moveTo(this.scanX, 0);
+        this.ctx.lineTo(this.scanX, this.h);
+        this.ctx.strokeStyle = 'rgba(0, 255, 255, 0.8)'; // Cyan laser
+        this.ctx.lineWidth = 1;
+        this.ctx.shadowColor = '#00ffff';
+        this.ctx.shadowBlur = 10;
+        this.ctx.stroke();
+        this.ctx.shadowBlur = 0;
+      }
+
+      checkIntersections(points, color, yOffset = 0) {
+        // If the laser is near a data point, make it glow and show text
+        points.forEach(p => {
+          if (Math.abs(this.scanX - p.x) < 15) { // Proximity threshold
+            // Glow Dot
+            this.ctx.beginPath();
+            this.ctx.arc(p.x, p.y, 4, 0, Math.PI * 2);
+            this.ctx.fillStyle = color;
+            this.ctx.shadowColor = color;
+            this.ctx.shadowBlur = 15;
+            this.ctx.fill();
+            this.ctx.shadowBlur = 0;
+
+            // Hover Text Box
+            this.ctx.fillStyle = 'rgba(0,0,0,0.8)';
+            this.ctx.fillRect(p.x - 40, p.y - 35 + yOffset, 80, 20);
+            this.ctx.strokeStyle = color;
+            this.ctx.strokeRect(p.x - 40, p.y - 35 + yOffset, 80, 20);
+            
+            this.ctx.fillStyle = '#ffffff';
+            this.ctx.font = '10px "Segoe UI"';
+            this.ctx.textAlign = 'center';
+            this.ctx.fillText(`৳${Math.round(p.val).toLocaleString()}`, p.x, p.y - 21 + yOffset);
+          }
+        });
+      }
+    }
+
+
+    /** --- 3. MAIN INITIALIZATION --- */
     async function init() {
       const display = {
         net: new CyberScramble('val-net'),
@@ -452,60 +536,53 @@
         document.getElementById('loader').style.opacity = '0';
         setTimeout(() => document.getElementById('loader').style.display = 'none', 400);
 
-        // 1. Net Worth 
+        // --- 1. HUD Updates ---
         display.net.run(data.summary.netWorth, data.summary.netWorth < 0);
-        const parsedBalance = Math.abs(data.summary.balance || 0);
-        document.getElementById('lbl-bal').innerText = '৳' + parsedBalance.toLocaleString();
+        document.getElementById('lbl-bal').innerText = '৳' + Math.abs(data.summary.balance || 0).toLocaleString();
         document.getElementById('lbl-debt').innerText = '৳' + Math.abs(data.summary.totalDebt || 0).toLocaleString();
 
-        // 2. Cashflow
         const flowWrapper = document.getElementById('wrapper-flow');
-        if (data.kpis.current.cashflow >= 0) {
-            flowWrapper.classList.add('pulse-yg');
-        } else {
-            flowWrapper.classList.add('pulse-yr');
-        }
+        if (data.kpis.current.cashflow >= 0) flowWrapper.classList.add('pulse-yg');
+        else flowWrapper.classList.add('pulse-yr');
+        
         display.flow.run(data.kpis.current.cashflow, data.kpis.current.cashflow < 0);
         document.getElementById('flow-prev').innerHTML = getStatHTML(data.kpis.current.cashflow, data.kpis.last.cashflow, false);
         document.getElementById('flow-avg').innerHTML = getStatHTML(data.kpis.current.cashflow, data.kpis.averages.flow, false);
 
-        // 3. Income
         display.inc.run(data.kpis.current.income);
         document.getElementById('inc-prev').innerHTML = getStatHTML(data.kpis.current.income, data.kpis.last.income, false);
         document.getElementById('inc-avg').innerHTML = getStatHTML(data.kpis.current.income, data.kpis.averages.inc, false);
 
-        // 4. Expense 
         display.exp.run(data.kpis.current.expense);
         document.getElementById('exp-prev').innerHTML = getStatHTML(data.kpis.current.expense, data.kpis.last.expense, true);
         document.getElementById('exp-avg').innerHTML = getStatHTML(data.kpis.current.expense, data.kpis.averages.exp, true);
 
+        // --- 2. Chart Data Processing (Calculating Historic Net Worth) ---
+        let runningNw = data.summary.netWorth;
+        // Loop backwards from newest to oldest month
+        for(let i = data.chartData.length - 1; i >= 0; i--) {
+            data.chartData[i].netWorth = runningNw;
+            runningNw = runningNw - data.chartData[i].cashflow; // Reverse cashflow to find previous month NW
+        }
+
+        // --- 3. Initialize Canvas Charts ---
+        const nwChart = new SciFiChart('canvas-nw', 'networth');
+        nwChart.loadData(data.chartData);
+
+        const flowChart = new SciFiChart('canvas-flow', 'flow');
+        flowChart.loadData(data.chartData);
+
       } catch (e) {
         console.error("System Error:", e);
         
-        // MOCK DATA
+        // MOCK DATA FALLBACK (Allows charts and UI to be tested without API)
         document.getElementById('loader').style.opacity = '0';
         setTimeout(() => document.getElementById('loader').style.display = 'none', 400);
 
         display.net.run(1245000);
-        document.getElementById('lbl-bal').innerText = "৳245,000";
-        document.getElementById('lbl-debt').innerText = "৳12,000";
+        document.getElementById('lbl-bal').innerText = "৳245,000"; document.getElementById('lbl-debt').innerText = "৳12,000";
+        document.getElementById('wrapper-flow').classList.add('pulse-yg'); display.flow.run(45200);
+        display.inc.run(85000); display.exp.run(39800);
 
-        document.getElementById('wrapper-flow').classList.add('pulse-yg');
-        display.flow.run(45200);
-        document.getElementById('flow-prev').innerHTML = getStatHTML(45200, 30000, false); 
-        document.getElementById('flow-avg').innerHTML = getStatHTML(45200, 50000, false); 
-
-        display.inc.run(85000);
-        document.getElementById('inc-prev').innerHTML = getStatHTML(85000, 80000, false); 
-        document.getElementById('inc-avg').innerHTML = getStatHTML(85000, 70000, false); 
-
-        display.exp.run(39800);
-        document.getElementById('exp-prev').innerHTML = getStatHTML(39800, 50000, true); 
-        document.getElementById('exp-avg').innerHTML = getStatHTML(39800, 30000, true); 
-      }
-    }
-
-    window.onload = init;
-  </script>
-</body>
-</html>
+        // Mock Chart Data
+        let mockData =

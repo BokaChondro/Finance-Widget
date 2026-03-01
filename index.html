@@ -15,10 +15,10 @@
       --neon-green: #00ff66;
       --neon-red: #ff0044;
       --neon-yellow: #ffcc00;
+      --neon-cyan: #00ffff;
       
       --text-main: #e2e8f0;
       --text-gray: #7a8a9e;
-      
       --sub-green: #6ee7b7; 
       --sub-red: #fca5a5;
     }
@@ -36,6 +36,9 @@
       flex-direction: column;
       padding: 30px;
       overflow-x: hidden;
+      /* Subtle grid background for the whole dashboard */
+      background-image: linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+      background-size: 30px 30px;
     }
 
     /* --- 2. LAYOUT (Strict 1:3 Ratio) --- */
@@ -57,7 +60,7 @@
       min-width: 0; 
     }
 
-    /* --- 3. LEFT CARDS (Animated Borders & Themes) --- */
+    /* --- 3. LEFT CARDS --- */
     .card-wrapper {
       position: relative; padding: 2px; border-radius: 8px;
       background: rgba(255,255,255,0.05); overflow: hidden;
@@ -138,7 +141,7 @@
     .shoot-down-group { animation: shoot-down 1.5s infinite linear; }
     @keyframes shoot-down { 0% { transform: translateY(-18px); opacity: 0; } 20% { opacity: 1; } 80% { opacity: 1; } 100% { transform: translateY(18px); opacity: 0; } }
 
-    /* --- 4. RIGHT COLUMN (SCI-FI CHARTS) --- */
+    /* --- 4. RIGHT COLUMN (MAINFRAME CHARTS) --- */
     .right-column {
       display: flex; flex-direction: column; gap: 30px; height: 100%; min-width: 0;
     }
@@ -167,7 +170,7 @@
     .flow-chart .chart-header { color: var(--text-gray); }
 
     .canvas-container {
-      flex: 1; width: 100%; position: relative;
+      flex: 1; width: 100%; position: relative; cursor: crosshair;
     }
     canvas {
       position: absolute; top: 0; left: 0; width: 100%; height: 100%;
@@ -190,7 +193,7 @@
   <!-- Loading Screen -->
   <div id="loader">
     <div class="loader-ring"></div>
-    <div style="margin-top:20px; color:var(--text-gray); font-size:0.85rem; letter-spacing:4px; font-weight: 600;">RENDERING TELEMETRY...</div>
+    <div style="margin-top:20px; color:var(--text-gray); font-size:0.85rem; letter-spacing:4px; font-weight: 600;">ACCESSING MAINFRAME...</div>
   </div>
 
   <div class="dashboard-layout">
@@ -282,20 +285,20 @@
 
     </div>
 
-    <!-- RIGHT COLUMN (CHARTS) -->
+    <!-- RIGHT COLUMN (NEW MAINFRAME CHARTS) -->
     <div class="right-column">
       
-      <!-- TOP HALF: Net Worth Chart -->
+      <!-- TOP HALF: Quantum Pillar Matrix -->
       <div class="chart-box nw-chart">
-        <div class="chart-header">SYSTEM ARCHIVE // 12-MONTH NET WORTH TRAJECTORY</div>
+        <div class="chart-header">SYSTEM ARCHIVE // QUANTUM STATE (12-MONTH NET WORTH)</div>
         <div class="canvas-container">
           <canvas id="canvas-nw"></canvas>
         </div>
       </div>
 
-      <!-- BOTTOM HALF: Flow Chart -->
+      <!-- BOTTOM HALF: Dual-Polarity LED Equalizer -->
       <div class="chart-box flow-chart">
-        <div class="chart-header" style="color:#7a8a9e;">TELEMETRY SCAN // INCOME <span style="color:#00ff66;">▲</span> VS EXPENSE <span style="color:#ff0044;">▼</span></div>
+        <div class="chart-header" style="color:#7a8a9e;">ENERGY FLUX // INCOME <span style="color:#00ff66;">▲</span> VS EXPENSE <span style="color:#ff0044;">▼</span></div>
         <div class="canvas-container">
           <canvas id="canvas-flow"></canvas>
         </div>
@@ -335,16 +338,30 @@
       return `<span class="${colorClass}">${arrow}${pct}%</span>`;
     }
 
-    /** --- 2. ADVANCED SCI-FI CANVAS CHART ENGINE --- */
+    /** --- 2. NEW LED/MAINFRAME CANVAS CHART ENGINE --- */
     class SciFiChart {
       constructor(canvasId, type) {
         this.canvas = document.getElementById(canvasId);
         this.ctx = this.canvas.getContext('2d');
-        this.type = type; // 'networth' or 'flow'
+        this.type = type; // 'pillars' (Net Worth) or 'equalizer' (Flow)
         this.data =[];
-        this.scanX = 0; 
+        this.progress = 0; // Animation progress (0 to 1)
+        this.mouseX = -1;
+        this.mouseY = -1;
+        
         this.resize();
         window.addEventListener('resize', () => this.resize());
+
+        // Mouse tracking for HUD Tooltip
+        this.canvas.addEventListener('mousemove', (e) => {
+          const rect = this.canvas.getBoundingClientRect();
+          this.mouseX = e.clientX - rect.left;
+          this.mouseY = e.clientY - rect.top;
+        });
+        this.canvas.addEventListener('mouseleave', () => {
+          this.mouseX = -1;
+          this.mouseY = -1;
+        });
       }
 
       resize() {
@@ -359,139 +376,250 @@
 
       loadData(chartData) {
         this.data = chartData ||[];
+        this.progress = 0; // Trigger power-up animation
         this.animate();
       }
 
+      // Easing function for the "power up" animation
+      easeOutQuart(x) { return 1 - Math.pow(1 - x, 4); }
+
       animate() {
+        if (this.progress < 1) {
+          this.progress += 0.015; // Animation speed
+          if (this.progress > 1) this.progress = 1;
+        }
+
         this.ctx.clearRect(0, 0, this.w, this.h);
-        this.drawGrid();
+        this.drawBackgroundGrid();
 
-        if (this.type === 'networth' && this.data.length > 0) this.drawNetWorth();
-        if (this.type === 'flow' && this.data.length > 0) this.drawFlow();
+        if (this.type === 'pillars' && this.data.length > 0) this.drawPillars();
+        if (this.type === 'equalizer' && this.data.length > 0) this.drawEqualizer();
 
-        this.drawScanner();
-
-        this.scanX += 2; 
-        if (this.scanX > this.w + 50) this.scanX = -50; 
+        if (this.mouseX > 0) this.drawHUDTooltip();
 
         requestAnimationFrame(() => this.animate());
       }
 
-      drawGrid() {
+      drawBackgroundGrid() {
         this.ctx.strokeStyle = 'rgba(255, 255, 255, 0.03)';
         this.ctx.lineWidth = 1;
         this.ctx.beginPath();
-        for (let i = 0; i < this.h; i += this.h / 4) { this.ctx.moveTo(0, i); this.ctx.lineTo(this.w, i); }
-        const stepX = this.w / Math.max(1, this.data.length - 1);
+        for (let i = 0; i < this.h; i += 20) { this.ctx.moveTo(0, i); this.ctx.lineTo(this.w, i); }
+        const stepX = this.w / Math.max(1, this.data.length);
         for (let i = 0; i < this.w; i += stepX) { this.ctx.moveTo(i, 0); this.ctx.lineTo(i, this.h); }
         this.ctx.stroke();
       }
 
-      drawNetWorth() {
+      /**
+       * TOP CHART: Quantum Pillar Matrix (Net Worth)
+       * A step-line connecting thick, glowing vertical pillars that fade down.
+       */
+      drawPillars() {
         const vals = this.data.map(d => d.netWorth || 0);
-        const minVal = Math.min(...vals) * 0.95;
+        // Zoom the scale so changes look prominent
+        const minVal = Math.min(...vals) * 0.9;
         const maxVal = Math.max(...vals) * 1.05;
         const range = maxVal - minVal || 1;
-        const stepX = this.w / Math.max(1, this.data.length - 1);
-
-        const points = this.data.map((d, i) => ({
-          x: i * stepX,
-          y: this.h - (((d.netWorth || 0) - minVal) / range) * this.h,
-          val: d.netWorth || 0,
-          label: d.label
-        }));
-
-        this.ctx.beginPath();
-        this.ctx.moveTo(points[0].x, points[0].y);
-        for (let i = 1; i < points.length; i++) this.ctx.lineTo(points[i].x, points[i].y);
         
-        this.ctx.strokeStyle = '#ffffff';
-        this.ctx.lineWidth = 3;
-        this.ctx.shadowColor = '#ffffff';
-        this.ctx.shadowBlur = 15;
-        this.ctx.stroke();
-        this.ctx.shadowBlur = 0; 
+        const count = this.data.length;
+        const colWidth = this.w / count;
+        const barWidth = colWidth * 0.4; // Width of the pillar
+        const paddingBottom = 20; // Space for labels
+        const activeH = this.h - paddingBottom;
 
-        const grad = this.ctx.createLinearGradient(0, 0, 0, this.h);
-        grad.addColorStop(0, 'rgba(255, 255, 255, 0.2)');
-        grad.addColorStop(1, 'rgba(255, 255, 255, 0)');
-        this.ctx.lineTo(this.w, this.h);
-        this.ctx.lineTo(0, this.h);
-        this.ctx.fillStyle = grad;
-        this.ctx.fill();
+        const p = this.easeOutQuart(this.progress); // Animated progress scalar
 
-        this.checkIntersections(points, '#ffffff');
+        let points =[];
+
+        for (let i = 0; i < count; i++) {
+          const val = this.data[i].netWorth || 0;
+          const targetY = activeH - (((val - minVal) / range) * activeH);
+          // Animate growing up from the bottom
+          const currentY = activeH - ((activeH - targetY) * p);
+          
+          const centerX = (i * colWidth) + (colWidth / 2);
+          const startX = centerX - (barWidth / 2);
+
+          points.push({ x: centerX, y: currentY, val: val, label: this.data[i].label });
+
+          // Draw the faded pillar body
+          const grad = this.ctx.createLinearGradient(0, currentY, 0, activeH);
+          grad.addColorStop(0, 'rgba(255, 255, 255, 0.2)');
+          grad.addColorStop(1, 'rgba(255, 255, 255, 0)');
+          this.ctx.fillStyle = grad;
+          this.ctx.fillRect(startX, currentY, barWidth, activeH - currentY);
+
+          // Draw the glowing top cap
+          this.ctx.fillStyle = '#ffffff';
+          this.ctx.shadowColor = '#ffffff';
+          this.ctx.shadowBlur = 10;
+          this.ctx.fillRect(startX, currentY, barWidth, 3);
+          this.ctx.shadowBlur = 0;
+
+          // Draw X-axis label
+          this.ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
+          this.ctx.font = '10px "Segoe UI"';
+          this.ctx.textAlign = 'center';
+          this.ctx.fillText(this.data[i].label, centerX, this.h - 5);
+        }
+
+        // Draw the Step-Line connecting the pillars
+        if (points.length > 1 && p > 0.1) {
+          this.ctx.beginPath();
+          this.ctx.moveTo(points[0].x, points[0].y);
+          for (let i = 1; i < points.length; i++) {
+            // Horizontal line to next X
+            this.ctx.lineTo(points[i].x, points[i-1].y);
+            // Vertical drop/rise to next Y
+            this.ctx.lineTo(points[i].x, points[i].y);
+          }
+          this.ctx.strokeStyle = 'rgba(255, 255, 255, 0.8)';
+          this.ctx.lineWidth = 2;
+          this.ctx.shadowColor = '#ffffff';
+          this.ctx.shadowBlur = 8;
+          this.ctx.stroke();
+          this.ctx.shadowBlur = 0;
+        }
       }
 
-      drawFlow() {
-        const maxVal = Math.max(...this.data.map(d => Math.max(d.income || 0, d.expense || 0))) * 1.1 || 1;
-        const stepX = this.w / Math.max(1, this.data.length - 1);
+      /**
+       * BOTTOM CHART: Dual-Polarity LED Equalizer (Cashflow)
+       * Center line. Green blocks stack UP (Income), Red blocks stack DOWN (Expense).
+       */
+      drawEqualizer() {
+        const count = this.data.length;
+        const colWidth = this.w / count;
+        const paddingBottom = 20;
+        const centerY = (this.h - paddingBottom) / 2; // Middle of the active area
 
-        const incPoints = this.data.map((d, i) => ({ x: i * stepX, y: this.h - ((d.income || 0) / maxVal) * this.h, val: d.income || 0, label: d.label }));
-        const expPoints = this.data.map((d, i) => ({ x: i * stepX, y: this.h - ((d.expense || 0) / maxVal) * this.h, val: d.expense || 0, label: d.label }));
+        // Find absolute max value to scale the blocks properly
+        let maxVal = 0;
+        this.data.forEach(d => {
+          if ((d.income||0) > maxVal) maxVal = d.income;
+          if ((d.expense||0) > maxVal) maxVal = d.expense;
+        });
+        maxVal = maxVal * 1.1 || 1; // 10% headroom
 
-        this.drawArea(expPoints, '#ff0044', 'rgba(255, 0, 68, 0.2)');
-        this.drawArea(incPoints, '#00ff66', 'rgba(0, 255, 102, 0.2)');
+        const p = this.easeOutQuart(this.progress);
 
-        this.checkIntersections(incPoints, '#00ff66', -20);
-        this.checkIntersections(expPoints, '#ff0044', 20);
-      }
-
-      drawArea(points, color, fillRgba) {
+        // Draw the glowing Cyan center line
         this.ctx.beginPath();
-        this.ctx.moveTo(points[0].x, points[0].y);
-        for (let i = 1; i < points.length; i++) this.ctx.lineTo(points[i].x, points[i].y);
-        
-        this.ctx.strokeStyle = color;
-        this.ctx.lineWidth = 2;
-        this.ctx.shadowColor = color;
-        this.ctx.shadowBlur = 10;
-        this.ctx.stroke();
-        this.ctx.shadowBlur = 0;
-
-        const grad = this.ctx.createLinearGradient(0, 0, 0, this.h);
-        grad.addColorStop(0, fillRgba);
-        grad.addColorStop(1, 'rgba(0,0,0,0)');
-        this.ctx.lineTo(this.w, this.h);
-        this.ctx.lineTo(0, this.h);
-        this.ctx.fillStyle = grad;
-        this.ctx.fill();
-      }
-
-      drawScanner() {
-        this.ctx.beginPath();
-        this.ctx.moveTo(this.scanX, 0);
-        this.ctx.lineTo(this.scanX, this.h);
-        this.ctx.strokeStyle = 'rgba(0, 255, 255, 0.8)';
+        this.ctx.moveTo(0, centerY);
+        this.ctx.lineTo(this.w, centerY);
+        this.ctx.strokeStyle = '#00ffff';
         this.ctx.lineWidth = 1;
         this.ctx.shadowColor = '#00ffff';
         this.ctx.shadowBlur = 10;
         this.ctx.stroke();
         this.ctx.shadowBlur = 0;
+
+        // Settings for the LED Blocks
+        const blockH = 4; // Height of each block
+        const gap = 2; // Gap between blocks
+        const maxBlocks = Math.floor(centerY / (blockH + gap)); // How many blocks fit in half the screen
+        const valPerBlock = maxVal / maxBlocks;
+        const barWidth = colWidth * 0.3; // Make bars slightly thinner for dual layout
+
+        for (let i = 0; i < count; i++) {
+          const centerX = (i * colWidth) + (colWidth / 2);
+          
+          // Number of blocks to light up based on data and animation progress
+          const incBlocks = Math.floor(((this.data[i].income || 0) * p) / valPerBlock);
+          const expBlocks = Math.floor(((this.data[i].expense || 0) * p) / valPerBlock);
+
+          // Draw Income (Green) - Stacking UP
+          const incX = centerX - barWidth - 2;
+          for (let b = 0; b < incBlocks; b++) {
+            const blockY = centerY - ((b + 1) * (blockH + gap));
+            this.ctx.fillStyle = b === incBlocks - 1 ? '#ffffff' : '#00ff66'; // Top block is white hot
+            if (b === incBlocks - 1) {
+              this.ctx.shadowColor = '#00ff66'; this.ctx.shadowBlur = 8;
+            }
+            this.ctx.fillRect(incX, blockY, barWidth, blockH);
+            this.ctx.shadowBlur = 0;
+          }
+
+          // Draw Expense (Red) - Stacking DOWN
+          const expX = centerX + 2;
+          for (let b = 0; b < expBlocks; b++) {
+            const blockY = centerY + (b * (blockH + gap)) + gap; // start below line
+            this.ctx.fillStyle = b === expBlocks - 1 ? '#ffffff' : '#ff0044'; 
+            if (b === expBlocks - 1) {
+              this.ctx.shadowColor = '#ff0044'; this.ctx.shadowBlur = 8;
+            }
+            this.ctx.fillRect(expX, blockY, barWidth, blockH);
+            this.ctx.shadowBlur = 0;
+          }
+
+          // Draw X-axis label
+          this.ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
+          this.ctx.font = '10px "Segoe UI"';
+          this.ctx.textAlign = 'center';
+          this.ctx.fillText(this.data[i].label, centerX, this.h - 5);
+        }
       }
 
-      checkIntersections(points, color, yOffset = 0) {
-        points.forEach(p => {
-          if (Math.abs(this.scanX - p.x) < 15) { 
-            this.ctx.beginPath();
-            this.ctx.arc(p.x, p.y, 4, 0, Math.PI * 2);
-            this.ctx.fillStyle = color;
-            this.ctx.shadowColor = color;
-            this.ctx.shadowBlur = 15;
-            this.ctx.fill();
-            this.ctx.shadowBlur = 0;
+      /**
+       * INTERACTIVE HUD TOOLTIP
+       * Draws a targeting line and floating data box when hovering over a column.
+       */
+      drawHUDTooltip() {
+        if (this.data.length === 0) return;
+        
+        const count = this.data.length;
+        const colWidth = this.w / count;
+        const hoveredIndex = Math.floor(this.mouseX / colWidth);
+        
+        if (hoveredIndex >= 0 && hoveredIndex < count) {
+          const d = this.data[hoveredIndex];
+          const centerX = (hoveredIndex * colWidth) + (colWidth / 2);
 
-            this.ctx.fillStyle = 'rgba(0,0,0,0.8)';
-            this.ctx.fillRect(p.x - 40, p.y - 35 + yOffset, 80, 20);
-            this.ctx.strokeStyle = color;
-            this.ctx.strokeRect(p.x - 40, p.y - 35 + yOffset, 80, 20);
-            
+          // 1. Draw Vertical Tracking Beam
+          this.ctx.beginPath();
+          this.ctx.moveTo(centerX, 0);
+          this.ctx.lineTo(centerX, this.h - 20);
+          this.ctx.strokeStyle = 'rgba(0, 255, 255, 0.3)';
+          this.ctx.lineWidth = 1;
+          this.ctx.setLineDash([5, 5]); // Dotted sci-fi line
+          this.ctx.stroke();
+          this.ctx.setLineDash([]); // reset
+
+          // 2. Draw Tooltip Box
+          // Adjust box position so it doesn't clip off screen edges
+          let boxX = centerX + 15;
+          if (boxX + 120 > this.w) boxX = centerX - 135; // Flip to left side
+          let boxY = this.mouseY - 30;
+          if (boxY < 10) boxY = 10; // Keep on screen vertically
+
+          const isNetWorth = this.type === 'pillars';
+          const boxHeight = isNetWorth ? 35 : 55;
+
+          // Box Background & Border
+          this.ctx.fillStyle = 'rgba(0, 0, 0, 0.85)';
+          this.ctx.fillRect(boxX, boxY, 120, boxHeight);
+          this.ctx.strokeStyle = '#00ffff';
+          this.ctx.lineWidth = 1;
+          this.ctx.strokeRect(boxX, boxY, 120, boxHeight);
+
+          // Text Styles
+          this.ctx.textAlign = 'left';
+          this.ctx.font = '10px "Segoe UI"';
+          
+          // Header (Month)
+          this.ctx.fillStyle = '#00ffff';
+          this.ctx.fillText(`[ ${d.label.toUpperCase()} ]`, boxX + 10, boxY + 15);
+
+          // Values
+          if (isNetWorth) {
             this.ctx.fillStyle = '#ffffff';
-            this.ctx.font = '10px "Segoe UI"';
-            this.ctx.textAlign = 'center';
-            this.ctx.fillText(`৳${Math.round(p.val).toLocaleString()}`, p.x, p.y - 21 + yOffset);
+            this.ctx.fillText(`NW: ৳${Math.round(d.netWorth).toLocaleString()}`, boxX + 10, boxY + 28);
+          } else {
+            this.ctx.fillStyle = '#00ff66';
+            this.ctx.fillText(`IN: ৳${Math.round(d.income).toLocaleString()}`, boxX + 10, boxY + 30);
+            this.ctx.fillStyle = '#ff0044';
+            this.ctx.fillText(`EX: ৳${Math.round(d.expense).toLocaleString()}`, boxX + 10, boxY + 45);
           }
-        });
+        }
       }
     }
 
@@ -514,7 +642,7 @@
         document.getElementById('loader').style.opacity = '0';
         setTimeout(() => document.getElementById('loader').style.display = 'none', 400);
 
-        // --- 1. HUD Updates ---
+        // HUD Updates
         display.net.run(data.summary.netWorth, data.summary.netWorth < 0);
         document.getElementById('lbl-bal').innerText = '৳' + Math.abs(data.summary.balance || 0).toLocaleString();
         document.getElementById('lbl-debt').innerText = '৳' + Math.abs(data.summary.totalDebt || 0).toLocaleString();
@@ -535,26 +663,23 @@
         document.getElementById('exp-prev').innerHTML = getStatHTML(data.kpis.current.expense, data.kpis.last.expense, true);
         document.getElementById('exp-avg').innerHTML = getStatHTML(data.kpis.current.expense, data.kpis.averages.exp, true);
 
-        // --- 2. Chart Data Processing ---
-        // Reverse engineer Net Worth for the chart based on current Net Worth and historic cashflow
+        // Chart Data Processing
         if (data.chartData && data.chartData.length > 0) {
             let runningNw = data.summary.netWorth;
             for(let i = data.chartData.length - 1; i >= 0; i--) {
                 data.chartData[i].netWorth = runningNw;
                 runningNw = runningNw - (data.chartData[i].cashflow || 0); 
             }
-            
-            const nwChart = new SciFiChart('canvas-nw', 'networth');
+            const nwChart = new SciFiChart('canvas-nw', 'pillars');
             nwChart.loadData(data.chartData);
-
-            const flowChart = new SciFiChart('canvas-flow', 'flow');
+            const flowChart = new SciFiChart('canvas-flow', 'equalizer');
             flowChart.loadData(data.chartData);
         }
 
       } catch (e) {
         console.error("System Error:", e);
         
-        // MOCK DATA FALLBACK 
+        // MOCK DATA FALLBACK
         document.getElementById('loader').style.opacity = '0';
         setTimeout(() => document.getElementById('loader').style.display = 'none', 400);
 
@@ -569,39 +694,30 @@
         document.getElementById('exp-prev').innerHTML = getStatHTML(39800, 50000, true); 
         document.getElementById('exp-avg').innerHTML = getStatHTML(39800, 30000, true); 
 
-// Generate a 12-month mock dataset to ensure charts always render
+        // Generate 12-month mock dataset
         let mockData =[];
         const monthNames =["Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec", "Jan", "Feb", "Mar"];
-        let mockNw = 1245000; // Starting current net worth
+        let mockNw = 1245000; 
 
-        // 1. Generate random telemetry for the last 12 months
         for (let i = 0; i < 12; i++) {
-          let mockInc = 60000 + (Math.random() * 40000); // Random income between 60k - 100k
-          let mockExp = 30000 + (Math.random() * 50000); // Random expense between 30k - 80k
-          mockData.push({
-            label: monthNames[i],
-            income: mockInc,
-            expense: mockExp,
-            cashflow: mockInc - mockExp
-          });
+          let mockInc = 60000 + (Math.random() * 40000); 
+          let mockExp = 30000 + (Math.random() * 50000); 
+          mockData.push({ label: monthNames[i], income: mockInc, expense: mockExp, cashflow: mockInc - mockExp });
         }
 
-        // 2. Reverse-engineer the Net Worth trajectory
         for (let i = mockData.length - 1; i >= 0; i--) {
           mockData[i].netWorth = mockNw;
           mockNw = mockNw - mockData[i].cashflow;
         }
 
-        // 3. Render the Fallback Charts
-        const nwChart = new SciFiChart('canvas-nw', 'networth');
+        const nwChart = new SciFiChart('canvas-nw', 'pillars');
         nwChart.loadData(mockData);
 
-        const flowChart = new SciFiChart('canvas-flow', 'flow');
+        const flowChart = new SciFiChart('canvas-flow', 'equalizer');
         flowChart.loadData(mockData);
       }
     }
 
-    // Ignite the Dashboard
     window.onload = init;
   </script>
 </body>

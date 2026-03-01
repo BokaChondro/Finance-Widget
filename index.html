@@ -197,8 +197,9 @@
     
     .h-box {
       font-family: 'Segoe UI', monospace; font-size: 0.85rem; font-weight: 600;
-      text-align: right; font-variant-numeric: tabular-nums;
-      padding: 6px 10px; border-radius: 3px; background: rgba(0,0,0,0.5);
+      display: flex; align-items: center; justify-content: flex-end; /* Robust Flex Alignment */
+      min-height: 32px; /* Forcing flawless alignment regardless of empty contents */
+      padding: 0 10px; border-radius: 3px; background: rgba(0,0,0,0.5);
       border: 1px solid rgba(255,255,255,0.02);
       color: var(--text-main); 
     }
@@ -372,7 +373,7 @@
       return `<span class="${colorClass}">${arrow}${pct}%</span>`;
     }
 
-    // Number formatting for the chart labels (converts 1500 to 1.5K, 4700 to 4.7K)
+    // Advanced Formatting (Maintains strict 1 decimal place for thousands)
     function shortFmt(num) {
       const abs = Math.abs(num);
       const sign = num < 0 ? '-' : '';
@@ -390,10 +391,10 @@
       constructor(canvasId) {
         this.canvas = document.getElementById(canvasId);
         this.ctx = this.canvas.getContext('2d');
-        this.data = [];
+        this.data =[];
         this.points =[]; 
         
-        // Loop State Configuration
+        // Loop State Configuration (Total 60,000ms / 60s loop)
         this.states =[
           { key: 'balance', label: '12-MONTH BALANCE TREND', color: {r:255,g:255,b:255}, shadow: 'rgba(255,255,255,0.4)', duration: 30000 },
           { key: 'income', label: '12-MONTH INCOME TREND', color: {r:0,g:255,b:102}, shadow: 'rgba(0,255,102,0.4)', duration: 10000 },
@@ -421,7 +422,7 @@
         this.ctx.scale(dpr, dpr);
         this.w = rect.width;
         this.h = rect.height;
-        if(this.data.length > 0) this.updateTargets(true); // Snap immediately on resize
+        if(this.data.length > 0) this.updateTargets(true); // Snap to new dimensions immediately
       }
 
       loadData(chartData) {
@@ -432,11 +433,13 @@
       updateTargets(snap = false) {
         if (this.data.length === 0) return;
         const key = this.states[this.curState].key;
+        
+        // Safely extract values, converting undefined/null to 0
         const vals = this.data.map(d => d[key] || 0);
         
         const minVal = Math.min(...vals);
         const maxVal = Math.max(...vals);
-        const range = (maxVal - minVal) || 1;
+        const range = (maxVal - minVal) || 1; // Prevent division by zero
         
         const padTop = 35;
         const padBot = 25;
@@ -451,10 +454,10 @@
             const py = padTop + activeH - (((vals[i]) - minVal) / range) * activeH;
             
             if (snap || this.points.length !== this.data.length) {
-                // Initial creation
+                // Initialize points directly to their correct visual positions
                 this.points[i] = { x: px, y: py, startY: py, targetY: py, val: vals[i], label: this.data[i].chartLabel };
             } else {
-                // Set targets for morphing
+                // Record current position as start, assign new target
                 this.points[i].x = px;
                 this.points[i].startY = this.points[i].y; 
                 this.points[i].targetY = py;
@@ -472,7 +475,7 @@
              el.style.color = `rgb(${state.color.r},${state.color.g},${state.color.b})`;
              el.style.textShadow = `0 0 10px ${state.shadow}`;
              el.style.opacity = 1;
-         }, 300); // Wait for fade out
+         }, 400); // 400ms matches the transition-out timing in CSS
       }
 
       easeInOutCubic(t) {
@@ -489,7 +492,9 @@
       tick(time) {
         requestAnimationFrame((t) => this.tick(t));
         if (!this.lastTime) this.lastTime = time;
-        const dt = time - this.lastTime;
+        // Cap Delta-Time (dt) to 50ms (simulates ~20fps drop). 
+        // This is extremely crucial. It prevents the chart logic from breaking if the user minimizes the tab for an hour.
+        const dt = Math.min(time - this.lastTime, 50); 
         this.lastTime = time;
         
         if (this.data.length === 0) return;
@@ -497,16 +502,25 @@
         this.timeInState += dt;
         const stateDur = this.states[this.curState].duration;
         
-        // Timeline events
+        // Logical Timeline Bounds
         const fadeOutStart = stateDur - 500;
         const morphStart = stateDur;
         const morphEnd = stateDur + 1000;
         const fadeInEnd = stateDur + 1500;
         
-        if (this.timeInState >= fadeOutStart && this.timeInState < morphStart) {
-            this.textOpacity = 1 - (this.timeInState - fadeOutStart) / 500;
-        } else if (this.timeInState >= morphStart && this.timeInState < morphEnd) {
+        // Evaluate state strictly sequentially from the end to the beginning 
+        // to handle perfect wrap-around seamlessly.
+        if (this.timeInState >= fadeInEnd) {
+            this.timeInState -= fadeInEnd; // Retain remainder for precise looping
+            this.isMorphing = false;
+            this.textOpacity = 1;
+            this.morphProgress = 1;
+        } else if (this.timeInState >= morphEnd) {
+            this.morphProgress = 1;
+            this.textOpacity = Math.min(1, Math.max(0, (this.timeInState - morphEnd) / 500));
+        } else if (this.timeInState >= morphStart) {
             this.textOpacity = 0;
+            // Initiate Morph triggers exactly once when crossing this threshold
             if (!this.isMorphing) {
                 this.isMorphing = true;
                 this.prevState = this.curState;
@@ -515,14 +529,12 @@
                 this.updateHeader();
             }
             const rawP = (this.timeInState - morphStart) / 1000;
-            this.morphProgress = this.easeInOutCubic(rawP);
-        } else if (this.timeInState >= morphEnd && this.timeInState < fadeInEnd) {
-            this.morphProgress = 1;
-            this.textOpacity = (this.timeInState - morphEnd) / 500;
-        } else if (this.timeInState >= fadeInEnd) {
+            this.morphProgress = this.easeInOutCubic(Math.min(1, Math.max(0, rawP)));
+        } else if (this.timeInState >= fadeOutStart) {
+            this.textOpacity = Math.min(1, Math.max(0, 1 - (this.timeInState - fadeOutStart) / 500));
+        } else {
             this.textOpacity = 1;
-            this.isMorphing = false;
-            this.timeInState = 0;
+            this.morphProgress = 1;
         }
         
         this.draw();
@@ -531,7 +543,7 @@
       draw() {
          this.ctx.clearRect(0, 0, this.w, this.h);
          
-         // Update Morphing Y positions
+         // 1. Calculate Morphing Y positions dynamically
          for(let p of this.points) {
             p.y = p.startY + (p.targetY - p.startY) * this.morphProgress;
          }
@@ -539,7 +551,8 @@
          const curDef = this.states[this.curState];
          let strokeColorStr = `rgb(${curDef.color.r},${curDef.color.g},${curDef.color.b})`;
          
-         if (this.isMorphing) {
+         // Interpolate Line Color during Morph Transition
+         if (this.isMorphing && this.prevState !== undefined) {
              const prev = this.states[this.prevState];
              strokeColorStr = this.lerpColor(prev.color, curDef.color, this.morphProgress);
          }
@@ -547,7 +560,7 @@
          const padBot = 25;
          const padTop = 35;
          
-         // 1. Draw Bezier Curve
+         // 2. Draw Smooth Bezier Curve Line
          this.ctx.beginPath();
          this.ctx.moveTo(this.points[0].x, this.points[0].y);
          for(let i=0; i<this.points.length - 1; i++) {
@@ -561,7 +574,7 @@
          this.ctx.stroke();
          this.ctx.shadowBlur = 0;
          
-         // 2. Fill Gradient
+         // 3. Draw Subdued Fill Gradient matching line color
          const fillPath = new Path2D();
          fillPath.moveTo(this.points[0].x, this.h - padBot);
          fillPath.lineTo(this.points[0].x, this.points[0].y);
@@ -579,9 +592,10 @@
          this.ctx.fillStyle = grad;
          this.ctx.fill(fillPath);
          
-         // 3. Draw Points & Fading Texts
+         // 4. Draw Glowing Data Dots & Text (Applying Alpha Fade dynamically)
          this.ctx.textAlign = 'center';
          this.points.forEach((p) => {
+             // Dots
              this.ctx.beginPath();
              this.ctx.arc(p.x, p.y, 4, 0, Math.PI * 2);
              this.ctx.fillStyle = '#111';
@@ -590,18 +604,20 @@
              this.ctx.strokeStyle = strokeColorStr;
              this.ctx.stroke();
              
-             // Apply fade
+             // Dynamic opacity for the fade-out/fade-in animation
              this.ctx.globalAlpha = this.textOpacity;
              
+             // Top Number (Uses explicit formatting 1500 -> 1.5K)
              this.ctx.fillStyle = '#ffffff';
              this.ctx.font = 'bold 12px "Segoe UI"';
              this.ctx.fillText(shortFmt(p.val), p.x, p.y - 12);
              
+             // Bottom Month Text
              this.ctx.fillStyle = '#7a8a9e';
              this.ctx.font = '600 11px "Segoe UI"';
              this.ctx.fillText(p.label, p.x, this.h - 5);
              
-             this.ctx.globalAlpha = 1.0; // reset
+             this.ctx.globalAlpha = 1.0; // Reset alpha for next render steps
          });
       }
     }
@@ -609,22 +625,24 @@
     /** --- 3. BOTTOM GRID: 12-MONTH HISTORY --- */
     function renderHistoryGrid(chartData) {
       const container = document.getElementById('history-grid');
+      // Reverse array to ensure newest month (Current) is index 0
       const data = [...chartData.slice(-12)].reverse();
       
       const leftCol = data.slice(0, 6); 
       const rightCol = data.slice(6, 12);
 
       const buildRow = (d, isLatest) => {
-        // Colorless values. Arrows animated if it's the latest month.
-        let incHtml = d.income > 0 ? `<span style="color:var(--neon-green)" class="${isLatest ? 'anim-up' : ''}">▲</span> ${fullFmt(d.income)}` : ``;
-        let expHtml = d.expense > 0 ? `<span style="color:var(--neon-red)" class="${isLatest ? 'anim-down' : ''}">▼</span> ${fullFmt(d.expense)}` : ``;
+        // Income & Expense (Values are colorless. Arrows render with color. Empty string if 0)
+        let incHtml = d.income > 0 ? `<span style="color:var(--neon-green); margin-right: 5px;" class="${isLatest ? 'anim-up' : ''}">▲</span> ${fullFmt(d.income)}` : ``;
+        let expHtml = d.expense > 0 ? `<span style="color:var(--neon-red); margin-right: 5px;" class="${isLatest ? 'anim-down' : ''}">▼</span> ${fullFmt(d.expense)}` : ``;
         
         let flowHtml = '';
         if (d.cashflow > 0) {
-          flowHtml = `<div class="h-box h-flow-pos"><span class="${isLatest ? 'anim-up' : ''}">▲</span> ${fullFmt(d.cashflow)}</div>`;
+          flowHtml = `<div class="h-box h-flow-pos"><span style="margin-right: 5px;" class="${isLatest ? 'anim-up' : ''}">▲</span> ${fullFmt(d.cashflow)}</div>`;
         } else if (d.cashflow < 0) {
-          flowHtml = `<div class="h-box h-flow-neg"><span class="${isLatest ? 'anim-down' : ''}">▼</span> ${fullFmt(Math.abs(d.cashflow))}</div>`;
+          flowHtml = `<div class="h-box h-flow-neg"><span style="margin-right: 5px;" class="${isLatest ? 'anim-down' : ''}">▼</span> ${fullFmt(Math.abs(d.cashflow))}</div>`;
         } else {
+          // Exactly 0 = Colorless grey block with no arrow
           flowHtml = `<div class="h-box h-flow-zero">0</div>`;
         }
 
@@ -639,10 +657,9 @@
       };
 
       let html = '<div class="history-col">';
-      // index 0 is the newest month
-      leftCol.forEach((d, i) => html += buildRow(d, i === 0));
+      leftCol.forEach((d, i) => html += buildRow(d, i === 0)); // Pass 'true' for latest month index 0
       html += '</div><div class="history-col">';
-      rightCol.forEach(d => html += buildRow(d, false));
+      rightCol.forEach(d => html += buildRow(d, false)); // Right col is strictly older history
       html += '</div>';
 
       container.innerHTML = html;
@@ -667,6 +684,7 @@
         document.getElementById('loader').style.opacity = '0';
         setTimeout(() => document.getElementById('loader').style.display = 'none', 400);
 
+        // 1. HUD Updates
         const parsedBalance = Math.abs(data.summary.balance || 0);
         display.bal.run(parsedBalance, data.summary.balance < 0);
         document.getElementById('lbl-net').innerText = '৳' + Math.abs(data.summary.netWorth || 0).toLocaleString();
@@ -688,11 +706,14 @@
         document.getElementById('exp-prev').innerHTML = getStatHTML(data.kpis.current.expense, data.kpis.last.expense, true);
         document.getElementById('exp-avg').innerHTML = getStatHTML(data.kpis.current.expense, data.kpis.averages.exp, true);
 
+        // 2. Data Processing for Charts
         if (data.chartData && data.chartData.length > 0) {
+            
             const monthNames =["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
             const dDate = new Date();
             let runningBal = parsedBalance;
 
+            // Iterate backwards through chart data to calculate historic labels and balances
             for(let i = data.chartData.length - 1; i >= 0; i--) {
                 data.chartData[i].chartLabel = monthNames[dDate.getMonth()];
                 data.chartData[i].gridLabel = `${monthNames[dDate.getMonth()]}/${dDate.getFullYear().toString().slice(-2)}`;
@@ -704,12 +725,14 @@
             
             const mainChart = new SparklineChart('canvas-nw');
             mainChart.loadData(data.chartData);
+
             renderHistoryGrid(data.chartData);
         }
 
       } catch (e) {
         console.error("System Error:", e);
         
+        // MOCK DATA FALLBACK
         document.getElementById('loader').style.opacity = '0';
         setTimeout(() => document.getElementById('loader').style.display = 'none', 400);
 
@@ -724,6 +747,7 @@
         document.getElementById('exp-prev').innerHTML = getStatHTML(39800, 50000, true); 
         document.getElementById('exp-avg').innerHTML = getStatHTML(39800, 30000, true); 
 
+        // Generate 12-month mock dataset
         let mockData =[];
         let mockBal = 1245000; 
         const monthNames =["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
@@ -732,6 +756,7 @@
         for (let i = 0; i < 12; i++) {
           let mockInc = 60000 + (Math.random() * 40000); 
           let mockExp = 30000 + (Math.random() * 50000); 
+          // Inject an exact zero cashflow block to verify correct blank rendering
           if(i===5) { mockInc = 0; mockExp = 0; } 
           mockData.unshift({ income: mockInc, expense: mockExp, cashflow: mockInc - mockExp });
         }
@@ -740,12 +765,14 @@
           mockData[i].chartLabel = monthNames[dDate.getMonth()];
           mockData[i].gridLabel = `${monthNames[dDate.getMonth()]}/${dDate.getFullYear().toString().slice(-2)}`;
           dDate.setMonth(dDate.getMonth() - 1);
+          
           mockData[i].balance = mockBal;
           mockBal = mockBal - mockData[i].cashflow;
         }
 
         const mainChart = new SparklineChart('canvas-nw');
         mainChart.loadData(mockData);
+
         renderHistoryGrid(mockData);
       }
     }

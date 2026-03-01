@@ -3,444 +3,319 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Finance KPI Widget</title>
-
+  <title>VIP Casino Finance</title>
   <style>
-    :root{
+    :root {
       --bg: #191919;
-      --card: rgba(0,0,0,0.38);        /* less blurry: we use translucent, no backdrop blur */
-      --stroke: rgba(255,255,255,0.12);
-      --stroke2: rgba(255,255,255,0.20);
-      --text: rgba(255,255,255,0.92);
-      --muted: rgba(255,255,255,0.62);
-
-      --white: #ffffff;
-      --green: #3EF28A;
-      --red:   #FF4D6D;
-      --blue:  #4DA3FF;
-
-      --shadow: 0 18px 60px rgba(0,0,0,0.60);
-      --r: 18px;
+      --card-bg: #222222;
+      --gold: #FFD700;
+      --gold-dim: rgba(255, 215, 0, 0.3);
+      --green: #00FF66;
+      --green-dim: rgba(0, 255, 102, 0.2);
+      --red: #FF3366;
+      --red-dim: rgba(255, 51, 102, 0.2);
+      --text: #F0F0F0;
+      --muted: #888888;
+      --radius: 16px;
     }
 
-    *{ box-sizing:border-box; }
-    html,body{ height:100%; }
-    body{
-      margin:0;
-      background: var(--bg);
-      color: var(--text);
-      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
-      overflow:hidden;
+    * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    
+    body {
+      margin: 0; padding: 16px; background: var(--bg); color: var(--text);
+      display: grid; grid-template-columns: 1fr 1fr; gap: 20px; height: 100vh; overflow: hidden;
     }
 
-    .frame{
-      position:relative;
-      height:100%;
-      padding: 14px;
-      border-radius: 22px;
-      border: 1px solid rgba(255,255,255,0.08);
-      box-shadow: var(--shadow);
-      overflow:hidden;
-      background: var(--bg);
+    /* --- Left Column: KPI Cards --- */
+    .kpi-col { display: grid; grid-template-rows: repeat(4, 1fr); gap: 16px; }
+    
+    .card {
+      background: var(--card-bg);
+      border-radius: var(--radius);
+      padding: 16px 20px;
+      position: relative;
+      display: flex; flex-direction: column; justify-content: space-between;
+      /* Casino felt texture overlay */
+      background-image: radial-gradient(circle at center, rgba(255,255,255,0.03) 0, transparent 2px);
+      background-size: 8px 8px;
+      border: 1px solid rgba(255,255,255,0.05);
+      box-shadow: inset 0 0 20px rgba(0,0,0,0.5);
     }
 
-    /* subtle animated texture */
-    .texture{
-      position:absolute; inset:-60px;
-      background:
-        repeating-linear-gradient(135deg,
-          rgba(255,255,255,0.05) 0px,
-          rgba(255,255,255,0.05) 1px,
-          transparent 1px,
-          transparent 48px
-        );
-      opacity: .14;
-      animation: drift 14s linear infinite;
-      pointer-events:none;
-    }
-    @keyframes drift{
-      from{ transform: translateX(-60px); }
-      to  { transform: translateX(60px); }
-    }
+    .card.gold { border-left: 3px solid var(--gold); box-shadow: -5px 0 15px var(--gold-dim); }
+    .card.dynamic-green { border-left: 3px solid var(--green); box-shadow: -5px 0 15px var(--green-dim); }
+    .card.dynamic-red { border-left: 3px solid var(--red); box-shadow: -5px 0 15px var(--red-dim); }
+    .card.green { border-left: 3px solid var(--green); box-shadow: -5px 0 15px var(--green-dim); }
+    .card.red { border-left: 3px solid var(--red); box-shadow: -5px 0 15px var(--red-dim); }
 
-    /* Flying money behind cards (low opacity) */
-    .money{
-      position:absolute; inset:0;
-      pointer-events:none;
-      overflow:hidden;
-    }
-    .money i{
-      position:absolute;
-      left:-30%;
-      top: var(--top);
-      font-style: normal;
-      font-size: var(--size);
-      opacity: 0.10;                 /* low opacity */
-      transform: translateZ(0);
-      animation: fly var(--dur) linear infinite;
-      animation-delay: var(--delay);
-      filter: blur(0px);             /* no blur so you can see it */
-      user-select:none;
-      white-space:nowrap;
-    }
-    @keyframes fly{
-      0%   { transform: translateX(-20vw) rotate(-8deg); }
-      100% { transform: translateX(140vw) rotate(10deg); }
-    }
+    .card-header { display: flex; justify-content: space-between; align-items: center; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); }
+    
+    /* Slot Machine Numbers */
+    .value { font-size: 32px; font-weight: 800; letter-spacing: -0.5px; margin: 4px 0; font-variant-numeric: tabular-nums; }
+    .val-gold { color: var(--gold); text-shadow: 0 0 10px var(--gold-dim); }
+    .val-green { color: var(--green); text-shadow: 0 0 10px var(--green-dim); }
+    .val-red { color: var(--red); text-shadow: 0 0 10px var(--red-dim); }
 
-    .top{
-      position:relative;
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:12px;
-      z-index:2;
-      margin-bottom: 10px;
+    /* 3D Flipping Insight Text */
+    .insight-container { perspective: 1000px; height: 20px; position: relative; width: 100%; margin-top: 5px;}
+    .insight-flipper {
+      width: 100%; height: 100%; position: absolute;
+      transform-style: preserve-3d; transition: transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1);
     }
-    .brand{
-      display:flex; align-items:center; gap:10px;
-      font-weight: 850;
-      letter-spacing: .02em;
+    .insight-front, .insight-back {
+      width: 100%; height: 100%; position: absolute; backface-visibility: hidden;
+      font-size: 13px; color: #BBBBBB; font-style: italic; display: flex; align-items: center;
     }
-    .dot{
-      width:10px; height:10px; border-radius:999px;
-      background: rgba(255,255,255,0.95);
-      box-shadow: 0 0 18px rgba(255,255,255,0.20);
-    }
-    .updated{ font-size:12px; color: var(--muted); }
+    .insight-back { transform: rotateX(180deg); }
+    .flip-active { transform: rotateX(180deg); }
 
-    /* Layout: BIG left + 3 stacked right */
-    .layout{
-      position:relative;
-      display:grid;
-      grid-template-columns: 1.65fr 1fr;
-      gap: 12px;
-      z-index:2;
-      min-height: 220px;
-      height: calc(100% - 44px);
-    }
-    .stack{
-      display:grid;
-      grid-template-rows: repeat(3, 1fr);
-      gap: 12px;
-      height:100%;
-    }
+    .sub-stats { display: flex; justify-content: space-between; font-size: 11px; color: var(--muted); font-family: monospace; margin-top: 4px;}
 
-    .card{
-      position:relative;
-      border-radius: var(--r);
-      background: var(--card);
-      border: 1px solid var(--stroke);
-      padding: 14px;
-      overflow:hidden;
-      transition: transform .16s ease, border-color .16s ease;
-    }
-    .card:hover{
-      transform: translateY(-1px);
-      border-color: var(--stroke2);
-    }
+    /* --- Right Column: Charts & Ledger --- */
+    .right-col { display: grid; grid-template-rows: 1.5fr 1fr; gap: 20px; }
+    
+    .panel { background: var(--card-bg); border-radius: var(--radius); padding: 20px; border: 1px solid rgba(255,255,255,0.05); display:flex; flex-direction: column;}
+    .panel-title { font-size: 14px; font-weight: bold; color: var(--gold); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 15px; text-shadow: 0 0 5px var(--gold-dim); border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 8px;}
 
-    /* Glass animation (no blur): inner highlights + moving sheen */
-    .card::before{
-      content:"";
-      position:absolute;
-      inset:0;
-      background:
-        radial-gradient(600px 120px at 20% 0%, rgba(255,255,255,0.10), transparent 60%),
-        radial-gradient(500px 90px at 80% 10%, rgba(255,255,255,0.07), transparent 55%);
-      opacity: .55;
-      pointer-events:none;
-    }
-    .card::after{
-      content:"";
-      position:absolute;
-      inset:-60% -70%;
-      background: linear-gradient(120deg,
-        transparent 0%,
-        rgba(255,255,255,0.04) 45%,
-        rgba(255,255,255,0.12) 50%,
-        rgba(255,255,255,0.04) 55%,
-        transparent 100%);
-      transform: translateX(-60%) rotate(10deg);
-      animation: shimmer 7.5s ease-in-out infinite;
-      opacity: .20;
-      pointer-events:none;
-    }
-    @keyframes shimmer{
-      0%,45%{ transform: translateX(-60%) rotate(10deg); }
-      70%   { transform: translateX(25%) rotate(10deg); }
-      100%  { transform: translateX(55%) rotate(10deg); }
-    }
+    /* Chip Stack SVG area */
+    .chart-container { flex-grow: 1; display: flex; align-items: flex-end; justify-content: space-around; padding-top: 10px; }
+    .stack-group { display: flex; flex-direction: column; align-items: center; gap: 5px; cursor: pointer; transition: transform 0.2s; }
+    .stack-group:hover { transform: translateY(-5px); }
+    .chips { display: flex; align-items: flex-end; gap: 4px; height: 120px; }
+    .chip-col { display: flex; flex-direction: column-reverse; justify-content: flex-start; gap: 2px; width: 20px;}
+    .chip { width: 20px; height: 6px; border-radius: 3px; border: 1px solid rgba(0,0,0,0.5); box-shadow: inset 0 1px 1px rgba(255,255,255,0.3); }
+    .chip.inc { background: var(--green); }
+    .chip.exp { background: var(--red); }
+    .month-label { font-size: 10px; color: var(--muted); text-transform: uppercase; }
 
-    /* Accent strip */
-    .card .accent{
-      position:absolute;
-      left:0; top:0; bottom:0;
-      width:3px;
-      background: rgba(255,255,255,0.20);
+    /* House Ledger (Debts) */
+    .ledger-list { overflow-y: auto; flex-grow: 1; display: flex; flex-direction: column; gap: 10px; padding-right: 5px;}
+    .ledger-list::-webkit-scrollbar { width: 4px; }
+    .ledger-list::-webkit-scrollbar-thumb { background: var(--muted); border-radius: 4px; }
+    
+    .iou-slip {
+      background: repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(0,0,0,0.1) 10px, rgba(0,0,0,0.1) 20px), #2A2A2A;
+      border-left: 2px dashed var(--muted);
+      padding: 10px 14px; border-radius: 4px;
+      display: flex; justify-content: space-between; align-items: center;
     }
-    .accent.white{ background: rgba(255,255,255,0.75); }
-    .accent.blue{ background: var(--blue); }
-    .accent.green{ background: var(--green); }
-    .accent.red{ background: var(--red); }
-
-    .row1{
-      position:relative;
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:10px;
-      z-index:2;
-    }
-    .label{
-      display:flex;
-      align-items:center;
-      gap: 10px;
-      font-size:12px;
-      letter-spacing:.12em;
-      text-transform: uppercase;
-      color: var(--muted);
-    }
-
-    .icon{
-      width: 30px; height: 30px;
-      display:grid; place-items:center;
-      border-radius: 10px;
-      border: 1px solid rgba(255,255,255,0.12);
-      background: rgba(255,255,255,0.03);
-    }
-
-    .pill{
-      font-size:11px;
-      color: var(--muted);
-      border: 1px solid rgba(255,255,255,0.12);
-      background: rgba(255,255,255,0.03);
-      padding: 6px 10px;
-      border-radius: 999px;
-      display:flex; align-items:center; gap: 7px;
-      white-space:nowrap;
-      z-index:2;
-      position:relative;
-    }
-
-    /* Big NET WORTH */
-    .big{
-      display:flex;
-      flex-direction:column;
-      justify-content:space-between;
-      min-height: 240px;
-    }
-    .bigValue{
-      position:relative;
-      z-index:2;
-      margin-top: 18px;
-      font-size: 56px;
-      font-weight: 900;
-      letter-spacing: .01em;
-      line-height: 1.02;
-      color: var(--white);
-      white-space: nowrap;
-      overflow:hidden;
-      text-overflow: ellipsis;
-    }
-    .subline{
-      position:relative;
-      z-index:2;
-      display:flex;
-      justify-content:space-between;
-      gap:10px;
-      font-size:12px;
-      color: var(--muted);
-      margin-top: 12px;
-    }
-
-    .value{
-      position:relative;
-      z-index:2;
-      margin-top: 12px;
-      font-size: 32px;
-      font-weight: 900;
-      line-height: 1.05;
-      white-space: nowrap;
-      overflow:hidden;
-      text-overflow: ellipsis;
-    }
-    .white{ color: var(--white); }
-    .green{ color: var(--green); }
-    .red{ color: var(--red); }
-    .blue{ color: var(--blue); }
-
-    /* Responsive */
-    @media (max-width: 980px){
-      body{ overflow:auto; }
-      .layout{ grid-template-columns: 1fr; height:auto; }
-      .stack{ height:auto; }
-      .bigValue{ font-size: 46px; }
-      .value{ font-size: 30px; }
-    }
-
-    @media (prefers-reduced-motion: reduce){
-      .texture, .money i, .card::after{ animation:none !important; }
-      .card{ transition:none !important; }
-    }
+    .iou-info h4 { margin: 0; font-size: 14px; color: var(--text); }
+    .iou-info p { margin: 2px 0 0 0; font-size: 11px; color: var(--muted); }
+    .iou-amt { font-weight: bold; font-family: monospace; font-size: 14px; }
+    .urgent { border-left-color: var(--red); box-shadow: inset 2px 0 10px var(--red-dim); }
+    .urgent .iou-info p, .urgent .iou-amt { color: var(--red); }
+    
+    .loading { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: var(--bg); z-index: 10; font-family: monospace; color: var(--gold); font-size: 18px; }
   </style>
 </head>
-
 <body>
-  <div class="frame">
-    <div class="texture"></div>
+  <div id="loader" class="loading">CONNECTING TO VIP SERVER...</div>
 
-    <!-- money behind -->
-    <div class="money" aria-hidden="true">
-      <i style="--top: 8%;  --size: 44px; --dur: 20s; --delay: -3s;">💸</i>
-      <i style="--top: 18%; --size: 52px; --dur: 26s; --delay: -11s;">💵</i>
-      <i style="--top: 30%; --size: 46px; --dur: 22s; --delay: -7s;">৳</i>
-      <i style="--top: 44%; --size: 56px; --dur: 30s; --delay: -15s;">💰</i>
-      <i style="--top: 58%; --size: 48px; --dur: 24s; --delay: -9s;">🪙</i>
-      <i style="--top: 72%; --size: 54px; --dur: 34s; --delay: -19s;">৳৳</i>
-      <i style="--top: 84%; --size: 46px; --dur: 28s; --delay: -6s;">💸</i>
+  <div class="kpi-col">
+    <!-- 1. Net Worth -->
+    <div class="card gold">
+      <div class="card-header"><span>💎 True Net Worth</span></div>
+      <div class="value val-gold" id="val-net">৳0</div>
+      <div class="sub-stats">
+        <span id="sub-bal">Bal: ৳0</span>
+        <span id="sub-debt">Debt: ৳0</span>
+      </div>
     </div>
 
-    <div class="top">
-      <div class="brand"><span class="dot"></span><span>Finance</span></div>
-      <div id="updated" class="updated">Loading…</div>
-    </div>
-
-    <div class="layout">
-      <!-- BIG BOX: NET WORTH -->
-      <div class="card big" id="cardNet">
-        <span class="accent white"></span>
-        <div class="row1">
-          <div class="label">
-            <span class="icon">
-              <!-- white money bag -->
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-                <path d="M9 7c1.2 1.2 4.8 1.2 6 0" stroke="white" stroke-width="1.8" stroke-linecap="round"/>
-                <path d="M10 4h4" stroke="white" stroke-width="1.8" stroke-linecap="round"/>
-                <path d="M7.5 10.5c-1.6 1.6-2.5 3.5-2.5 6 0 4.2 3.6 6.5 7 6.5s7-2.3 7-6.5c0-2.5-.9-4.4-2.5-6" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-                <path d="M9 11h6" stroke="white" stroke-width="1.8" stroke-linecap="round"/>
-              </svg>
-            </span>
-            <span>NET WORTH</span>
-          </div>
-          <div class="pill"><span class="white">⬤</span><span>Balance</span></div>
-        </div>
-
-        <div id="netWorth" class="bigValue">—</div>
-        <div class="subline">
-          <span>Savings − Debt</span>
-          <span id="netNote">—</span>
+    <!-- 2. Cash Flow -->
+    <div class="card" id="card-flow">
+      <div class="card-header"><span id="icon-flow">⚖️ 30-Day Cash Flow</span></div>
+      <div class="value" id="val-flow">৳0</div>
+      <div class="insight-container">
+        <div class="insight-flipper" id="flip-flow">
+          <div class="insight-front" id="txt-flow-1">Loading insight...</div>
+          <div class="insight-back" id="txt-flow-2">Analyzing data...</div>
         </div>
       </div>
+    </div>
 
-      <!-- RIGHT: 3 stacked -->
-      <div class="stack">
-        <!-- CASHFLOW blue -->
-        <div class="card">
-          <span class="accent blue"></span>
-          <div class="row1">
-            <div class="label">
-              <span class="icon">
-                <!-- blue money flow -->
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-                  <path d="M7 7h10a3 3 0 0 1 0 6H9" stroke="var(--blue)" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/>
-                  <path d="M9 13l-2-2 2-2" stroke="var(--blue)" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/>
-                  <path d="M17 17H7a3 3 0 0 1 0-6h8" stroke="var(--blue)" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/>
-                  <path d="M15 11l2 2-2 2" stroke="var(--blue)" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-              </span>
-              <span>CASHFLOW</span>
-            </div>
-            <div id="flowPill" class="pill"><span class="blue">↕</span><span>This month</span></div>
-          </div>
-          <div id="cashflow" class="value blue">—</div>
+    <!-- 3. Income -->
+    <div class="card green">
+      <div class="card-header"><span>📈 30-Day Income</span></div>
+      <div class="value val-green" id="val-inc">৳0</div>
+      <div class="insight-container">
+        <div class="insight-flipper" id="flip-inc">
+          <div class="insight-front" id="txt-inc-1">Loading insight...</div>
+          <div class="insight-back" id="txt-inc-2">Analyzing data...</div>
         </div>
+      </div>
+    </div>
 
-        <!-- INCOME green -->
-        <div class="card">
-          <span class="accent green"></span>
-          <div class="row1">
-            <div class="label">
-              <span class="icon">
-                <!-- green rising chart -->
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-                  <path d="M4 19V5" stroke="var(--green)" stroke-width="1.9" stroke-linecap="round"/>
-                  <path d="M4 19h16" stroke="var(--green)" stroke-width="1.9" stroke-linecap="round"/>
-                  <path d="M7 14l4-4 3 3 5-6" stroke="var(--green)" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/>
-                  <path d="M18 7h3v3" stroke="var(--green)" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-              </span>
-              <span>INCOME</span>
-            </div>
-            <div class="pill"><span class="green">↗</span><span>This month</span></div>
-          </div>
-          <div id="incoming" class="value green">—</div>
-        </div>
-
-        <!-- EXPENSE red -->
-        <div class="card">
-          <span class="accent red"></span>
-          <div class="row1">
-            <div class="label">
-              <span class="icon">
-                <!-- red down chart -->
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-                  <path d="M4 19V5" stroke="var(--red)" stroke-width="1.9" stroke-linecap="round"/>
-                  <path d="M4 19h16" stroke="var(--red)" stroke-width="1.9" stroke-linecap="round"/>
-                  <path d="M7 10l4 4 3-3 5 6" stroke="var(--red)" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/>
-                  <path d="M18 17h3v-3" stroke="var(--red)" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-              </span>
-              <span>EXPENSE</span>
-            </div>
-            <div class="pill"><span class="red">↘</span><span>This month</span></div>
-          </div>
-          <div id="outgoing" class="value red">—</div>
+    <!-- 4. Expense -->
+    <div class="card red">
+      <div class="card-header"><span>📉 30-Day Expense</span></div>
+      <div class="value val-red" id="val-exp">৳0</div>
+      <div class="insight-container">
+        <div class="insight-flipper" id="flip-exp">
+          <div class="insight-front" id="txt-exp-1">Loading insight...</div>
+          <div class="insight-back" id="txt-exp-2">Analyzing data...</div>
         </div>
       </div>
     </div>
   </div>
 
+  <div class="right-col">
+    <!-- Chip Stacks Chart -->
+    <div class="panel">
+      <div class="panel-title">Past 6 Months (Winnings vs Losses)</div>
+      <div class="chart-container" id="chip-chart"></div>
+    </div>
+
+    <!-- Debt Ledger -->
+    <div class="panel">
+      <div class="panel-title">The House Ledger (Outstanding)</div>
+      <div class="ledger-list" id="ledger-list"></div>
+    </div>
+  </div>
+
   <script>
-    function fmt(n, currency){
-      const sign = n < 0 ? "-" : "";
-      const abs = Math.abs(n);
-      return sign + currency + abs.toLocaleString();
+    const fmt = (n) => "৳" + Math.abs(n).toLocaleString();
+
+    // Slot Machine Animation Physics
+    function spinNumber(el, finalValue) {
+      const duration = 1200; // 1.2s spin
+      const start = Date.now();
+      const isNeg = finalValue < 0;
+      
+      const timer = setInterval(() => {
+        const passed = Date.now() - start;
+        if (passed > duration) {
+          clearInterval(timer);
+          el.innerText = (isNeg ? "-" : "") + fmt(finalValue);
+        } else {
+          // Generate random fast-spinning numbers
+          const randomVal = Math.floor(Math.random() * Math.abs(finalValue) * 1.5);
+          el.innerText = (isNeg ? "-" : "") + fmt(randomVal);
+        }
+      }, 40); // Update every 40ms for high-speed blur effect
     }
 
-    async function load(){
-      // Same-origin fetch (works in Notion embeds)
-      const r = await fetch("/api?t=" + Date.now(), { cache: "no-store" });
-      const j = await r.json();
-
-      const c = j.currency || "৳";
-      const net = Number(j.netWorth ?? 0);
-      const inc = Number(j.incoming ?? 0);
-      const out = Number(j.outgoing ?? 0);
-      const flow = Number(j.cashflow ?? 0);
-
-      document.getElementById("netWorth").textContent = fmt(net, c);
-      document.getElementById("cashflow").textContent = fmt(flow, c);
-      document.getElementById("incoming").textContent = fmt(inc, c);
-      document.getElementById("outgoing").textContent = fmt(out, c);
-
-      document.getElementById("updated").textContent =
-        "Updated • " + new Date(j.updatedAt).toLocaleString();
-
-      document.getElementById("netNote").textContent =
-        net >= 0 ? "OK" : "Negative";
-
-      const flowPill = document.getElementById("flowPill");
-      flowPill.innerHTML = flow >= 0
-        ? '<span class="green">↑</span><span>Surplus</span>'
-        : '<span class="red">↓</span><span>Deficit</span>';
+    // Insight Rotator (3D Flip)
+    function startRotator(flipId, textFrontId, textBackId, templates) {
+      if(!templates || templates.length === 0) return;
+      let idx = 0;
+      const flipper = document.getElementById(flipId);
+      const front = document.getElementById(textFrontId);
+      const back = document.getElementById(textBackId);
+      
+      front.innerText = templates[0];
+      
+      setInterval(() => {
+        idx = (idx + 1) % templates.length;
+        const isFlipped = flipper.classList.contains('flip-active');
+        
+        if (isFlipped) {
+          front.innerText = templates[idx];
+          flipper.classList.remove('flip-active');
+        } else {
+          back.innerText = templates[idx];
+          flipper.classList.add('flip-active');
+        }
+      }, 10000); // 10 seconds
     }
 
-    load().catch(() => {
-      document.getElementById("updated").textContent = "Error loading data";
-    });
+    // Build Chip Stack Chart
+    function buildChart(data) {
+      const container = document.getElementById('chip-chart');
+      // Find highest value to scale the chips (Max 18 chips tall)
+      let maxVal = 1;
+      data.forEach(d => {
+        if(d.income > maxVal) maxVal = d.income;
+        if(d.expense > maxVal) maxVal = d.expense;
+      });
+      const chipValue = maxVal / 18; // Value per 1 physical chip
 
-    setInterval(() => load().catch(()=>{}), 60000);
+      data.forEach(month => {
+        const incChipsCount = Math.ceil(month.income / chipValue) || 0;
+        const expChipsCount = Math.ceil(month.expense / chipValue) || 0;
+        
+        const group = document.createElement('div');
+        group.className = 'stack-group';
+        group.title = `In: ${fmt(month.income)} | Out: ${fmt(month.expense)}`; // Tooltip
+        
+        let incHtml = '', expHtml = '';
+        for(let i=0; i<incChipsCount; i++) incHtml += `<div class="chip inc"></div>`;
+        for(let i=0; i<expChipsCount; i++) expHtml += `<div class="chip exp"></div>`;
+
+        group.innerHTML = `
+          <div class="chips">
+            <div class="chip-col">${incHtml}</div>
+            <div class="chip-col">${expHtml}</div>
+          </div>
+          <div class="month-label">${month.label}</div>
+        `;
+        container.appendChild(group);
+      });
+    }
+
+    // Build Debt Ledger
+    function buildLedger(debts) {
+      const container = document.getElementById('ledger-list');
+      if(debts.length === 0) {
+        container.innerHTML = `<div style="color:var(--muted); font-size:12px; text-align:center; margin-top:20px;">All accounts settled.</div>`;
+        return;
+      }
+
+      debts.forEach(d => {
+        const isUrgent = d.daysLeft.includes("Overdue") || parseInt(d.daysLeft.match(/\d+/)?.[0] || 99) <= 30;
+        container.innerHTML += `
+          <div class="iou-slip ${isUrgent ? 'urgent' : ''}">
+            <div class="iou-info">
+              <h4>${d.name}</h4>
+              <p>${d.daysLeft}</p>
+            </div>
+            <div class="iou-amt">${fmt(d.amount)}</div>
+          </div>
+        `;
+      });
+    }
+
+    // Main Load
+    async function loadData() {
+      try {
+        const res = await fetch('/api?t=' + Date.now());
+        const data = await res.json();
+        
+        document.getElementById('loader').style.display = 'none';
+
+        // 1. Set KPI Values with Slot Spin
+        spinNumber(document.getElementById('val-net'), data.summary.netWorth);
+        document.getElementById('sub-bal').innerText = `Bal: ${fmt(data.summary.balance)}`;
+        document.getElementById('sub-debt').innerText = `Debt: ${fmt(data.summary.totalDebt)}`;
+
+        const flowCard = document.getElementById('card-flow');
+        const flowVal = document.getElementById('val-flow');
+        spinNumber(flowVal, data.kpis.current.cashflow);
+        if(data.kpis.current.cashflow >= 0) {
+          flowCard.classList.add('dynamic-green'); flowVal.classList.add('val-green');
+        } else {
+          flowCard.classList.add('dynamic-red'); flowVal.classList.add('val-red');
+        }
+
+        spinNumber(document.getElementById('val-inc'), data.kpis.current.income);
+        spinNumber(document.getElementById('val-exp'), data.kpis.current.expense);
+
+        // 2. Start Rotators
+        startRotator('flip-flow', 'txt-flow-1', 'txt-flow-2', data.insights.cashflow);
+        startRotator('flip-inc', 'txt-inc-1', 'txt-inc-2', data.insights.income);
+        startRotator('flip-exp', 'txt-exp-1', 'txt-exp-2', data.insights.expense);
+
+        // 3. Build Graphs
+        buildChart(data.chartData);
+        buildLedger(data.debts);
+
+      } catch (err) {
+        document.getElementById('loader').innerText = "CONNECTION FAILED. RETRYING...";
+        console.error(err);
+      }
+    }
+
+    window.onload = loadData;
   </script>
 </body>
 </html>

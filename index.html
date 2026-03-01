@@ -3,152 +3,142 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Casino Royale Finance - VIP Room</title>
+  <title>Finance Dashboard</title>
   
-  <!-- High-End Casino Fonts -->
+  <!-- Modern Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;800&family=Playfair+Display:wght@700;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 
   <style>
-    /* --- 1. THEME ENGINE & LAYOUT --- */
+    /* --- 1. CORE VARIABLES & THEME --- */
     :root {
       --bg: #191919;
-      --felt-color: #0d361c;
-      --felt-highlight: #16522c;
-      --bumper-color: #1a0f0a;
+      --card-bg: #222222;
+      --card-border: #333333;
       
-      --gold-solid: #D4AF37;
-      --gold-grad: linear-gradient(135deg, #BF953F, #FCF6BA, #B38728, #FBF5B7, #AA771C);
-      --gold-glow: drop-shadow(0 0 10px rgba(212, 175, 55, 0.4));
+      --gold: #FFD700;
+      --gold-glow: rgba(255, 215, 0, 0.4);
       
-      --neon-green: #39FF14;
-      --neon-red: #FF003C;
-      --text-main: #EAEAEA;
+      --neon-green: #00FF66;
+      --green-glow: rgba(0, 255, 102, 0.4);
+      
+      --neon-red: #FF0055;
+      --red-glow: rgba(255, 0, 85, 0.4);
+      
+      --text-main: #FFFFFF;
+      --text-muted: #888888;
+      
+      /* Strict dimension for the slot machine to prevent clipping bugs */
+      --slot-height: 50px; 
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
       background-color: var(--bg);
-      background-image: radial-gradient(circle at center, #222 0%, #111 100%);
       color: var(--text-main);
-      font-family: "Space Mono", monospace;
+      font-family: 'Inter', sans-serif;
       min-height: 100vh;
       display: flex;
       flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      overflow: hidden;
-      padding: 2vw;
+      padding: 30px;
+      overflow-x: hidden;
     }
 
-    /* 2x2 Grid Layout */
-    .casino-floor {
+    /* --- 2. LAYOUT: 1x4 Left Col, 1 Big Right Col --- */
+    .dashboard-layout {
       display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      grid-template-rows: repeat(2, 1fr);
+      grid-template-columns: 350px 1fr; /* Left col fixed width, right col takes remaining */
       gap: 30px;
       width: 100%;
-      max-width: 1400px;
-      height: 100%;
-      max-height: 900px;
+      max-width: 1600px;
+      margin: 0 auto;
+      height: calc(100vh - 60px);
     }
 
-    /* --- 2. CASINO TABLE CARDS (FELT & WOOD BUMPER) --- */
-    .table-card {
-      position: relative;
-      background-color: var(--felt-color);
-      /* Highly realistic casino felt texture */
-      background-image: 
-        radial-gradient(circle at 50% 0%, var(--felt-highlight) 0%, transparent 70%),
-        url('data:image/svg+xml;utf8,%3Csvg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="noise"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="4" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="100%25" height="100%25" filter="url(%23noise)" opacity="0.12"/%3E%3C/svg%3E');
-      border-radius: 28px;
-      border: 14px solid var(--bumper-color); /* Leather bumper */
-      box-shadow: 
-        inset 0 0 0 3px #000, 
-        inset 0 0 0 6px var(--gold-solid), 
-        inset 0 0 40px rgba(0,0,0,0.8),
-        0 15px 35px rgba(0,0,0,0.5);
-      padding: 25px;
+    .left-column {
+      display: grid;
+      grid-template-rows: repeat(4, 1fr);
+      gap: 20px;
+      height: 100%;
+    }
+
+    .right-column {
+      display: flex;
+      height: 100%;
+    }
+
+    /* --- 3. MODERN CARDS --- */
+    .kpi-card {
+      background-color: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 20px;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      overflow: hidden;
-    }
-
-    /* Card Labels */
-    .card-title {
-      font-family: "Cinzel", serif;
-      font-size: 1.2rem;
-      letter-spacing: 3px;
-      color: var(--gold-solid);
-      text-align: center;
-      text-shadow: 0 4px 10px rgba(0,0,0,1);
-      margin-bottom: 10px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-    }
-    .card-title::before, .card-title::after {
-      content: ''; flex: 1; height: 1px;
-      background: linear-gradient(90deg, transparent, var(--gold-solid), transparent);
-    }
-
-    /* --- 3. SLOT MACHINE DISPLAY --- */
-    .slot-window {
-      background: linear-gradient(180deg, #0a0a0a 0%, #1a1a1a 15%, #1a1a1a 85%, #0a0a0a 100%);
-      border-radius: 12px;
-      border: 3px solid #000;
-      box-shadow: 
-        inset 0 10px 20px rgba(0,0,0,0.9),
-        0 2px 0 rgba(255,255,255,0.1);
-      height: 90px;
       position: relative;
-      display: flex;
-      align-items: center;
-      justify-content: center;
       overflow: hidden;
-      padding: 0 20px;
-      margin: 15px 0;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+      transition: transform 0.2s, box-shadow 0.2s;
     }
-    
-    /* Slot Machine Glass Reflection */
-    .slot-window::after {
+    .kpi-card:hover {
+      transform: translateY(-2px);
+    }
+
+    /* Neon Accent Lines */
+    .kpi-card::before {
       content: '';
       position: absolute;
-      top: 0; left: 0; right: 0; height: 40%;
-      background: linear-gradient(180deg, rgba(255,255,255,0.08) 0%, transparent 100%);
-      pointer-events: none;
-      border-radius: 12px 12px 0 0;
+      top: 0; left: 0; width: 4px; height: 100%;
+    }
+    .card-gold::before { background: var(--gold); box-shadow: 0 0 15px var(--gold-glow); }
+    .card-green::before { background: var(--neon-green); box-shadow: 0 0 15px var(--green-glow); }
+    .card-red::before { background: var(--neon-red); box-shadow: 0 0 15px var(--red-glow); }
+
+    .card-title {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: var(--text-muted);
+      font-weight: 600;
     }
 
-    /* The Reels Container */
+    /* --- 4. BULLETPROOF SLOT MACHINE DISPLAY --- */
+    .number-display {
+      background: #111;
+      border-radius: 8px;
+      border: 1px solid #000;
+      box-shadow: inset 0 4px 10px rgba(0,0,0,0.8);
+      height: calc(var(--slot-height) + 20px);
+      margin: 10px 0;
+      display: flex;
+      align-items: center;
+      padding: 0 15px;
+      overflow: hidden; /* Contains the spinning reels securely */
+    }
+
     .slot-machine {
       display: flex;
       align-items: center;
-      font-family: "Playfair Display", serif;
-      font-size: 3.5rem;
-      font-weight: 900;
-      line-height: 1;
+      font-family: 'Space Mono', monospace;
+      font-size: 32px;
+      font-weight: 700;
+      height: var(--slot-height);
     }
 
-    /* Currency Symbol */
-    .currency-symbol {
-      margin-right: 12px;
-      color: var(--gold-solid);
-      filter: var(--gold-glow);
+    .currency {
+      margin-right: 8px;
+      line-height: var(--slot-height);
     }
 
-    /* Individual Reel CSS */
+    /* Individual Reel Elements */
     .reel-wrapper {
-      height: 1em;
-      overflow: hidden;
-      position: relative;
+      height: var(--slot-height);
+      overflow: hidden; /* Clips exact digit height */
       display: inline-block;
       vertical-align: top;
-      margin: 0 1px;
     }
     
     .reel-strip {
@@ -157,107 +147,93 @@
       will-change: transform;
     }
     
-    .reel-digit {
-      height: 1em;
+    .reel-digit, .static-char {
+      height: var(--slot-height);
+      line-height: var(--slot-height); /* Mathematically perfect centering */
       display: flex;
       align-items: center;
       justify-content: center;
     }
 
-    .static-char { margin: 0 2px; }
+    /* Neon Themes for Numbers */
+    .theme-gold { color: var(--gold); text-shadow: 0 0 10px var(--gold-glow); }
+    .theme-green { color: var(--neon-green); text-shadow: 0 0 10px var(--green-glow); }
+    .theme-red { color: var(--neon-red); text-shadow: 0 0 10px var(--red-glow); }
 
-    /* Thematic Colors for Digits */
-    .theme-gold .reel-strip, .theme-gold .static-char {
-      background: var(--gold-grad);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      filter: var(--gold-glow);
-    }
-    .theme-green .reel-strip, .theme-green .static-char {
-      color: var(--neon-green);
-      text-shadow: 0 0 15px rgba(57, 255, 20, 0.6);
-    }
-    .theme-red .reel-strip, .theme-red .static-char {
-      color: var(--neon-red);
-      text-shadow: 0 0 15px rgba(255, 0, 60, 0.6);
-    }
-
-    /* --- 4. SUB-INFO & DEALER INSIGHTS --- */
-    .sub-info-row {
-      display: flex;
-      justify-content: space-between;
-      font-size: 0.85rem;
-      color: #9ab3a1;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      font-weight: bold;
-      margin-top: auto;
-    }
-    .sub-val { color: var(--gold-solid); }
-    .debt-val { color: #ff6b6b; }
-
-    /* 3D Dealer Card Flipper */
-    .dealer-card-container {
+    /* --- 5. 3D INSIGHT FLIPPER --- */
+    .insight-container {
       perspective: 1000px;
-      height: 40px;
+      height: 20px;
       width: 100%;
-      margin-top: auto;
     }
-    .dealer-card {
+    .flipper {
       width: 100%; height: 100%;
       position: relative;
       transform-style: preserve-3d;
-      transition: transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* Bouncy flip */
+      transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
     }
-    .dealer-card.flipped { transform: rotateX(180deg); }
+    .flipper.flipped { transform: rotateX(180deg); }
     
-    .dealer-face {
+    .insight-face {
       position: absolute;
       inset: 0;
       backface-visibility: hidden;
-      background: rgba(0,0,0,0.4);
-      border: 1px solid rgba(212, 175, 55, 0.3);
-      border-radius: 6px;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .insight-back {
+      transform: rotateX(180deg);
+      color: var(--text-main);
+    }
+
+    /* Static sub-info (for Net Worth) */
+    .sub-info {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+    .sub-info span { color: var(--text-main); font-weight: 600; font-family: 'Space Mono', monospace;}
+
+    /* --- 6. BLANK RIGHT COLUMN --- */
+    .blank-chart-box {
+      background-color: var(--card-bg);
+      border: 1px dashed #444;
+      border-radius: 16px;
+      width: 100%;
+      height: 100%;
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 0 15px;
-      font-size: 0.75rem;
-      color: #e0e0e0;
-      text-align: center;
-    }
-    .dealer-back {
-      transform: rotateX(180deg);
-      border-color: rgba(57, 255, 20, 0.3);
+      color: #444;
+      font-size: 1.2rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      position: relative;
     }
 
-    /* Loading Overlay */
+    /* Loader */
     #loader {
-      position: fixed; inset: 0;
-      background: #000; z-index: 9999;
+      position: fixed; inset: 0; background: var(--bg); z-index: 9999;
       display: flex; flex-direction: column; align-items: center; justify-content: center;
-      transition: opacity 0.5s ease;
+      transition: opacity 0.4s;
     }
-    .chip-loader {
-      width: 60px; height: 60px;
-      border: 6px dashed var(--gold-solid);
+    .spinner {
+      width: 40px; height: 40px;
+      border: 3px solid #333; border-top-color: var(--neon-green);
       border-radius: 50%;
-      animation: spin 2s linear infinite;
+      animation: spin 1s linear infinite;
     }
-    .loader-text {
-      margin-top: 20px; color: var(--gold-solid);
-      font-family: "Cinzel", serif; font-size: 1.2rem; letter-spacing: 4px;
-      animation: pulse 1s infinite alternate;
-    }
-    @keyframes spin { 100% { transform: rotate(360deg); } }
-    @keyframes pulse { 0% { opacity: 0.5; } 100% { opacity: 1; } }
+    @keyframes spin { to { transform: rotate(360deg); } }
 
-    /* Responsive adjustments */
-    @media (max-width: 900px) {
-      .casino-floor { grid-template-columns: 1fr; grid-template-rows: auto; }
-      .slot-machine { font-size: 2.8rem; }
-      .slot-window { height: 75px; }
-      body { overflow-y: auto; padding: 20px; }
+    @media (max-width: 1024px) {
+      .dashboard-layout { grid-template-columns: 1fr; grid-template-rows: auto 500px; height: auto; }
+      body { overflow-y: auto; }
     }
   </style>
 </head>
@@ -265,98 +241,112 @@
 
   <!-- Loading Screen -->
   <div id="loader">
-    <div class="chip-loader"></div>
-    <div class="loader-text">THE DEALER IS SHUFFLING...</div>
+    <div class="spinner"></div>
+    <div style="margin-top:20px; color:#888; font-size:0.8rem; letter-spacing:2px;">SYNCING DATA...</div>
   </div>
 
-  <div class="casino-floor">
+  <div class="dashboard-layout">
     
-    <!-- 1. TRUE NET WORTH -->
-    <div class="table-card">
-      <div class="card-title">💎 TRUE NET WORTH</div>
-      <div class="slot-window">
-        <div class="slot-machine theme-gold">
-          <span class="currency-symbol">৳</span>
-          <div id="slot-net" class="reels-container"></div>
+    <!-- LEFT COLUMN: 4 KPI CARDS -->
+    <div class="left-column">
+      
+      <!-- 1. TRUE NET WORTH -->
+      <div class="kpi-card card-gold">
+        <div class="card-title">TRUE NET WORTH</div>
+        <div class="number-display">
+          <div class="slot-machine theme-gold">
+            <span class="currency">৳</span>
+            <div id="slot-net"></div>
+          </div>
+        </div>
+        <div class="sub-info">
+          <div>Balance: <span id="lbl-bal">...</span></div>
+          <div>Total Debt: <span id="lbl-debt">...</span></div>
         </div>
       </div>
-      <div class="sub-info-row">
-        <div>LIQUID: <span class="sub-val" id="lbl-bal">...</span></div>
-        <div>HOUSE DEBT: <span class="debt-val" id="lbl-debt">...</span></div>
+
+      <!-- 2. CASHFLOW -->
+      <div class="kpi-card" id="card-flow">
+        <div class="card-title">CASHFLOW THIS MONTH</div>
+        <div class="number-display">
+          <div class="slot-machine" id="theme-flow">
+            <span class="currency">৳</span>
+            <div id="slot-flow"></div>
+          </div>
+        </div>
+        <div class="insight-container">
+          <div class="flipper" id="flip-flow">
+            <div class="insight-face front">Analyzing cashflow...</div>
+            <div class="insight-face insight-back back">...</div>
+          </div>
+        </div>
       </div>
+
+      <!-- 3. INCOME -->
+      <div class="kpi-card card-green">
+        <div class="card-title">INCOME THIS MONTH</div>
+        <div class="number-display">
+          <div class="slot-machine theme-green">
+            <span class="currency">৳</span>
+            <div id="slot-inc"></div>
+          </div>
+        </div>
+        <div class="insight-container">
+          <div class="flipper" id="flip-inc">
+            <div class="insight-face front">Aggregating income...</div>
+            <div class="insight-face insight-back back">...</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 4. EXPENSE -->
+      <div class="kpi-card card-red">
+        <div class="card-title">EXPENSE THIS MONTH</div>
+        <div class="number-display">
+          <div class="slot-machine theme-red">
+            <span class="currency">৳</span>
+            <div id="slot-exp"></div>
+          </div>
+        </div>
+        <div class="insight-container">
+          <div class="flipper" id="flip-exp">
+            <div class="insight-face front">Tracking expenses...</div>
+            <div class="insight-face insight-back back">...</div>
+          </div>
+        </div>
+      </div>
+
     </div>
 
-    <!-- 2. MONTHLY CASHFLOW -->
-    <div class="table-card">
-      <div class="card-title">⚖️ MONTHLY HAND</div>
-      <div class="slot-window">
-        <div class="slot-machine" id="theme-flow">
-          <span class="currency-symbol">৳</span>
-          <div id="slot-flow" class="reels-container"></div>
-        </div>
-      </div>
-      <div class="dealer-card-container">
-        <div class="dealer-card" id="dealer-flow">
-          <div class="dealer-face front">Reading the table...</div>
-          <div class="dealer-face dealer-back back">Calculating odds...</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- 3. INCOME -->
-    <div class="table-card">
-      <div class="card-title">💵 WINNINGS (IN)</div>
-      <div class="slot-window">
-        <div class="slot-machine theme-green">
-          <span class="currency-symbol">৳</span>
-          <div id="slot-inc" class="reels-container"></div>
-        </div>
-      </div>
-      <div class="dealer-card-container">
-        <div class="dealer-card" id="dealer-inc">
-          <div class="dealer-face front">Counting chips...</div>
-          <div class="dealer-face dealer-back back">...</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- 4. EXPENSE -->
-    <div class="table-card">
-      <div class="card-title">📉 LOSSES (OUT)</div>
-      <div class="slot-window">
-        <div class="slot-machine theme-red">
-          <span class="currency-symbol">৳</span>
-          <div id="slot-exp" class="reels-container"></div>
-        </div>
-      </div>
-      <div class="dealer-card-container">
-        <div class="dealer-card" id="dealer-exp">
-          <div class="dealer-face front">Reviewing the bets...</div>
-          <div class="dealer-face dealer-back back">...</div>
-        </div>
+    <!-- RIGHT COLUMN: BLANK AREA -->
+    <div class="right-column">
+      <div class="blank-chart-box">
+        [ Chart / Graph Area Placeholder ]
       </div>
     </div>
 
   </div>
 
   <script>
+    const FMT = (num) => Math.abs(num).toLocaleString('en-US');
+
     /**
-     * 🎰 CASINO SLOT MACHINE ANIMATION ENGINE
+     * ⚙️ BULLETPROOF SLOT MACHINE ENGINE
+     * Uses strict 50px heights. Impossible to clip or hide numbers.
      */
     class SlotMachine {
       constructor(containerId) {
         this.container = document.getElementById(containerId);
+        this.slotHeight = 50; // Must exactly match CSS --slot-height
       }
 
-      // Pre-fill reels so they look like they are spinning instantly on load
-      prepareSpinning() {
-        this.container.innerHTML = '<div style="font-size:1.5rem; letter-spacing:4px; opacity:0.5; animation:pulse 1s infinite alternate;">SPINNING...</div>';
+      prepare() {
+        this.container.innerHTML = '<div style="font-size:1.5rem; opacity:0.3;">...</div>';
       }
 
       async spinTo(targetValue, isNegative = false) {
-        this.container.innerHTML = ''; // Clear container
+        this.container.innerHTML = ''; 
         
-        // Setup negative sign if applicable
         if (isNegative) {
           const negSign = document.createElement('div');
           negSign.className = 'static-char';
@@ -364,11 +354,9 @@
           this.container.appendChild(negSign);
         }
 
-        // Format number with commas
         const valStr = Math.abs(targetValue).toLocaleString('en-US');
         const stripsToAnimate =[];
 
-        // Build DOM for reels
         for (let i = 0; i < valStr.length; i++) {
           const char = valStr[i];
           
@@ -384,86 +372,120 @@
             const strip = document.createElement('div');
             strip.className = 'reel-strip';
             
-            // Generate standard digits 0-9 repeatedly to simulate long spin
-            // 4 loops of 0-9 = 40 digits
+            // Build 30 random numbers, then the target number at the end
             let sequenceHTML = '';
-            for(let loop = 0; loop < 4; loop++) {
-              for(let d = 0; d <= 9; d++) {
-                sequenceHTML += `<div class="reel-digit">${d}</div>`;
-              }
+            const spins = 30; 
+            for(let loop = 0; loop < spins; loop++) {
+              sequenceHTML += `<div class="reel-digit">${Math.floor(Math.random() * 10)}</div>`;
             }
-            // Append final target digit at the very bottom
-            sequenceHTML += `<div class="reel-digit target-digit">${char}</div>`;
+            sequenceHTML += `<div class="reel-digit">${char}</div>`;
             
             strip.innerHTML = sequenceHTML;
             wrapper.appendChild(strip);
             this.container.appendChild(wrapper);
             
-            stripsToAnimate.push(strip);
+            stripsToAnimate.push({
+              element: strip,
+              // Calculate exactly how far to push up based on fixed height
+              offset: -(spins * this.slotHeight) 
+            });
           }
         }
 
-        // Wait a frame for DOM rendering to measure heights correctly
-        await new Promise(r => requestAnimationFrame(r));
+        // Wait a tick for DOM layout
+        await new Promise(r => setTimeout(r, 50));
 
-        // Trigger Animations sequentially (Left to Right)
-        stripsToAnimate.forEach((strip, index) => {
-          // Calculate offset based on child height
-          const itemHeight = strip.children[0].getBoundingClientRect().height;
-          const totalItems = strip.children.length;
-          const finalOffset = -((totalItems - 1) * itemHeight);
-
-          // Staggering delay for realistic left-to-right reel locking
-          const delay = index * 300; 
-
+        // Animate left to right
+        stripsToAnimate.forEach((item, index) => {
+          const delay = index * 200; 
           setTimeout(() => {
-            // Easing: Pulls back slightly, spins fast, then bounces slightly on lock
-            strip.style.transition = 'transform 3.5s cubic-bezier(0.15, 0.85, 0.2, 1.1)';
-            strip.style.transform = `translateY(${finalOffset}px)`;
-          }, delay + 100);
+            item.element.style.transition = 'transform 3s cubic-bezier(0.15, 0.85, 0.2, 1.05)';
+            item.element.style.transform = `translateY(${item.offset}px)`;
+          }, delay);
         });
       }
     }
 
     /**
-     * 🃏 THE DEALER (Card Flipper Logic)
+     * 🔄 DIRECT INSIGHT FLIPPER
+     * Simple, direct English sentences.
      */
-    class Dealer {
-      constructor(cardId, messages) {
-        this.card = document.getElementById(cardId);
-        this.front = this.card.querySelector('.front');
-        this.back = this.card.querySelector('.back');
-        this.messages = messages || ["All bets settled."];
+    class InsightFlipper {
+      constructor(flipId, messages) {
+        this.flipper = document.getElementById(flipId);
+        this.front = this.flipper.querySelector('.front');
+        this.back = this.flipper.querySelector('.back');
+        this.messages = messages || ["Data updated."];
         this.currentIndex = 0;
       }
 
-      startDealing() {
+      start() {
         if(this.messages.length <= 1) {
             this.front.innerText = this.messages[0];
             return;
         }
-        
         this.front.innerText = this.messages[0];
         
         setInterval(() => {
           this.currentIndex = (this.currentIndex + 1) % this.messages.length;
-          
-          if (!this.card.classList.contains('flipped')) {
+          if (!this.flipper.classList.contains('flipped')) {
             this.back.innerText = this.messages[this.currentIndex];
-            this.card.classList.add('flipped');
+            this.flipper.classList.add('flipped');
           } else {
             this.front.innerText = this.messages[this.currentIndex];
-            this.card.classList.remove('flipped');
+            this.flipper.classList.remove('flipped');
           }
-        }, 7000); // Flips every 7 seconds
+        }, 6000);
       }
+    }
+
+    /**
+     * 🧠 DATA PROCESSING: Overrides Casino Jargon with Direct English
+     */
+    function generateDirectInsights(kpis) {
+      const cur = kpis.current;
+      const last = kpis.last;
+      const avg = kpis.averages;
+
+      const flowDiff = Math.abs(cur.cashflow - avg.flow);
+      const incDiff = Math.abs(cur.income - avg.inc);
+      const expDiff = Math.abs(cur.expense - avg.exp);
+
+      return {
+        cashflow: cur.cashflow >= 0 ?[
+          `You are saving ৳${FMT(cur.cashflow)} this month.`,
+          `Which is ৳${FMT(flowDiff)} ${cur.cashflow > avg.flow ? 'more' : 'less'} than your 6-month average.`,
+          `Cashflow increased by ৳${FMT(Math.abs(cur.cashflow - last.cashflow))} vs last month.`
+        ] :[
+          `You are negative ৳${FMT(cur.cashflow)} this month.`,
+          `You spent more than you earned this period.`,
+          `Missing your usual ৳${FMT(avg.flow)} average savings.`
+        ],
+        income: cur.income >= last.income ?[
+          `Income is ৳${FMT(cur.income)} this month.`,
+          `Which is ৳${FMT(incDiff)} higher than your 6-month average.`,
+          `Earnings are up compared to last month.`
+        ] :[
+          `Income is ৳${FMT(cur.income)} this month.`,
+          `Trailing your 6-month average by ৳${FMT(incDiff)}.`,
+          `Earnings are slightly down vs last month.`
+        ],
+        expense: cur.expense > avg.exp ?[
+          `Expenses are ৳${FMT(cur.expense)} this month.`,
+          `Which is ৳${FMT(expDiff)} higher than your normal average.`,
+          `Spending is elevated this period.`
+        ] :[
+          `Expenses are kept at ৳${FMT(cur.expense)} this month.`,
+          `Which is ৳${FMT(expDiff)} below your normal average.`,
+          `Good job keeping expenses low this period.`
+        ]
+      };
     }
 
     /**
      * 🚀 MAIN INITIALIZATION
      */
-    async function initCasino() {
-      // Instantiate Slots
+    async function init() {
       const slots = {
         net: new SlotMachine('slot-net'),
         flow: new SlotMachine('slot-flow'),
@@ -471,69 +493,71 @@
         exp: new SlotMachine('slot-exp')
       };
 
-      Object.values(slots).forEach(s => s.prepareSpinning());
+      Object.values(slots).forEach(s => s.prepare());
 
       try {
-        // Fetch Data from your Cloudflare Worker
         const res = await fetch('/api?t=' + Date.now());
         if (!res.ok) throw new Error("API Route failed");
         const data = await res.json();
-        
         if(data.backendError) throw new Error(data.backendError);
 
-        // Hide Loader
         document.getElementById('loader').style.opacity = '0';
-        setTimeout(() => document.getElementById('loader').style.display = 'none', 500);
+        setTimeout(() => document.getElementById('loader').style.display = 'none', 400);
 
-        // 1. Trigger Net Worth
+        // 1. Net Worth
         slots.net.spinTo(data.summary.netWorth, data.summary.netWorth < 0);
-        document.getElementById('lbl-bal').innerText = '৳' + data.summary.balance.toLocaleString();
-        document.getElementById('lbl-debt').innerText = '৳' + data.summary.totalDebt.toLocaleString();
+        document.getElementById('lbl-bal').innerText = '৳' + FMT(data.summary.balance);
+        document.getElementById('lbl-debt').innerText = '৳' + FMT(data.summary.totalDebt);
 
-        // 2. Trigger Cashflow & dynamic theme
+        // Translate insights to simple English regardless of what API sends
+        const directInsights = generateDirectInsights(data.kpis);
+
+        // 2. Cashflow
+        const flowCard = document.getElementById('card-flow');
         const flowTheme = document.getElementById('theme-flow');
         if (data.kpis.current.cashflow >= 0) {
+            flowCard.classList.add('card-green');
             flowTheme.classList.add('theme-green');
         } else {
+            flowCard.classList.add('card-red');
             flowTheme.classList.add('theme-red');
         }
         slots.flow.spinTo(data.kpis.current.cashflow, data.kpis.current.cashflow < 0);
-        
-        new Dealer('dealer-flow', data.insights.cashflow).startDealing();
+        new InsightFlipper('flip-flow', directInsights.cashflow).start();
 
-        // 3. Trigger Income
+        // 3. Income
         slots.inc.spinTo(data.kpis.current.income);
-        new Dealer('dealer-inc', data.insights.income).startDealing();
+        new InsightFlipper('flip-inc', directInsights.income).start();
 
-        // 4. Trigger Expense
+        // 4. Expense
         slots.exp.spinTo(data.kpis.current.expense);
-        new Dealer('dealer-exp', data.insights.expense).startDealing();
+        new InsightFlipper('flip-exp', directInsights.expense).start();
 
       } catch (e) {
-        console.error("Casino Systems Error:", e);
+        console.error("System Error:", e);
         
-        // FAILSAFE / DEMO MODE (If API is unreachable, play the animations anyway!)
+        // FALLBACK MOCK DATA FOR TESTING UI
         document.getElementById('loader').style.opacity = '0';
-        setTimeout(() => document.getElementById('loader').style.display = 'none', 500);
+        setTimeout(() => document.getElementById('loader').style.display = 'none', 400);
 
         slots.net.spinTo(1245000);
         document.getElementById('lbl-bal').innerText = "৳245,000";
         document.getElementById('lbl-debt').innerText = "৳12,000";
 
+        document.getElementById('card-flow').classList.add('card-green');
         document.getElementById('theme-flow').classList.add('theme-green');
         slots.flow.spinTo(45200);
-        new Dealer('dealer-flow', ["API Disconnected.", "Loading offline chips...", "Simulated Hand."]).startDealing();
+        new InsightFlipper('flip-flow',["You are saving ৳45,200 this month.", "Which is ৳5,000 more than average."]).start();
 
         slots.inc.spinTo(85000);
-        new Dealer('dealer-inc', ["Fallback data applied.", "The house always wins."]).startDealing();
+        new InsightFlipper('flip-inc',["Income is ৳85,000 this month.", "Earnings are up compared to last month."]).start();
 
         slots.exp.spinTo(39800);
-        new Dealer('dealer-exp', ["Offline tracking active.", "Minimize your losses."]).startDealing();
+        new InsightFlipper('flip-exp',["Expenses are kept at ৳39,800.", "Good job keeping expenses low."]).start();
       }
     }
 
-    // Enter the VIP Lounge
-    window.onload = initCasino;
+    window.onload = init;
   </script>
 </body>
 </html>

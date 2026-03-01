@@ -3,42 +3,41 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Finance Dashboard</title>
+  <title>Sci-Fi Finance HUD</title>
   
-  <!-- Modern Fonts -->
+  <!-- Sci-Fi / Cyber Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;700&family=Space+Mono:wght@700&display=swap" rel="stylesheet">
 
   <style>
-    /* --- 1. CORE VARIABLES & THEME --- */
+    /* --- 1. CORE SCI-FI VARIABLES --- */
     :root {
-      --bg: #191919;
-      --card-bg: #222222;
-      --card-border: #333333;
+      --bg-dark: #03050a;
+      --card-bg: rgba(6, 11, 25, 0.85);
       
-      --gold: #FFD700;
-      --gold-glow: rgba(255, 215, 0, 0.4);
+      --neon-white: #ffffff;
+      --neon-green: #00ff55;
+      --neon-red: #ff0044;
+      --neon-yellow: #fcee0a;
       
-      --neon-green: #00FF66;
-      --green-glow: rgba(0, 255, 102, 0.4);
+      --text-main: #e2e8f0;
+      --text-muted: #64748b;
       
-      --neon-red: #FF0055;
-      --red-glow: rgba(255, 0, 85, 0.4);
-      
-      --text-main: #FFFFFF;
-      --text-muted: #888888;
-      
-      /* Strict dimension for the slot machine to prevent clipping bugs */
       --slot-height: 50px; 
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
-      background-color: var(--bg);
+      background-color: var(--bg-dark);
+      /* Sci-Fi Grid Background */
+      background-image: 
+        linear-gradient(rgba(0, 255, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 255, 255, 0.03) 1px, transparent 1px);
+      background-size: 40px 40px;
       color: var(--text-main);
-      font-family: 'Inter', sans-serif;
+      font-family: 'Rajdhani', sans-serif;
       min-height: 100vh;
       display: flex;
       flex-direction: column;
@@ -46,13 +45,13 @@
       overflow-x: hidden;
     }
 
-    /* --- 2. LAYOUT: 1x4 Left Col, 1 Big Right Col --- */
+    /* --- 2. LAYOUT: 1x4 Left, 1 Big Right --- */
     .dashboard-layout {
       display: grid;
-      grid-template-columns: 350px 1fr; /* Left col fixed width, right col takes remaining */
+      grid-template-columns: 380px 1fr;
       gap: 30px;
       width: 100%;
-      max-width: 1600px;
+      max-width: 1800px;
       margin: 0 auto;
       height: calc(100vh - 60px);
     }
@@ -69,74 +68,131 @@
       height: 100%;
     }
 
-    /* --- 3. MODERN CARDS --- */
+    /* --- 3. SCI-FI HUD CARDS --- */
     .kpi-card {
       background-color: var(--card-bg);
-      border: 1px solid var(--card-border);
-      border-radius: 16px;
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 8px;
       padding: 20px;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
       position: relative;
-      overflow: hidden;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-      transition: transform 0.2s, box-shadow 0.2s;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+      /* Cyberpunk angled corner effect using clip-path */
+      clip-path: polygon(0 0, 100% 0, 100% calc(100% - 15px), calc(100% - 15px) 100%, 0 100%);
     }
-    .kpi-card:hover {
-      transform: translateY(-2px);
-    }
-
-    /* Neon Accent Lines */
-    .kpi-card::before {
-      content: '';
-      position: absolute;
-      top: 0; left: 0; width: 4px; height: 100%;
-    }
-    .card-gold::before { background: var(--gold); box-shadow: 0 0 15px var(--gold-glow); }
-    .card-green::before { background: var(--neon-green); box-shadow: 0 0 15px var(--green-glow); }
-    .card-red::before { background: var(--neon-red); box-shadow: 0 0 15px var(--red-glow); }
 
     .card-title {
-      font-size: 0.8rem;
+      font-size: 1.1rem;
       text-transform: uppercase;
-      letter-spacing: 2px;
-      color: var(--text-muted);
-      font-weight: 600;
+      letter-spacing: 3px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .card-title::before {
+      content: '';
+      display: inline-block;
+      width: 8px; height: 8px;
+      background: currentColor;
+      box-shadow: 0 0 10px currentColor;
     }
 
-    /* --- 4. BULLETPROOF SLOT MACHINE DISPLAY --- */
+    /* Card Specific Neon Accents */
+    .card-white {
+      border-left: 4px solid var(--neon-white);
+      box-shadow: inset 15px 0 30px -15px rgba(255,255,255,0.2);
+    }
+    .card-white .card-title { color: var(--neon-white); text-shadow: 0 0 10px rgba(255,255,255,0.5); }
+
+    .card-green {
+      border-left: 4px solid var(--neon-green);
+      box-shadow: inset 15px 0 30px -15px rgba(0,255,85,0.2);
+    }
+    .card-green .card-title { color: var(--neon-green); text-shadow: 0 0 10px rgba(0,255,85,0.5); }
+
+    .card-red {
+      border-left: 4px solid var(--neon-red);
+      box-shadow: inset 15px 0 30px -15px rgba(255,0,68,0.2);
+    }
+    .card-red .card-title { color: var(--neon-red); text-shadow: 0 0 10px rgba(255,0,68,0.5); }
+
+    /* CASHFLOW: Default Yellow, Breathing Green/Red overrides applied via JS */
+    .card-flow-base {
+      border-left: 4px solid var(--neon-yellow);
+      box-shadow: inset 15px 0 30px -15px rgba(252, 238, 10, 0.2);
+    }
+    .card-flow-base .card-title { color: var(--neon-yellow); text-shadow: 0 0 10px rgba(252, 238, 10, 0.5); }
+
+    /* Breathing Animations */
+    @keyframes breath-green {
+      0% { border-left-color: #004411; box-shadow: inset 15px 0 30px -15px rgba(0,255,85,0.0); }
+      50% { border-left-color: var(--neon-green); box-shadow: inset 15px 0 30px -15px rgba(0,255,85,0.4), 0 0 20px rgba(0,255,85,0.2); }
+      100% { border-left-color: #004411; box-shadow: inset 15px 0 30px -15px rgba(0,255,85,0.0); }
+    }
+    @keyframes breath-red {
+      0% { border-left-color: #440011; box-shadow: inset 15px 0 30px -15px rgba(255,0,68,0.0); }
+      50% { border-left-color: var(--neon-red); box-shadow: inset 15px 0 30px -15px rgba(255,0,68,0.4), 0 0 20px rgba(255,0,68,0.2); }
+      100% { border-left-color: #440011; box-shadow: inset 15px 0 30px -15px rgba(255,0,68,0.0); }
+    }
+
+    .pulse-green { animation: breath-green 2.5s infinite ease-in-out; }
+    .pulse-green .card-title { color: var(--neon-green) !important; text-shadow: 0 0 10px rgba(0,255,85,0.5) !important; }
+    
+    .pulse-red { animation: breath-red 2.5s infinite ease-in-out; }
+    .pulse-red .card-title { color: var(--neon-red) !important; text-shadow: 0 0 10px rgba(255,0,68,0.5) !important; }
+
+
+    /* --- 4. DIGITAL NUMBER DISPLAY (SLOT ENGINE) --- */
     .number-display {
-      background: #111;
-      border-radius: 8px;
-      border: 1px solid #000;
-      box-shadow: inset 0 4px 10px rgba(0,0,0,0.8);
-      height: calc(var(--slot-height) + 20px);
+      background: #020306;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 4px;
+      height: calc(var(--slot-height) + 16px);
       margin: 10px 0;
       display: flex;
       align-items: center;
       padding: 0 15px;
-      overflow: hidden; /* Contains the spinning reels securely */
+      position: relative;
+      overflow: hidden; 
+    }
+
+    /* Hologram Scanlines */
+    .number-display::after {
+      content: "";
+      position: absolute; inset: 0;
+      background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(255,255,255,0.03) 2px,
+        rgba(255,255,255,0.03) 4px
+      );
+      pointer-events: none;
+      z-index: 10;
     }
 
     .slot-machine {
       display: flex;
       align-items: center;
       font-family: 'Space Mono', monospace;
-      font-size: 32px;
-      font-weight: 700;
+      font-size: 34px;
       height: var(--slot-height);
+      position: relative;
+      z-index: 5;
     }
 
     .currency {
-      margin-right: 8px;
+      margin-right: 12px;
       line-height: var(--slot-height);
     }
 
-    /* Individual Reel Elements */
     .reel-wrapper {
       height: var(--slot-height);
-      overflow: hidden; /* Clips exact digit height */
+      overflow: hidden; 
       display: inline-block;
       vertical-align: top;
     }
@@ -149,87 +205,94 @@
     
     .reel-digit, .static-char {
       height: var(--slot-height);
-      line-height: var(--slot-height); /* Mathematically perfect centering */
+      line-height: var(--slot-height);
       display: flex;
       align-items: center;
       justify-content: center;
     }
 
-    /* Neon Themes for Numbers */
-    .theme-gold { color: var(--gold); text-shadow: 0 0 10px var(--gold-glow); }
-    .theme-green { color: var(--neon-green); text-shadow: 0 0 10px var(--green-glow); }
-    .theme-red { color: var(--neon-red); text-shadow: 0 0 10px var(--red-glow); }
+    /* Neon Number Themes */
+    .theme-white { color: var(--neon-white); text-shadow: 0 0 12px rgba(255,255,255,0.8), 0 0 25px rgba(255,255,255,0.4); }
+    .theme-green { color: var(--neon-green); text-shadow: 0 0 12px rgba(0,255,85,0.8), 0 0 25px rgba(0,255,85,0.4); }
+    .theme-red { color: var(--neon-red); text-shadow: 0 0 12px rgba(255,0,68,0.8), 0 0 25px rgba(255,0,68,0.4); }
+    .theme-yellow { color: var(--neon-yellow); text-shadow: 0 0 12px rgba(252,238,10,0.8), 0 0 25px rgba(252,238,10,0.4); }
 
-    /* --- 5. 3D INSIGHT FLIPPER --- */
-    .insight-container {
-      perspective: 1000px;
-      height: 20px;
-      width: 100%;
-    }
-    .flipper {
-      width: 100%; height: 100%;
-      position: relative;
-      transform-style: preserve-3d;
-      transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-    .flipper.flipped { transform: rotateX(180deg); }
-    
-    .insight-face {
-      position: absolute;
-      inset: 0;
-      backface-visibility: hidden;
-      font-size: 0.75rem;
-      color: var(--text-muted);
-      display: flex;
-      align-items: center;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    .insight-back {
-      transform: rotateX(180deg);
-      color: var(--text-main);
-    }
 
-    /* Static sub-info (for Net Worth) */
+    /* --- 5. STATIC SUB-INFO (Net Worth Balance/Debt) --- */
     .sub-info {
       display: flex;
       justify-content: space-between;
-      font-size: 0.75rem;
+      font-size: 0.9rem;
       color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-top: auto;
     }
-    .sub-info span { color: var(--text-main); font-weight: 600; font-family: 'Space Mono', monospace;}
+    .sub-info span { 
+      color: var(--neon-white); 
+      font-weight: 700; 
+      font-family: 'Space Mono', monospace;
+      text-shadow: 0 0 8px rgba(255,255,255,0.3);
+    }
 
-    /* --- 6. BLANK RIGHT COLUMN --- */
+    /* --- 6. BLANK RIGHT COLUMN (SCI-FI STYLE) --- */
     .blank-chart-box {
-      background-color: var(--card-bg);
-      border: 1px dashed #444;
-      border-radius: 16px;
+      background: rgba(6, 11, 25, 0.4);
+      border: 1px solid rgba(0, 255, 255, 0.1);
+      border-radius: 8px;
       width: 100%;
       height: 100%;
       display: flex;
       align-items: center;
       justify-content: center;
-      color: #444;
-      font-size: 1.2rem;
-      letter-spacing: 2px;
+      position: relative;
+      overflow: hidden;
+    }
+    /* Sci-Fi Radar/Targeting aesthetic for empty state */
+    .blank-chart-box::before {
+      content: '';
+      position: absolute;
+      width: 300px; height: 300px;
+      border: 1px dashed rgba(0, 255, 255, 0.2);
+      border-radius: 50%;
+    }
+    .blank-chart-box::after {
+      content: '';
+      position: absolute;
+      width: 100%; height: 1px;
+      background: rgba(0, 255, 255, 0.1);
+    }
+
+    .blank-text {
+      color: rgba(0, 255, 255, 0.3);
+      font-size: 1.5rem;
+      letter-spacing: 6px;
       text-transform: uppercase;
       position: relative;
+      z-index: 2;
     }
 
     /* Loader */
     #loader {
-      position: fixed; inset: 0; background: var(--bg); z-index: 9999;
+      position: fixed; inset: 0; background: var(--bg-dark); z-index: 9999;
       display: flex; flex-direction: column; align-items: center; justify-content: center;
       transition: opacity 0.4s;
     }
-    .spinner {
-      width: 40px; height: 40px;
-      border: 3px solid #333; border-top-color: var(--neon-green);
+    .cyber-spinner {
+      width: 50px; height: 50px;
+      border: 2px solid transparent;
+      border-top-color: var(--neon-yellow);
+      border-bottom-color: var(--neon-yellow);
       border-radius: 50%;
       animation: spin 1s linear infinite;
     }
+    .cyber-spinner::before {
+      content: ''; position: absolute; inset: 5px;
+      border: 2px solid transparent; border-left-color: var(--neon-white); border-right-color: var(--neon-white);
+      border-radius: 50%; animation: spin-reverse 0.5s linear infinite;
+    }
     @keyframes spin { to { transform: rotate(360deg); } }
+    @keyframes spin-reverse { to { transform: rotate(-360deg); } }
 
     @media (max-width: 1024px) {
       .dashboard-layout { grid-template-columns: 1fr; grid-template-rows: auto 500px; height: auto; }
@@ -241,8 +304,8 @@
 
   <!-- Loading Screen -->
   <div id="loader">
-    <div class="spinner"></div>
-    <div style="margin-top:20px; color:#888; font-size:0.8rem; letter-spacing:2px;">SYNCING DATA...</div>
+    <div class="cyber-spinner"></div>
+    <div style="margin-top:20px; color:var(--neon-yellow); font-size:1rem; letter-spacing:4px; text-shadow: 0 0 10px rgba(252,238,10,0.5);">INITIALIZING SYSTEMS...</div>
   </div>
 
   <div class="dashboard-layout">
@@ -250,39 +313,33 @@
     <!-- LEFT COLUMN: 4 KPI CARDS -->
     <div class="left-column">
       
-      <!-- 1. TRUE NET WORTH -->
-      <div class="kpi-card card-gold">
+      <!-- 1. TRUE NET WORTH (WHITE) -->
+      <div class="kpi-card card-white">
         <div class="card-title">TRUE NET WORTH</div>
         <div class="number-display">
-          <div class="slot-machine theme-gold">
+          <div class="slot-machine theme-white">
             <span class="currency">৳</span>
             <div id="slot-net"></div>
           </div>
         </div>
         <div class="sub-info">
-          <div>Balance: <span id="lbl-bal">...</span></div>
-          <div>Total Debt: <span id="lbl-debt">...</span></div>
+          <div>LIQUID: <span id="lbl-bal">...</span></div>
+          <div>DEBT: <span id="lbl-debt">...</span></div>
         </div>
       </div>
 
-      <!-- 2. CASHFLOW -->
-      <div class="kpi-card" id="card-flow">
+      <!-- 2. CASHFLOW (YELLOW BASE, PULSES GREEN/RED) -->
+      <div class="kpi-card card-flow-base" id="card-flow">
         <div class="card-title">CASHFLOW THIS MONTH</div>
         <div class="number-display">
-          <div class="slot-machine" id="theme-flow">
+          <div class="slot-machine theme-yellow" id="theme-flow">
             <span class="currency">৳</span>
             <div id="slot-flow"></div>
           </div>
         </div>
-        <div class="insight-container">
-          <div class="flipper" id="flip-flow">
-            <div class="insight-face front">Analyzing cashflow...</div>
-            <div class="insight-face insight-back back">...</div>
-          </div>
-        </div>
       </div>
 
-      <!-- 3. INCOME -->
+      <!-- 3. INCOME (GREEN) -->
       <div class="kpi-card card-green">
         <div class="card-title">INCOME THIS MONTH</div>
         <div class="number-display">
@@ -291,15 +348,9 @@
             <div id="slot-inc"></div>
           </div>
         </div>
-        <div class="insight-container">
-          <div class="flipper" id="flip-inc">
-            <div class="insight-face front">Aggregating income...</div>
-            <div class="insight-face insight-back back">...</div>
-          </div>
-        </div>
       </div>
 
-      <!-- 4. EXPENSE -->
+      <!-- 4. EXPENSE (RED) -->
       <div class="kpi-card card-red">
         <div class="card-title">EXPENSE THIS MONTH</div>
         <div class="number-display">
@@ -308,20 +359,14 @@
             <div id="slot-exp"></div>
           </div>
         </div>
-        <div class="insight-container">
-          <div class="flipper" id="flip-exp">
-            <div class="insight-face front">Tracking expenses...</div>
-            <div class="insight-face insight-back back">...</div>
-          </div>
-        </div>
       </div>
 
     </div>
 
-    <!-- RIGHT COLUMN: BLANK AREA -->
+    <!-- RIGHT COLUMN: SCI-FI BLANK AREA -->
     <div class="right-column">
       <div class="blank-chart-box">
-        [ Chart / Graph Area Placeholder ]
+        <div class="blank-text">AWAITING VISUALS</div>
       </div>
     </div>
 
@@ -331,17 +376,17 @@
     const FMT = (num) => Math.abs(num).toLocaleString('en-US');
 
     /**
-     * ⚙️ BULLETPROOF SLOT MACHINE ENGINE
-     * Uses strict 50px heights. Impossible to clip or hide numbers.
+     * ⚙️ BULLETPROOF SCI-FI SLOT MACHINE ENGINE
+     * Hard-coded height (50px) perfectly matches CSS to prevent clipping.
      */
     class SlotMachine {
       constructor(containerId) {
         this.container = document.getElementById(containerId);
-        this.slotHeight = 50; // Must exactly match CSS --slot-height
+        this.slotHeight = 50; 
       }
 
       prepare() {
-        this.container.innerHTML = '<div style="font-size:1.5rem; opacity:0.3;">...</div>';
+        this.container.innerHTML = '<div style="font-size:1.5rem; opacity:0.3; letter-spacing:2px;">CALCULATING...</div>';
       }
 
       async spinTo(targetValue, isNegative = false) {
@@ -372,12 +417,13 @@
             const strip = document.createElement('div');
             strip.className = 'reel-strip';
             
-            // Build 30 random numbers, then the target number at the end
+            // Generate random digital scramble effect
             let sequenceHTML = '';
             const spins = 30; 
             for(let loop = 0; loop < spins; loop++) {
               sequenceHTML += `<div class="reel-digit">${Math.floor(Math.random() * 10)}</div>`;
             }
+            // Append final correct digit
             sequenceHTML += `<div class="reel-digit">${char}</div>`;
             
             strip.innerHTML = sequenceHTML;
@@ -386,20 +432,19 @@
             
             stripsToAnimate.push({
               element: strip,
-              // Calculate exactly how far to push up based on fixed height
-              offset: -(spins * this.slotHeight) 
+              offset: -(spins * this.slotHeight) // Perfect mathematical lock
             });
           }
         }
 
-        // Wait a tick for DOM layout
+        // Wait a frame to allow DOM rendering
         await new Promise(r => setTimeout(r, 50));
 
         // Animate left to right
         stripsToAnimate.forEach((item, index) => {
-          const delay = index * 200; 
+          const delay = index * 150; 
           setTimeout(() => {
-            item.element.style.transition = 'transform 3s cubic-bezier(0.15, 0.85, 0.2, 1.05)';
+            item.element.style.transition = 'transform 2.5s cubic-bezier(0.1, 0.9, 0.2, 1)';
             item.element.style.transform = `translateY(${item.offset}px)`;
           }, delay);
         });
@@ -407,83 +452,7 @@
     }
 
     /**
-     * 🔄 DIRECT INSIGHT FLIPPER
-     * Simple, direct English sentences.
-     */
-    class InsightFlipper {
-      constructor(flipId, messages) {
-        this.flipper = document.getElementById(flipId);
-        this.front = this.flipper.querySelector('.front');
-        this.back = this.flipper.querySelector('.back');
-        this.messages = messages || ["Data updated."];
-        this.currentIndex = 0;
-      }
-
-      start() {
-        if(this.messages.length <= 1) {
-            this.front.innerText = this.messages[0];
-            return;
-        }
-        this.front.innerText = this.messages[0];
-        
-        setInterval(() => {
-          this.currentIndex = (this.currentIndex + 1) % this.messages.length;
-          if (!this.flipper.classList.contains('flipped')) {
-            this.back.innerText = this.messages[this.currentIndex];
-            this.flipper.classList.add('flipped');
-          } else {
-            this.front.innerText = this.messages[this.currentIndex];
-            this.flipper.classList.remove('flipped');
-          }
-        }, 6000);
-      }
-    }
-
-    /**
-     * 🧠 DATA PROCESSING: Overrides Casino Jargon with Direct English
-     */
-    function generateDirectInsights(kpis) {
-      const cur = kpis.current;
-      const last = kpis.last;
-      const avg = kpis.averages;
-
-      const flowDiff = Math.abs(cur.cashflow - avg.flow);
-      const incDiff = Math.abs(cur.income - avg.inc);
-      const expDiff = Math.abs(cur.expense - avg.exp);
-
-      return {
-        cashflow: cur.cashflow >= 0 ?[
-          `You are saving ৳${FMT(cur.cashflow)} this month.`,
-          `Which is ৳${FMT(flowDiff)} ${cur.cashflow > avg.flow ? 'more' : 'less'} than your 6-month average.`,
-          `Cashflow increased by ৳${FMT(Math.abs(cur.cashflow - last.cashflow))} vs last month.`
-        ] :[
-          `You are negative ৳${FMT(cur.cashflow)} this month.`,
-          `You spent more than you earned this period.`,
-          `Missing your usual ৳${FMT(avg.flow)} average savings.`
-        ],
-        income: cur.income >= last.income ?[
-          `Income is ৳${FMT(cur.income)} this month.`,
-          `Which is ৳${FMT(incDiff)} higher than your 6-month average.`,
-          `Earnings are up compared to last month.`
-        ] :[
-          `Income is ৳${FMT(cur.income)} this month.`,
-          `Trailing your 6-month average by ৳${FMT(incDiff)}.`,
-          `Earnings are slightly down vs last month.`
-        ],
-        expense: cur.expense > avg.exp ?[
-          `Expenses are ৳${FMT(cur.expense)} this month.`,
-          `Which is ৳${FMT(expDiff)} higher than your normal average.`,
-          `Spending is elevated this period.`
-        ] :[
-          `Expenses are kept at ৳${FMT(cur.expense)} this month.`,
-          `Which is ৳${FMT(expDiff)} below your normal average.`,
-          `Good job keeping expenses low this period.`
-        ]
-      };
-    }
-
-    /**
-     * 🚀 MAIN INITIALIZATION
+     * 🚀 MAIN INITIALIZATION & LOGIC
      */
     async function init() {
       const slots = {
@@ -504,39 +473,36 @@
         document.getElementById('loader').style.opacity = '0';
         setTimeout(() => document.getElementById('loader').style.display = 'none', 400);
 
-        // 1. Net Worth
+        // 1. Net Worth (White)
         slots.net.spinTo(data.summary.netWorth, data.summary.netWorth < 0);
         document.getElementById('lbl-bal').innerText = '৳' + FMT(data.summary.balance);
         document.getElementById('lbl-debt').innerText = '৳' + FMT(data.summary.totalDebt);
 
-        // Translate insights to simple English regardless of what API sends
-        const directInsights = generateDirectInsights(data.kpis);
-
-        // 2. Cashflow
+        // 2. Cashflow Logic (Breathing Green vs Red)
         const flowCard = document.getElementById('card-flow');
         const flowTheme = document.getElementById('theme-flow');
+        
+        flowTheme.classList.remove('theme-yellow'); // Remove default
+
         if (data.kpis.current.cashflow >= 0) {
-            flowCard.classList.add('card-green');
+            flowCard.classList.add('pulse-green');
             flowTheme.classList.add('theme-green');
         } else {
-            flowCard.classList.add('card-red');
+            flowCard.classList.add('pulse-red');
             flowTheme.classList.add('theme-red');
         }
         slots.flow.spinTo(data.kpis.current.cashflow, data.kpis.current.cashflow < 0);
-        new InsightFlipper('flip-flow', directInsights.cashflow).start();
 
-        // 3. Income
+        // 3. Income (Green)
         slots.inc.spinTo(data.kpis.current.income);
-        new InsightFlipper('flip-inc', directInsights.income).start();
 
-        // 4. Expense
+        // 4. Expense (Red)
         slots.exp.spinTo(data.kpis.current.expense);
-        new InsightFlipper('flip-exp', directInsights.expense).start();
 
       } catch (e) {
         console.error("System Error:", e);
         
-        // FALLBACK MOCK DATA FOR TESTING UI
+        // MOCK DATA FALLBACK (If API disconnected, UI still works perfectly)
         document.getElementById('loader').style.opacity = '0';
         setTimeout(() => document.getElementById('loader').style.display = 'none', 400);
 
@@ -544,16 +510,14 @@
         document.getElementById('lbl-bal').innerText = "৳245,000";
         document.getElementById('lbl-debt').innerText = "৳12,000";
 
-        document.getElementById('card-flow').classList.add('card-green');
+        // Test Positive Pulse Logic
+        document.getElementById('card-flow').classList.add('pulse-green');
+        document.getElementById('theme-flow').classList.remove('theme-yellow');
         document.getElementById('theme-flow').classList.add('theme-green');
         slots.flow.spinTo(45200);
-        new InsightFlipper('flip-flow',["You are saving ৳45,200 this month.", "Which is ৳5,000 more than average."]).start();
 
         slots.inc.spinTo(85000);
-        new InsightFlipper('flip-inc',["Income is ৳85,000 this month.", "Earnings are up compared to last month."]).start();
-
         slots.exp.spinTo(39800);
-        new InsightFlipper('flip-exp',["Expenses are kept at ৳39,800.", "Good job keeping expenses low."]).start();
       }
     }
 
